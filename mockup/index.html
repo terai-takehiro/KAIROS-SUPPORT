@@ -8,1548 +8,1530 @@
 <title>KAIROS Support Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* ============================================================
-   KAIROS Support Console — mockup stylesheet
-   Single visual world: broadcast rack / control surface (dark only).
-   Every colour is painted explicitly so the page holds on any host ground.
-   ============================================================ */
+/* ================================================================
+   KAIROS Support Console
+   Target: KAIROS Core 200 + 大型コントロールパネル
+   Visual language: docked panes, hairline rules, no cards, no glow.
+   ================================================================ */
 :root{
   color-scheme: dark;
 
-  /* chassis neutrals — graphite with a blue bias */
-  --chassis:#0C0F13;
-  --panel:#141922;
-  --panel-2:#1B212B;
-  --raise:#232B37;
-  --raise-hi:#2B3542;
-  --edge:#2E3846;
-  --edge-hi:#3E4B5D;
+  --bg:#0E1114;
+  --pane:#13171B;
+  --pane-2:#171B21;
+  --hdr:#1A1F25;
+  --line:#232930;
+  --line-2:#333B44;
 
-  /* ink */
-  --txt:#E7ECF3;
-  --txt-2:#98A5B6;
-  --txt-3:#66717F;
+  --key:#222930;
+  --key-hi:#2B333B;
+  --key-line:#39424C;
 
-  /* accent — signal amber, used only for app state (selection, focus, active tool) */
-  --amber:#FFB020;
-  --amber-lo:rgba(255,176,32,.14);
-  --amber-md:rgba(255,176,32,.34);
+  --txt:#DCE2E8;
+  --txt-2:#8D96A1;
+  --txt-3:#5C646E;
 
-  /* semantic — broadcast conventions, never used as decoration */
-  --pgm:#FF2D46;
-  --pgm-lo:rgba(255,45,70,.16);
-  --pvw:#38D46A;
-  --pvw-lo:rgba(56,212,106,.16);
-  --aux:#4A9EFF;
-  --aux-lo:rgba(74,158,255,.14);
-  --caution:#FF7A2F;
+  --amber:#E8A33D;
+  --amber-lo:rgba(232,163,61,.13);
+  --pgm:#E23B4E;
+  --pgm-lo:rgba(226,59,78,.14);
+  --pvw:#2FBF6B;
+  --pvw-lo:rgba(47,191,107,.13);
+  --info:#5A8FC7;
+  --warn:#D9822B;
 
-  --ff-cond:"Barlow Condensed","Noto Sans JP",system-ui,sans-serif;
-  --ff-ui:"Barlow","Noto Sans JP",system-ui,sans-serif;
-  --ff-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ff:"IBM Plex Sans","IBM Plex Sans JP",system-ui,sans-serif;
+  --ff-m:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 
-  --r:3px;
-  --sh-key:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.5);
+  --grain:none;
 }
 
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
-  margin:0;
-  background:var(--chassis);
-  color:var(--txt);
-  font-family:var(--ff-ui);
-  font-size:14px;
-  line-height:1.45;
-  -webkit-font-smoothing:antialiased;
+  margin:0;background:var(--bg);color:var(--txt);
+  font-family:var(--ff);font-size:13px;line-height:1.4;
+  -webkit-font-smoothing:antialiased;overflow:hidden;
 }
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
-::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-track{background:var(--chassis)}
-::-webkit-scrollbar-thumb{background:var(--raise);border:2px solid var(--chassis);border-radius:6px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+input,select{font:inherit}
+:focus-visible{outline:1px solid var(--amber);outline-offset:1px}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#2A323A;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#3A444E}
 
-.lbl{
-  font-family:var(--ff-cond);
-  font-weight:600;
-  font-size:12px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--txt-3);
+.m{font-family:var(--ff-m);font-variant-numeric:tabular-nums}
+.dim{color:var(--txt-2)}
+.faint{color:var(--txt-3)}
+
+/* ---------------- shell ---------------- */
+.app{height:100%;display:grid;grid-template-rows:34px minmax(0,1fr) auto 22px}
+
+/* top bar: identity + tabs + device */
+.top{
+  display:flex;align-items:stretch;background:#11151A;border-bottom:1px solid var(--line);
 }
-.mono{font-family:var(--ff-mono);font-variant-numeric:tabular-nums}
-
-/* ---------- chassis ---------- */
-.chassis{
-  height:100dvh;
-  min-height:640px;
-  display:grid;
-  grid-template-rows:46px minmax(0,1fr) auto;
+.top__id{
+  display:flex;align-items:center;gap:7px;padding:0 14px 0 12px;border-right:1px solid var(--line);
 }
-
-/* ---------- top rail ---------- */
-.rail-top{
-  display:flex;align-items:center;gap:18px;
-  padding:0 14px;
-  background:linear-gradient(180deg,#171D26,#10151C);
-  border-bottom:1px solid var(--edge);
+.top__id b{font-weight:600;font-size:12.5px;letter-spacing:.02em}
+.top__id i{
+  width:13px;height:13px;border:1.5px solid var(--amber);border-radius:1px;display:block;
+  position:relative;
 }
-.brand{display:flex;align-items:baseline;gap:8px;padding-right:16px;border-right:1px solid var(--edge)}
-.brand b{font-family:var(--ff-cond);font-weight:600;font-size:19px;letter-spacing:.18em;color:var(--txt)}
-.brand span{font-family:var(--ff-cond);font-size:12px;letter-spacing:.2em;color:var(--amber)}
+.top__id i::after{content:"";position:absolute;left:2px;top:2px;right:5px;bottom:5px;background:var(--amber)}
 
-.dev{display:flex;align-items:center;gap:10px;min-width:0}
-.dev__dot{width:8px;height:8px;border-radius:50%;background:var(--pvw);box-shadow:0 0 0 3px rgba(56,212,106,.16);flex:none}
-.dev__name{font-weight:600;white-space:nowrap}
-.dev__ip{color:var(--txt-3);font-size:13px}
-
-.rail-top .spacer{margin-left:auto}
-.stat{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--txt-2);white-space:nowrap}
-.stat b{color:var(--txt);font-weight:500}
-.pill{
-  display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;
-  border:1px solid var(--edge-hi);border-radius:2px;
-  font-family:var(--ff-cond);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
+.tabs{display:flex;align-items:stretch}
+.tab{
+  padding:0 15px;display:flex;align-items:center;color:var(--txt-3);
+  font-size:12.5px;border-right:1px solid var(--line);position:relative;
 }
-.pill--onair{border-color:var(--pgm);color:#fff;background:var(--pgm-lo)}
-.pill--onair::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pgm);animation:tally 1.6s steps(1,end) infinite}
-@keyframes tally{0%,60%{opacity:1}61%,100%{opacity:.25}}
-.pill--ok{border-color:rgba(56,212,106,.5);color:var(--pvw)}
-.tc{font-family:var(--ff-mono);font-size:15px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--txt)}
-
-/* ---------- middle ---------- */
-.mid{display:grid;grid-template-columns:76px minmax(0,1fr);min-height:0}
-
-.rail-left{
-  display:flex;flex-direction:column;gap:2px;padding:8px 6px;
-  background:#10141B;border-right:1px solid var(--edge);
+.tab:hover{color:var(--txt-2);background:#141920}
+.tab[aria-current="page"]{color:var(--txt);background:var(--pane)}
+.tab[aria-current="page"]::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--amber);
 }
-.nav{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-  padding:9px 2px 7px;border-radius:var(--r);
-  color:var(--txt-3);border:1px solid transparent;
-  transition:background .12s ease,color .12s ease;
+.top__r{margin-left:auto;display:flex;align-items:center;gap:0}
+.top__cell{
+  display:flex;align-items:center;gap:7px;padding:0 12px;height:100%;
+  border-left:1px solid var(--line);font-size:12px;color:var(--txt-2);white-space:nowrap;
 }
-.nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.nav span{font-family:var(--ff-cond);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-.nav:hover{background:var(--panel);color:var(--txt-2)}
-.nav[aria-current="page"]{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
-.rail-left .rail-gap{margin-top:auto}
-
-.stage{min-width:0;min-height:0;overflow:auto;padding:14px}
-.view{display:none}
-.view.is-on{display:block}
-
-/* ---------- panels ---------- */
-.pnl{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
-.pnl__hd{
-  display:flex;align-items:center;gap:10px;
-  height:32px;padding:0 10px;
-  background:linear-gradient(180deg,#1C222C,#161B24);
-  border-bottom:1px solid var(--edge);border-radius:var(--r) var(--r) 0 0;
+.top__cell b{color:var(--txt);font-weight:500}
+.led{width:6px;height:6px;border-radius:50%;background:var(--pvw);flex:none}
+.led--red{background:var(--pgm)}
+.onair{
+  padding:0 10px;height:100%;display:flex;align-items:center;gap:7px;background:var(--pgm);
+  color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.1em;
 }
-.pnl__hd .lbl{color:var(--txt-2)}
-.pnl__hd .spacer{margin-left:auto}
-.pnl__bd{padding:10px;min-width:0}
-.pnl__bd--flush{padding:0}
+.onair i{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.8s steps(1,end) infinite}
+@keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.2}}
 
-.btn{
-  height:26px;padding:0 10px;border:1px solid var(--edge-hi);border-radius:2px;
-  background:linear-gradient(180deg,var(--raise-hi),var(--raise));
-  box-shadow:var(--sh-key);
-  font-family:var(--ff-cond);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
-  display:inline-flex;align-items:center;gap:6px;
+/* ---------------- workspace ---------------- */
+.stage{min-height:0;overflow:hidden;background:var(--bg)}
+.view{height:100%;display:none}
+.view.on{display:grid}
+
+.pn{min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--pane);overflow:hidden}
+.pn + .pn{border-left:1px solid var(--line)}
+.pn--stack{display:flex;flex-direction:column}
+.hd{
+  height:25px;flex:none;display:flex;align-items:center;gap:8px;padding:0 9px;
+  background:var(--hdr);border-bottom:1px solid var(--line);
 }
-.btn:hover{color:var(--txt);border-color:#4C5A6D}
-.btn.is-on{background:linear-gradient(180deg,#3A2A08,#2A1E05);border-color:var(--amber);color:var(--amber)}
-.btn--amber{background:linear-gradient(180deg,#FFC24D,#E89400);border-color:#FFD07A;color:#1A1204;font-weight:600}
-.btn--amber:hover{color:#1A1204}
-.btn--wide{height:34px;padding:0 16px;font-size:13px}
-
-.grid-2{display:grid;gap:12px}
-.mono-sm{font-family:var(--ff-mono);font-size:12px;color:var(--txt-2)}
-
-/* ---------- video thumbnails ---------- */
-.mon{position:relative;aspect-ratio:16/9;border-radius:2px;overflow:hidden;background:#05070A;border:1px solid var(--edge)}
-.mon__img{position:absolute;inset:0}
-.mon__cap{
-  position:absolute;left:0;right:0;bottom:0;
-  display:flex;align-items:center;gap:6px;
-  padding:4px 7px;background:linear-gradient(0deg,rgba(4,6,9,.92),rgba(4,6,9,0));
-  font-family:var(--ff-cond);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#DCE3EC;
+.hd h2{
+  margin:0;font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--txt-2);
+  white-space:nowrap;
 }
-.mon__num{font-family:var(--ff-mono);font-size:11px;color:#93A0B1}
-.mon--pgm{border-color:var(--pgm);box-shadow:0 0 0 1px var(--pgm),0 0 22px rgba(255,45,70,.2)}
-.mon--pvw{border-color:var(--pvw);box-shadow:0 0 0 1px var(--pvw)}
-.mon__tag{
-  position:absolute;top:6px;left:6px;height:19px;padding:0 7px;display:flex;align-items:center;
-  font-family:var(--ff-cond);font-size:11px;letter-spacing:.16em;color:#fff;border-radius:1px;
-}
-.mon__tag--pgm{background:var(--pgm)}
-.mon__tag--pvw{background:var(--pvw);color:#06210F}
-.mon__wipe{position:absolute;inset:0;width:0;overflow:hidden}
-.mon__wipe>*{position:absolute;inset:0;width:var(--mw,100%)}
+.hd .sp{margin-left:auto}
+.hd .m{font-size:11px;color:var(--txt-3)}
+.bd{flex:1;min-height:0;overflow:auto}
+.bd--pad{padding:9px}
+.bd--fix{flex:none;overflow:visible}
+.sect{border-top:1px solid var(--line)}
 
-/* generated "video" grounds */
-.v-cam1{background:linear-gradient(155deg,#2B4C6F 0%,#123049 45%,#0A1D2E 100%)}
-.v-cam2{background:linear-gradient(155deg,#4A3B63 0%,#2A2141 48%,#150F24 100%)}
-.v-cam3{background:linear-gradient(155deg,#5A4326 0%,#33260F 50%,#1A1207 100%)}
-.v-cam4{background:linear-gradient(200deg,#1F5049 0%,#123430 50%,#08201C 100%)}
-.v-ptza{background:linear-gradient(140deg,#264A5C 0%,#14313E 60%,#0A1C24 100%)}
-.v-ptzb{background:linear-gradient(140deg,#3D3550 0%,#231E33 60%,#12101B 100%)}
-.v-pc1{background:linear-gradient(180deg,#0E1B2C 0%,#0B1522 100%)}
-.v-pc1::after{content:"";position:absolute;left:12%;top:22%;width:66%;height:12%;background:#8FA6BE;opacity:.5}
-.v-pc2{background:linear-gradient(180deg,#141A22,#0C1017)}
-.v-vtr{background:linear-gradient(120deg,#6B2436 0%,#3A1420 55%,#1A0A10 100%)}
-.v-ram{background:linear-gradient(120deg,#1D3F63 0%,#12253C 60%,#0A1421 100%)}
-.v-srt{background:linear-gradient(160deg,#3C3F1E 0%,#242712 55%,#111206 100%)}
-.v-bars{background:repeating-linear-gradient(90deg,
-  #C0C0C0 0 14.28%,#C0C000 14.28% 28.56%,#00C0C0 28.56% 42.84%,#00C000 42.84% 57.12%,
-  #C000C0 57.12% 71.4%,#C00000 71.4% 85.68%,#0000C0 85.68% 100%)}
-.v-black{background:#05070A}
-.v-still{background:linear-gradient(135deg,#2A2F3A,#161A22)}
-.v-off{background:repeating-linear-gradient(45deg,#12161D 0 6px,#0D1116 6px 12px)}
+/* small controls */
+.b{
+  height:22px;padding:0 8px;border:1px solid var(--line-2);background:#1C2229;color:var(--txt-2);
+  font-size:11.5px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+}
+.b:hover{background:#232A32;color:var(--txt)}
+.b.on{background:var(--amber-lo);border-color:#6E5220;color:var(--amber)}
+.b--go{background:#2A333D;border-color:#44505C;color:var(--txt)}
+.b--w{width:100%;justify-content:center;height:24px}
+.f{
+  height:22px;background:#0C0F13;border:1px solid var(--line-2);color:var(--txt);
+  padding:0 6px;font-size:12px;width:100%;
+}
+select.f{padding:0 4px}
+.row{display:flex;align-items:center;gap:6px}
+.col{display:flex;flex-direction:column;gap:6px}
+
+/* property list */
+.pl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0}
+.pl dt,.pl dd{padding:4px 0;border-bottom:1px solid #1C2128;min-width:0}
+.pl dt{color:var(--txt-3);font-size:11.5px;padding-right:12px;white-space:nowrap}
+.pl dd{margin:0;font-family:var(--ff-m);font-size:11.5px;color:var(--txt);overflow:hidden;text-overflow:ellipsis}
+.pl dd.u{font-family:var(--ff)}
+
+/* tables */
+.tb{width:100%;border-collapse:collapse;font-size:12.5px}
+.tb th{
+  position:sticky;top:0;z-index:1;background:var(--hdr);text-align:left;padding:0 9px;height:24px;
+  font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--txt-3);
+  border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.tb td{padding:0 9px;height:26px;border-bottom:1px solid #1A1F25;white-space:nowrap}
+.tb tbody tr:hover{background:#1A2027}
+.tb tbody tr.sel{background:#232B34;box-shadow:inset 2px 0 0 var(--amber)}
+.tb .n{font-family:var(--ff-m);font-size:11.5px;color:var(--txt-3);width:30px}
+.tb .m{font-size:11.5px;color:var(--txt-2)}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--txt-2)}
+.st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--txt-3);flex:none}
+.st--ok::before{background:var(--pvw)}
+.st--w{color:var(--warn)} .st--w::before{background:var(--warn)}
+.st--x{color:var(--txt-3)}
+.tag{
+  height:16px;padding:0 5px;display:inline-flex;align-items:center;border:1px solid var(--line-2);
+  font-size:10.5px;color:var(--txt-2);letter-spacing:.02em;
+}
+.tag--ip{border-color:#2F4C6B;color:var(--info)}
+.tag--in{border-color:#5C4A24;color:var(--amber)}
+.tag--k{border-color:#2F4C6B;color:var(--info)}
+.tag--d{border-color:#5C4A24;color:var(--amber)}
 </style>
 <style>
-/* ---------- control surface (bolted under the screen, always visible) ---------- */
-.surface{
-  background:linear-gradient(180deg,#121720,#0A0D12);
-  border-top:1px solid var(--edge-hi);
-  box-shadow:0 -12px 24px rgba(0,0,0,.45);
-  padding:9px 12px 11px;
-  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;
+/* ---------------- video surfaces ---------------- */
+.vid{position:relative;overflow:hidden;background:#05070A}
+.vid__i{position:absolute;inset:0}
+.vid::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:var(--grain);opacity:.55;mix-blend-mode:overlay;
 }
-.buses{min-width:0;display:flex;flex-direction:column;gap:6px}
-.bus{display:flex;align-items:center;gap:8px;min-width:0}
-.bus__tag{
-  flex:none;width:52px;height:44px;display:grid;place-items:center;border-radius:2px;
-  font-family:var(--ff-cond);font-size:13px;letter-spacing:.14em;font-weight:600;
-  border:1px solid var(--edge-hi);color:var(--txt-2);background:var(--panel-2);
+.vid::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.55);
 }
-.bus--pgm .bus__tag{border-color:var(--pgm);color:var(--pgm);background:var(--pgm-lo)}
-.bus--pvw .bus__tag{border-color:var(--pvw);color:var(--pvw);background:var(--pvw-lo)}
-.bus__keys{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px;min-width:0}
+.mon{aspect-ratio:16/9;border:1px solid var(--line-2)}
+.mon--pgm{border-color:var(--pgm)}
+.mon--pvw{border-color:var(--pvw)}
+.mon__bar{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;height:20px;display:flex;align-items:center;gap:7px;
+  padding:0 7px;background:rgba(6,9,12,.82);font-size:11.5px;color:#C9D2DB;
+}
+.mon__bar .m{font-size:10.5px;color:#7C8794}
+.mon__t{
+  position:absolute;top:0;left:0;z-index:2;height:17px;padding:0 7px;display:flex;align-items:center;
+  font-size:10.5px;font-weight:600;letter-spacing:.1em;color:#fff;
+}
+.mon__t--pgm{background:var(--pgm)}
+.mon__t--pvw{background:var(--pvw);color:#05230F}
 
-.key{
-  flex:none;width:74px;height:44px;border-radius:2px;
-  border:1px solid var(--edge-hi);
-  background:linear-gradient(180deg,var(--raise-hi),var(--raise));
-  box-shadow:var(--sh-key);
-  display:flex;flex-direction:column;justify-content:center;gap:1px;
-  padding:0 6px;text-align:left;color:var(--txt-2);
-  transition:transform .06s ease;
-}
-.key:hover{border-color:#55647A;color:var(--txt)}
-.key:active{transform:translateY(1px)}
-.key__n{font-family:var(--ff-mono);font-size:10px;color:var(--txt-3);letter-spacing:.04em}
-.key__t{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-.bus--pgm .key.is-on{background:linear-gradient(180deg,#FF4A60,#D01029);border-color:#FF7488;color:#fff;box-shadow:0 0 14px rgba(255,45,70,.45),var(--sh-key)}
-.bus--pgm .key.is-on .key__n{color:rgba(255,255,255,.75)}
-.bus--pvw .key.is-on{background:linear-gradient(180deg,#4CE07E,#159B47);border-color:#7BEDA2;color:#04240F;box-shadow:0 0 12px rgba(56,212,106,.35),var(--sh-key)}
-.bus--pvw .key.is-on .key__n{color:rgba(4,36,15,.7)}
-.key.is-dead{opacity:.45}
+.v1{background:linear-gradient(168deg,#24404F 0%,#132734 52%,#0A161E 100%)}
+.v2{background:linear-gradient(168deg,#3B3550 0%,#211D31 52%,#12101C 100%)}
+.v3{background:linear-gradient(168deg,#4E3A22 0%,#2C210F 52%,#150F07 100%)}
+.v4{background:linear-gradient(200deg,#1D4740 0%,#112E29 52%,#081916 100%)}
+.v5{background:linear-gradient(150deg,#22414F 0%,#122A34 60%,#09181E 100%)}
+.v6{background:linear-gradient(150deg,#35304A 0%,#1E1B2C 60%,#100E18 100%)}
+.v7{background:linear-gradient(180deg,#0D1826 0%,#0A1320 100%)}
+.v7 .vid__i::after{content:"";position:absolute;left:10%;top:20%;width:62%;height:9%;background:#89A0B8;opacity:.42}
+.v8{background:linear-gradient(120deg,#5E2130 0%,#33121C 55%,#17080E 100%)}
+.v9{background:linear-gradient(120deg,#1B3A5B 0%,#102236 60%,#091320 100%)}
+.v10{background:linear-gradient(160deg,#373A1D 0%,#212411 55%,#0F1006 100%)}
+.v11{background:linear-gradient(140deg,#24304A 0%,#151C2C 60%,#0B0F18 100%)}
+.vbars{background:repeating-linear-gradient(90deg,#B4B4B4 0 14.28%,#B4B400 14.28% 28.56%,#00B4B4 28.56% 42.84%,#00B400 42.84% 57.12%,#B400B4 57.12% 71.4%,#B40000 71.4% 85.68%,#0000B4 85.68% 100%)}
+.vblk{background:#05070A}
+.vstl{background:linear-gradient(135deg,#262B33,#14181E)}
+.voff{background:repeating-linear-gradient(45deg,#101419 0 5px,#0C0F13 5px 10px)}
 
-/* transition block */
-.tblock{display:flex;gap:12px;align-items:stretch}
-.tcol{display:flex;flex-direction:column;gap:6px;justify-content:flex-end}
-.tcol .lbl{text-align:center}
-.tbar{
-  width:74px;height:94px;border:1px solid var(--edge-hi);border-radius:2px;
-  background:linear-gradient(180deg,#0E1219,#161C25);
-  position:relative;display:grid;place-items:center;padding:6px;
+/* ---------------- control surface ---------------- */
+.surf{
+  background:#0B0E12;border-top:1px solid var(--line-2);
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
 }
-.tbar input[type=range]{
-  -webkit-appearance:none;appearance:none;background:none;
-  width:84px;height:16px;transform:rotate(-90deg);margin:0;cursor:ns-resize;
+.surf__l{min-width:0;padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.bus{display:flex;align-items:center;gap:7px;min-width:0}
+.bus__l{
+  flex:none;width:44px;height:38px;display:grid;place-items:center;font-size:11px;font-weight:600;
+  letter-spacing:.09em;border:1px solid var(--line-2);color:var(--txt-3);background:#12171C;
 }
-.tbar input[type=range]::-webkit-slider-runnable-track{height:6px;background:#0A0D12;border:1px solid var(--edge);border-radius:3px}
-.tbar input[type=range]::-moz-range-track{height:6px;background:#0A0D12;border:1px solid var(--edge);border-radius:3px}
-.tbar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:34px;margin-top:-15px;border-radius:2px;background:linear-gradient(90deg,#3A4657,#252E3B);border:1px solid #5A6B80;box-shadow:0 2px 6px rgba(0,0,0,.6)}
-.tbar input[type=range]::-moz-range-thumb{width:14px;height:34px;border-radius:2px;background:linear-gradient(90deg,#3A4657,#252E3B);border:1px solid #5A6B80}
-.tbar__pct{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-family:var(--ff-mono);font-size:10px;color:var(--txt-3)}
+.bus--p .bus__l{border-color:#5E2028;color:var(--pgm)}
+.bus--v .bus__l{border-color:#1E5233;color:var(--pvw)}
+.bus__k{display:flex;gap:3px;overflow-x:auto;min-width:0;padding-bottom:1px}
+.k{
+  flex:none;width:64px;height:38px;border:1px solid var(--key-line);background:var(--key);
+  padding:0 5px;display:flex;flex-direction:column;justify-content:center;color:var(--txt-2);
+}
+.k:hover{background:var(--key-hi);color:var(--txt)}
+.k__n{font-family:var(--ff-m);font-size:9.5px;color:var(--txt-3);line-height:1.1}
+.k__t{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bus--p .k.on{background:var(--pgm);border-color:#F26B7A;color:#fff}
+.bus--p .k.on .k__n{color:rgba(255,255,255,.7)}
+.bus--v .k.on{background:var(--pvw);border-color:#63DC97;color:#052611}
+.bus--v .k.on .k__n{color:rgba(5,38,17,.65)}
+.k.off{opacity:.4}
 
-.tkey{
-  width:74px;height:44px;border-radius:2px;border:1px solid var(--edge-hi);
-  background:linear-gradient(180deg,var(--raise-hi),var(--raise));box-shadow:var(--sh-key);
-  font-family:var(--ff-cond);font-size:14px;letter-spacing:.12em;font-weight:600;color:var(--txt-2);
-  display:grid;place-items:center;white-space:nowrap;
+.surf__r{display:flex;gap:9px;padding:8px 10px 8px 0;border-left:1px solid var(--line);padding-left:10px}
+.tg{display:flex;flex-direction:column;gap:4px;justify-content:flex-end}
+.tg__l{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-3);height:12px}
+.nx{height:20px;padding:0 8px;border:1px solid var(--line-2);background:#12171C;color:var(--txt-3);font-size:11px}
+.nx.on{background:var(--amber-lo);border-color:#6E5220;color:var(--amber)}
+.tk{
+  width:62px;height:38px;border:1px solid var(--key-line);background:var(--key);
+  display:grid;place-items:center;font-size:12px;font-weight:600;letter-spacing:.09em;color:var(--txt-2);
 }
-.tkey:hover{color:var(--txt)}
-.tkey--auto{background:linear-gradient(180deg,#FFC24D,#E09000);border-color:#FFD07A;color:#1A1204}
-.tkey--cut{background:linear-gradient(180deg,#F2F5F9,#C6CFDA);border-color:#fff;color:#0C0F13}
-.tkey.is-on{outline:2px solid var(--amber);outline-offset:-3px;color:var(--amber)}
-.tcol--macro .tkey{width:92px}
-.tsel{display:flex;flex-direction:column;gap:4px}
-.tsel button{
-  height:24px;padding:0 9px;border:1px solid var(--edge);border-radius:2px;background:var(--panel-2);
-  font-family:var(--ff-cond);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-3);text-align:left;
+.tk:hover{background:var(--key-hi);color:var(--txt)}
+.tk--a{background:#B8801F;border-color:#E0A63C;color:#120C02}
+.tk--c{background:#C9D2DA;border-color:#EDF2F6;color:#0B0E12}
+.tbarw{
+  width:62px;height:82px;border:1px solid var(--line-2);background:#0A0D11;position:relative;
+  display:grid;place-items:center;
 }
-.tsel button.is-on{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
-.rate{display:flex;align-items:center;gap:6px;justify-content:center}
-.rate input{
-  width:46px;height:24px;background:#0A0D12;border:1px solid var(--edge);border-radius:2px;
-  color:var(--txt);font-family:var(--ff-mono);font-size:12px;text-align:center;
+.tbarw input{
+  -webkit-appearance:none;appearance:none;background:none;margin:0;cursor:ns-resize;
+  width:66px;height:20px;transform:rotate(-90deg);
 }
+.tbarw input::-webkit-slider-runnable-track{height:4px;background:#05070A;border:1px solid var(--line-2)}
+.tbarw input::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:30px;margin-top:-14px;background:#39424C;border:1px solid #5C6874;
+}
+.tbarw input::-moz-range-track{height:4px;background:#05070A;border:1px solid var(--line-2)}
+.tbarw input::-moz-range-thumb{width:16px;height:30px;border-radius:0;background:#39424C;border:1px solid #5C6874}
+.tbarw span{position:absolute;bottom:2px;left:0;right:0;text-align:center;font-family:var(--ff-m);font-size:9.5px;color:var(--txt-3)}
+.rt{display:flex;align-items:center;gap:5px}
+.rt input{width:38px;height:20px;text-align:center;background:#0A0D11;border:1px solid var(--line-2);color:var(--txt);font-family:var(--ff-m);font-size:11px}
 
-/* ---------- switcher view ---------- */
-.sw{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:12px;align-items:start}
-.mons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.scenes{display:flex;gap:6px;flex-wrap:wrap;padding:10px}
-.chip{
-  height:28px;padding:0 12px;border:1px solid var(--edge);border-radius:2px;background:var(--panel-2);
-  color:var(--txt-2);font-size:13px;display:inline-flex;align-items:center;gap:8px;
+/* ---------------- status bar ---------------- */
+.sb{
+  display:flex;align-items:center;background:#0A0D11;border-top:1px solid var(--line);
+  font-size:11px;color:var(--txt-3);
 }
-.chip:hover{border-color:var(--edge-hi);color:var(--txt)}
-.chip.is-on{background:var(--amber-lo);border-color:var(--amber);color:var(--amber);font-weight:500}
-.chip__k{font-family:var(--ff-mono);font-size:11px;opacity:.7}
-
-/* layer stack */
-.layers{display:flex;flex-direction:column}
-.layer{
-  display:grid;grid-template-columns:26px 136px minmax(0,1fr) 104px 70px 70px;
-  align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid #1E2530;
-}
-.layer:last-child{border-bottom:0}
-.layer:hover{background:#181E27}
-.layer__grip{color:var(--txt-3);font-family:var(--ff-mono);font-size:12px;cursor:grab}
-.layer__name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.layer__src{display:flex;align-items:center;gap:7px;min-width:0}
-.layer__sw{width:22px;height:14px;border-radius:1px;flex:none;border:1px solid rgba(255,255,255,.14)}
-.layer__srcname{font-size:13px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tagx{
-  height:19px;padding:0 6px;display:inline-flex;align-items:center;border-radius:1px;
-  font-family:var(--ff-cond);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  border:1px solid var(--edge-hi);color:var(--txt-3);
-}
-.tagx--key{border-color:rgba(74,158,255,.5);color:var(--aux);background:var(--aux-lo)}
-.tagx--dve{border-color:var(--amber-md);color:var(--amber);background:var(--amber-lo)}
-.tagx--bg{border-color:var(--edge-hi);color:var(--txt-3)}
-.onoff{
-  width:70px;height:24px;border-radius:2px;border:1px solid var(--edge-hi);background:var(--panel-2);
-  font-family:var(--ff-cond);font-size:11px;letter-spacing:.12em;color:var(--txt-3);
-}
-.onoff.is-on{background:var(--pgm-lo);border-color:var(--pgm);color:#FF7488}
-.fadr{width:100%;accent-color:var(--amber);height:4px}
-
-/* palettes */
-.pal{display:flex;flex-direction:column;gap:12px}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:13px}
-.kv dt{color:var(--txt-3);font-size:12px}
-.kv dd{margin:0;color:var(--txt);font-family:var(--ff-mono);font-size:12px}
-.sel{
-  width:100%;height:26px;background:#0A0D12;border:1px solid var(--edge);border-radius:2px;
-  color:var(--txt);font-family:var(--ff-ui);font-size:13px;padding:0 6px;
-}
-.swatchrow{display:flex;gap:6px;align-items:center}
-.swatch{width:26px;height:22px;border-radius:1px;border:1px solid rgba(255,255,255,.16)}
+.sb__c{padding:0 10px;height:100%;display:flex;align-items:center;gap:6px;border-right:1px solid var(--line);white-space:nowrap}
+.sb__c b{color:var(--txt-2);font-weight:500}
+.sb__msg{color:var(--txt-2)}
+.sb .sp{margin-left:auto}
+.sb .m{font-size:11px}
+.dirty{color:var(--amber)}
 </style>
 <style>
-/* ---------- sources view ---------- */
-.srcgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;align-items:start}
-table.tbl{width:100%;border-collapse:collapse;font-size:13px}
-.tbl th{
-  position:sticky;top:0;background:#161C25;text-align:left;padding:7px 10px;
-  font-family:var(--ff-cond);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--txt-3);
-  border-bottom:1px solid var(--edge);white-space:nowrap;
+/* ---------------- switcher ---------------- */
+.v-sw{grid-template-columns:minmax(0,1fr) 286px}
+.mons{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 292px;gap:1px;background:var(--line);flex:none}
+.mons > div{background:var(--pane);padding:7px;display:flex;justify-content:center}
+.mons .mon{width:100%;height:auto;max-height:none}
+.mons__st{background:var(--pane);padding:8px 10px;display:flex;flex-direction:column;gap:7px}
+.alert{display:flex;gap:7px;align-items:baseline;font-size:12px;color:var(--txt-2)}
+.alert i{width:5px;height:5px;flex:none;border-radius:50%;background:var(--warn);transform:translateY(-2px)}
+.alert.x i{background:var(--txt-3)}
+.alert b{color:var(--txt);font-weight:500}
+.scn{display:flex;gap:1px;background:var(--line);flex:none;overflow-x:auto}
+.scn button{
+  flex:none;padding:6px 12px;background:var(--pane);color:var(--txt-2);font-size:12px;
+  display:flex;align-items:center;gap:8px;
 }
-.tbl td{padding:7px 10px;border-bottom:1px solid #1C222C;vertical-align:middle}
-.tbl tr:last-child td{border-bottom:0}
-.tbl tbody tr:hover{background:#181E27}
-.tbl tbody tr.is-sel{background:var(--amber-lo);box-shadow:inset 2px 0 0 var(--amber)}
-.tbl .num{font-family:var(--ff-mono);color:var(--txt-3);width:34px}
-.tbl .fmt{font-family:var(--ff-mono);font-size:12px;color:var(--txt-2);white-space:nowrap}
-.dot{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:12.5px}
-.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--txt-3)}
-.dot--ok{color:var(--pvw)} .dot--ok::before{background:var(--pvw)}
-.dot--warn{color:var(--caution)} .dot--warn::before{background:var(--caution)}
-.dot--off{color:var(--txt-3)} .dot--off::before{background:var(--txt-3)}
-.iotype{
-  height:19px;padding:0 7px;display:inline-flex;align-items:center;border-radius:1px;
-  font-family:var(--ff-cond);font-size:11px;letter-spacing:.11em;text-transform:uppercase;
-  border:1px solid var(--edge-hi);color:var(--txt-2);background:var(--panel-2);
-}
-.iotype--ip{border-color:rgba(74,158,255,.45);color:var(--aux)}
-.iotype--int{border-color:var(--amber-md);color:var(--amber)}
+.scn button:hover{background:#1A2027;color:var(--txt)}
+.scn button.on{background:#232B34;color:var(--txt);box-shadow:inset 0 -2px 0 var(--amber)}
+.scn .m{font-size:10.5px;color:var(--txt-3)}
 
-/* ---------- multiview view ---------- */
-.mv{display:grid;grid-template-columns:186px minmax(0,1fr) 274px;gap:12px;align-items:start}
-.mvcanvas{background:#05070A;border:1px solid var(--edge);border-radius:2px;padding:6px;aspect-ratio:16/9;display:grid;gap:5px}
-.pane{
-  position:relative;border:1px solid #212936;border-radius:1px;overflow:hidden;
-  display:block;width:100%;height:100%;min-height:0;
+.ly{
+  display:grid;grid-template-columns:20px minmax(96px,1.1fr) minmax(0,1.4fr) 74px 96px 44px;
+  align-items:center;gap:8px;height:28px;padding:0 9px;border-bottom:1px solid #1A1F25;font-size:12.5px;
 }
-.pane__lbl{
-  position:absolute;left:0;bottom:0;right:0;padding:2px 5px;
-  background:rgba(4,6,9,.78);font-size:11px;font-family:var(--ff-cond);letter-spacing:.08em;
-  text-transform:uppercase;color:#CFD8E3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.ly:hover{background:#1A2027}
+.ly.sel{background:#232B34;box-shadow:inset 2px 0 0 var(--amber)}
+.ly__g{color:var(--txt-3);cursor:grab;font-size:11px}
+.ly__n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ly__s{display:flex;align-items:center;gap:6px;min-width:0;color:var(--txt-2);font-size:12px}
+.ly__c{width:16px;height:11px;flex:none;border:1px solid rgba(255,255,255,.13)}
+.ly__s span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.op{width:100%;height:3px;accent-color:#6E7A88}
+.oa{
+  height:19px;border:1px solid var(--line-2);background:#12171C;color:var(--txt-3);
+  font-size:10px;letter-spacing:.08em;display:grid;place-items:center;
 }
-.pane.is-sel{outline:2px solid var(--amber);outline-offset:-2px;z-index:2}
-.pane.t-pgm{border-color:var(--pgm);box-shadow:inset 0 0 0 1px var(--pgm)}
-.pane.t-pvw{border-color:var(--pvw);box-shadow:inset 0 0 0 1px var(--pvw)}
-.pane__meter{position:absolute;right:2px;top:2px;bottom:14px;width:4px;background:rgba(0,0,0,.5);border-radius:1px;overflow:hidden}
-.pane__meter i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,var(--pvw),var(--amber));display:block}
-.layouts{display:flex;flex-direction:column;gap:6px;padding:10px}
-.lay{
-  display:flex;align-items:center;gap:9px;padding:6px;border:1px solid var(--edge);border-radius:2px;
-  background:var(--panel-2);color:var(--txt-2);font-size:13px;text-align:left;
-}
-.lay.is-on{border-color:var(--amber);background:var(--amber-lo);color:var(--amber)}
-.lay__ico{width:34px;height:20px;display:grid;gap:1.5px;flex:none}
-.lay__ico i{background:currentColor;opacity:.55;display:block;border-radius:1px}
+.oa.on{background:var(--pgm-lo);border-color:#7A2A34;color:#F0788A}
+.hz{display:flex;gap:1px;background:var(--line)}
+.hz > *{background:var(--pane);flex:1;min-width:0}
 
-/* ---------- macro view ---------- */
-.mac{display:grid;grid-template-columns:214px minmax(0,1fr) 372px;gap:12px;align-items:start}
-.blocks{display:flex;flex-direction:column;gap:5px;padding:10px}
-.blk{
-  display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:2px;
-  border:1px solid var(--edge);background:var(--panel-2);color:var(--txt-2);
-  font-size:13px;text-align:left;transition:border-color .12s ease,color .12s ease;
+/* ---------------- multiview ---------------- */
+.v-mv{grid-template-columns:170px minmax(0,1fr) 258px}
+.lay{display:flex;flex-direction:column}
+.lay button{
+  display:flex;align-items:center;gap:9px;padding:7px 9px;color:var(--txt-2);font-size:12px;
+  border-bottom:1px solid #1A1F25;
 }
-.blk:hover{border-color:var(--amber-md);color:var(--txt)}
-.blk__ic{
-  width:22px;height:22px;flex:none;border-radius:2px;display:grid;place-items:center;
-  font-family:var(--ff-cond);font-size:12px;font-weight:600;letter-spacing:.02em;
-  background:var(--raise);color:var(--txt-2);border:1px solid var(--edge-hi);
+.lay button:hover{background:#1A2027;color:var(--txt)}
+.lay button.on{background:#232B34;color:var(--txt);box-shadow:inset 2px 0 0 var(--amber)}
+.lay i{width:26px;height:16px;display:grid;gap:1px;flex:none}
+.lay i b{background:currentColor;opacity:.5}
+.mvw{padding:10px;flex:1;min-height:0;display:flex;justify-content:center}
+.mvc{background:#05070A;border:1px solid var(--line-2);padding:4px;display:grid;gap:3px;aspect-ratio:16/9;height:100%;max-width:100%}
+.pa{position:relative;overflow:hidden;border:1px solid #1B222A;min-height:0}
+.pa__l{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;padding:1px 4px;background:rgba(6,9,12,.8);
+  font-size:10px;color:#BCC6D0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.blk--src .blk__ic{background:rgba(74,158,255,.16);border-color:rgba(74,158,255,.5);color:var(--aux)}
-.blk--trn .blk__ic{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
-.blk--tim .blk__ic{background:rgba(255,122,47,.14);border-color:rgba(255,122,47,.45);color:var(--caution)}
-.blk--io  .blk__ic{background:rgba(56,212,106,.14);border-color:rgba(56,212,106,.45);color:var(--pvw)}
+.pa.sel{outline:1px solid var(--amber);outline-offset:-1px;z-index:3}
+.pa.pgm{border-color:var(--pgm)}
+.pa.pvw{border-color:var(--pvw)}
+.pa__m{position:absolute;z-index:2;right:2px;top:2px;bottom:13px;width:3px;background:rgba(0,0,0,.55)}
+.pa__m i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#2FBF6B,#E8A33D)}
 
-.steps{display:flex;flex-direction:column;padding:8px;gap:6px;min-height:220px}
-.step{
-  display:grid;grid-template-columns:26px 26px minmax(0,1fr) auto;align-items:center;gap:10px;
-  padding:8px 10px;border:1px solid var(--edge);border-radius:2px;
-  background:linear-gradient(180deg,#1A212B,#151A23);
+/* ---------------- macro ---------------- */
+.v-mc{grid-template-columns:196px minmax(0,1fr) 330px}
+.bl{display:flex;flex-direction:column}
+.bl button{
+  display:flex;align-items:center;gap:8px;padding:6px 9px;border-bottom:1px solid #1A1F25;
+  color:var(--txt-2);font-size:12px;
 }
-.step.is-sel{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-md)}
-.step__n{font-family:var(--ff-mono);font-size:12px;color:var(--txt-3);text-align:right}
-.step__body{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.step__verb{font-weight:600;white-space:nowrap}
-.param{
-  height:22px;padding:0 8px;display:inline-flex;align-items:center;gap:6px;border-radius:11px;
-  border:1px dashed var(--edge-hi);background:#0E131A;color:var(--txt);
-  font-size:12.5px;font-family:var(--ff-ui);white-space:nowrap;
+.bl button:hover{background:#1A2027;color:var(--txt)}
+.bl i{width:3px;height:15px;flex:none;background:var(--c,#3A434D)}
+.bl small{margin-left:auto;font-family:var(--ff-m);font-size:9.5px;color:var(--txt-3)}
+
+.trg{display:flex;align-items:center;gap:6px;padding:7px 9px;border-bottom:1px solid var(--line);flex:none}
+.trg .lb{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt-3);margin-right:2px}
+.stp{
+  display:grid;grid-template-columns:22px minmax(0,1fr) 22px;align-items:center;gap:9px;
+  min-height:30px;padding:4px 9px;border-bottom:1px solid #1A1F25;border-left:2px solid var(--c,#3A434D);
 }
-.param:hover{border-style:solid;border-color:var(--amber);color:var(--amber)}
-.param b{font-weight:500}
-.step__x{color:var(--txt-3);font-size:16px;line-height:1;padding:2px 5px;border-radius:2px}
-.step__x:hover{color:var(--pgm);background:var(--pgm-lo)}
-.steps__empty{
-  border:1px dashed var(--edge-hi);border-radius:2px;padding:26px 14px;text-align:center;
-  color:var(--txt-3);font-size:13px;
+.stp:hover{background:#1A2027}
+.stp.sel{background:#232B34}
+.stp__n{font-family:var(--ff-m);font-size:11px;color:var(--txt-3);text-align:right}
+.stp__b{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
+.stp__v{font-size:12.5px;white-space:nowrap}
+.pv{
+  height:19px;padding:0 7px;border:1px solid var(--line-2);background:#0F1419;color:var(--txt);
+  font-size:11.5px;white-space:nowrap;font-family:var(--ff-m);
 }
+.pv:hover{border-color:var(--amber);color:var(--amber)}
+.stp__x{color:var(--txt-3);font-size:13px;text-align:center;line-height:1}
+.stp__x:hover{color:var(--pgm)}
+.empty{padding:22px 12px;text-align:center;color:var(--txt-3);font-size:12px}
 .code{
-  margin:0;padding:10px;background:#080B0F;border-top:1px solid var(--edge);
-  font-family:var(--ff-mono);font-size:11.5px;line-height:1.7;color:#9FB3C8;
-  white-space:pre-wrap;text-indent:-1.6em;padding-left:26px;max-height:300px;overflow-y:auto;
+  margin:0;padding:8px 9px;background:#0A0D11;font-family:var(--ff-m);font-size:11px;line-height:1.65;
+  color:#93A6B8;white-space:pre-wrap;text-indent:-1.5em;padding-left:24px;overflow:auto;flex:1;min-height:0;
 }
-.code .c-path{color:#7FB2E5}
-.code .c-val{color:#F0C070}
-.code .c-cmt{color:#4E5A69}
-.note{font-size:12px;color:var(--txt-3);line-height:1.5}
-.trigger{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--edge);flex-wrap:wrap}
+.c-p{color:#7FA9D4} .c-v{color:#D9AE72} .c-c{color:#4A535E}
 
-/* ---------- panel mapping ---------- */
-.pmap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px;align-items:start}
-.pkeys{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding:10px}
-.pkey{
-  aspect-ratio:1.25;border-radius:2px;border:1px solid var(--edge-hi);
-  background:linear-gradient(180deg,var(--raise-hi),var(--raise));box-shadow:var(--sh-key);
-  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;padding:2px;
-  color:var(--txt-3);
+/* ---------------- panel ---------------- */
+.v-pl{grid-template-columns:minmax(0,1fr) 290px}
+.cp{padding:12px;background:#080A0D;overflow:auto;flex:none;max-height:62%}
+.cpx{
+  border:1px solid #1B2129;background:#0E1216;padding:10px;display:inline-flex;flex-direction:column;gap:10px;
+  min-width:min-content;
 }
-.pkey b{font-size:11.5px;font-weight:500;color:var(--txt-2);text-align:center;line-height:1.15}
-.pkey small{font-family:var(--ff-mono);font-size:9.5px}
-.pkey.is-mapped{border-color:var(--amber-md);background:linear-gradient(180deg,#3A2C0C,#241B06);color:var(--amber)}
-.pkey.is-mapped b{color:var(--amber)}
-.pkey.is-sel{outline:2px solid var(--amber);outline-offset:-3px}
+.cpb{display:flex;gap:11px;align-items:flex-start}
+.cpg{display:flex;flex-direction:column;gap:4px}
+.cpg__t{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-3);height:12px}
+.cpr{display:flex;align-items:center;gap:3px}
+.cpr__l{width:44px;flex:none;font-size:9.5px;letter-spacing:.06em;color:var(--txt-3)}
+.ck{
+  position:relative;width:45px;height:34px;flex:none;border:1px solid var(--key-line);background:var(--key);
+  display:flex;flex-direction:column;justify-content:center;padding:0 3px;overflow:hidden;
+}
+.ck::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--c,transparent)}
+.ck b{font-size:9.5px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.ck small{font-family:var(--ff-m);font-size:8px;color:var(--txt-3);display:block}
+.ck:hover{background:var(--key-hi)}
+.ck.free{background:#12161B;border-color:#232A31}
+.ck.free b{color:#414A54}
+.ck.sel{outline:1px solid var(--amber);outline-offset:-2px}
+.ck.pgmlit{background:var(--pgm);border-color:#F26B7A}
+.ck.pgmlit b,.ck.pgmlit small{color:#fff}
+.ck.pvwlit{background:var(--pvw);border-color:#63DC97}
+.ck.pvwlit b,.ck.pvwlit small{color:#052611}
+.ck--lcd{width:66px;height:38px}
+.ck--sh{width:36px;background:#191F25}
+.cpt{width:56px;height:74px;border:1px solid var(--line-2);background:#0A0D11;position:relative}
+.cpt::after{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:2px;background:#1C232A;transform:translateX(-50%)}
+.cpt i{position:absolute;left:8px;right:8px;top:12px;height:14px;background:#39424C;border:1px solid #5C6874}
+.num{display:grid;grid-template-columns:repeat(3,32px);gap:3px}
+.num button{height:26px;border:1px solid var(--key-line);background:var(--key);color:var(--txt-2);font-size:11px;display:grid;place-items:center}
+.lcdb{width:118px;height:70px;border:1px solid var(--line-2);background:#0A1410;color:#7FD8A6;font-family:var(--ff-m);font-size:10px;padding:5px 6px;line-height:1.5}
 
-/* ---------- audio ---------- */
-.strips{display:flex;gap:8px;padding:12px;overflow-x:auto}
-.strip{
-  flex:none;width:86px;background:var(--panel-2);border:1px solid var(--edge);border-radius:2px;
-  padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;
+.shsw{display:flex;gap:1px;background:var(--line)}
+.shsw button{padding:3px 10px;background:#12171C;color:var(--txt-3);font-size:11px}
+.shsw button.on{background:#2A323B;color:var(--txt)}
+
+/* ---------------- audio ---------------- */
+.v-au{grid-template-columns:minmax(0,1fr)}
+.str{display:flex;gap:1px;background:var(--line);overflow-x:auto;flex:none}
+.stc{
+  flex:none;width:76px;background:var(--pane);padding:7px 5px;display:flex;flex-direction:column;
+  align-items:center;gap:6px;
 }
-.strip__nm{font-size:12px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.meter{width:9px;height:118px;background:#080B0F;border:1px solid var(--edge);border-radius:1px;position:relative;overflow:hidden}
-.meter i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#159B47 0%,var(--pvw) 55%,var(--amber) 80%,var(--pgm) 100%)}
-.mrow{display:flex;gap:5px;align-items:flex-end}
-.vfad{
+.stc.mst{background:#171C22}
+.stc__n{font-size:11px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mtr{width:7px;height:104px;background:#07090C;border:1px solid var(--line);position:relative;overflow:hidden}
+.mtr i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#1B8A4C 0%,#2FBF6B 60%,#E8A33D 84%,#E23B4E 100%)}
+.mrw{display:flex;gap:4px;align-items:flex-end}
+.vf{
   -webkit-appearance:none;appearance:none;writing-mode:vertical-lr;direction:rtl;
-  width:24px;height:118px;margin:0;background:none;cursor:ns-resize;accent-color:var(--amber);
+  width:20px;height:104px;margin:0;background:none;cursor:ns-resize;
 }
-.vfad::-webkit-slider-runnable-track{width:6px;background:#0A0D12;border:1px solid var(--edge);border-radius:3px}
-.vfad::-webkit-slider-thumb{
-  -webkit-appearance:none;width:22px;height:13px;border-radius:2px;margin-left:-8px;
-  background:linear-gradient(180deg,#46536580,#252E3B);border:1px solid #6A7B90;box-shadow:0 2px 5px rgba(0,0,0,.6);
-}
-.strip__db{font-family:var(--ff-mono);font-size:11px;color:var(--txt-2)}
-.strip__btns{display:flex;gap:3px}
-.mini{
-  width:36px;height:20px;border:1px solid var(--edge-hi);border-radius:2px;background:var(--raise);
-  font-family:var(--ff-cond);font-size:10px;letter-spacing:.04em;color:var(--txt-3);
-}
-.mini.is-on{background:var(--pgm-lo);border-color:var(--pgm);color:#FF7488}
-.mini.is-afv{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
+.vf::-webkit-slider-runnable-track{width:4px;background:#07090C;border:1px solid var(--line-2)}
+.vf::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:11px;margin-left:-7px;background:#39424C;border:1px solid #5C6874}
+.stc__d{font-family:var(--ff-m);font-size:10.5px;color:var(--txt-2)}
+.mn{width:34px;height:17px;border:1px solid var(--line-2);background:#12171C;color:var(--txt-3);font-size:9.5px;display:grid;place-items:center}
+.mn.on{background:var(--pgm-lo);border-color:#7A2A34;color:#F0788A}
+.mn.afv{background:var(--amber-lo);border-color:#6E5220;color:var(--amber)}
 
-/* ---------- misc ---------- */
-.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-.hint{
-  display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border-radius:2px;
-  background:var(--amber-lo);border:1px solid var(--amber-md);color:#E9D6AE;font-size:12.5px;line-height:1.5;
-}
-.hint b{color:var(--amber);font-weight:600}
-.vhead{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
-.vhead h1{font-family:var(--ff-cond);font-size:22px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin:0;color:var(--txt)}
-.vhead p{margin:0;color:var(--txt-3);font-size:13px}
-@media (prefers-reduced-motion:reduce){
-  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
-}
-@media (max-width:1180px){
-  .sw,.srcgrid,.mv,.mac,.pmap{grid-template-columns:minmax(0,1fr)}
-  .mv,.mac{gap:12px}
-}
+/* ---------------- setup ---------------- */
+.v-st{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
 </style>
 
-<div class="chassis">
+<div class="app">
 
-  <!-- ================= TOP RAIL ================= -->
-  <header class="rail-top">
-    <div class="brand"><b>KAIROS</b><span>SUPPORT</span></div>
-
-    <div class="dev">
-      <i class="dev__dot" aria-hidden="true"></i>
-      <span class="dev__name">KAIROS Core 100</span>
-      <span class="dev__ip mono">192.168.10.20</span>
-    </div>
-
-    <span class="pill pill--ok">接続中</span>
-    <span class="stat">プロジェクト <b>ホールA_定期公演</b></span>
-
-    <div class="spacer"></div>
-
-    <span class="stat">基準信号 <b>1080/59.94p</b></span>
-    <span class="stat">同期 <b class="mono">Black Burst</b></span>
-    <span class="tc" id="tc">10:24:51:12</span>
-    <span class="pill pill--onair">On Air</span>
-  </header>
-
-  <!-- ================= MIDDLE ================= -->
-  <div class="mid">
-    <nav class="rail-left" aria-label="ワークスペース">
-      <button class="nav" data-view="switcher" aria-current="page">
-        <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg>
-        <span>Switch</span>
-      </button>
-      <button class="nav" data-view="sources">
-        <svg viewBox="0 0 24 24"><path d="M4 7h11"/><path d="m12 4 3 3-3 3"/><path d="M20 17H9"/><path d="m12 14-3 3 3 3"/></svg>
-        <span>Source</span>
-      </button>
-      <button class="nav" data-view="multiview">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 12h18M12 12v8M12 4v8"/></svg>
-        <span>Multi</span>
-      </button>
-      <button class="nav" data-view="macro">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/><path d="M7 10v4a3 3 0 0 0 3 3h3"/></svg>
-        <span>Macro</span>
-      </button>
-      <button class="nav" data-view="panel">
-        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 9h2M11 9h2M15 9h2M7 14h10"/></svg>
-        <span>Panel</span>
-      </button>
-      <button class="nav" data-view="audio">
-        <svg viewBox="0 0 24 24"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="9" r="2"/><circle cx="12" cy="15" r="2"/><circle cx="18" cy="8" r="2"/></svg>
-        <span>Audio</span>
-      </button>
-      <div class="rail-gap"></div>
-      <button class="nav" data-view="setup">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg>
-        <span>Setup</span>
-      </button>
+  <!-- ============ top ============ -->
+  <div class="top">
+    <div class="top__id"><i></i><b>KAIROS SUPPORT</b></div>
+    <nav class="tabs">
+      <button class="tab" data-v="sw" aria-current="page">スイッチャー</button>
+      <button class="tab" data-v="sr">入力</button>
+      <button class="tab" data-v="mv">マルチビュー</button>
+      <button class="tab" data-v="mc">マクロ</button>
+      <button class="tab" data-v="pl">パネル</button>
+      <button class="tab" data-v="au">音声</button>
+      <button class="tab" data-v="st">設定</button>
     </nav>
-
-    <main class="stage">
-
-      <!-- ---------- SWITCHER ---------- -->
-      <section class="view is-on" id="v-switcher">
-        <div class="vhead"><h1>Switcher</h1><p id="swSub">シーン「メイン PGM」／ レイヤー 6 枚</p></div>
-        <div class="sw">
-          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
-            <div class="mons">
-              <div class="pnl">
-                <div class="pnl__hd"><span class="lbl">Preview</span><span class="spacer"></span><span class="mono-sm" id="pvwFmt">1080/59.94p</span></div>
-                <div class="pnl__bd">
-                  <div class="mon mon--pvw">
-                    <div class="mon__img" id="imgPvw"></div>
-                    <span class="mon__tag mon__tag--pvw">PVW</span>
-                    <div class="mon__cap"><span class="mon__num" id="numPvw">02</span><span id="capPvw">CAM2 サイド</span></div>
-                  </div>
-                </div>
-              </div>
-              <div class="pnl">
-                <div class="pnl__hd"><span class="lbl">Program</span><span class="spacer"></span><span class="mono-sm" id="pgmFmt">1080/59.94p</span></div>
-                <div class="pnl__bd">
-                  <div class="mon mon--pgm">
-                    <div class="mon__img" id="imgPgm"></div>
-                    <div class="mon__img" id="imgPgmNext" style="opacity:0"></div>
-                    <span class="mon__tag mon__tag--pgm">PGM</span>
-                    <div class="mon__cap"><span class="mon__num" id="numPgm">01</span><span id="capPgm">CAM1 センター</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">Scenes</span><span class="spacer"></span>
-                <button class="btn">＋ シーン追加</button></div>
-              <div class="pnl__bd pnl__bd--flush"><div class="scenes" id="sceneChips"></div></div>
-            </div>
-
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">Layer Stack</span><span class="spacer"></span>
-                <span class="mono-sm">上が前面</span><button class="btn">＋ レイヤー</button></div>
-              <div class="pnl__bd pnl__bd--flush"><div class="layers" id="layerList"></div></div>
-            </div>
-          </div>
-
-          <aside class="pal">
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">Transition</span></div>
-              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
-                <label class="lbl" for="trType">効果</label>
-                <select class="sel" id="trType">
-                  <option value="mix">MIX（ディゾルブ）</option>
-                  <option value="wipe">WIPE（左→右）</option>
-                  <option value="dve">DVE（プッシュ）</option>
-                </select>
-                <dl class="kv">
-                  <dt>デュレーション</dt><dd id="trDur">30 フレーム / 0.5 秒</dd>
-                  <dt>対象レイヤー</dt><dd>Background</dd>
-                  <dt>次のトランジション</dt><dd id="trNext">BKGD</dd>
-                </dl>
-                <div class="hint"><span>💡</span><span><b>ここがATEM流。</b>KAIROSのレイヤー単位トランジションを、いつもの「BKGD＋KEY」の考え方で操作できます。</span></div>
-              </div>
-            </div>
-
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">Key 1 — L3</span><span class="spacer"></span>
-                <button class="btn is-on" id="k1On">On Air</button></div>
-              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
-                <select class="sel"><option>クロマキー</option><option>ルミナンスキー</option><option selected>リニアキー（フィル＋キー）</option></select>
-                <dl class="kv">
-                  <dt>フィル</dt><dd>IP7 — PC1 スライド</dd>
-                  <dt>キー</dt><dd>IP8 — PC1 アルファ</dd>
-                  <dt>クリップ / ゲイン</dt><dd>12.0 / 48.0</dd>
-                </dl>
-                <div class="swatchrow"><span class="lbl">ボーダー</span>
-                  <i class="swatch" style="background:#FFB020"></i>
-                  <i class="swatch" style="background:#E7ECF3"></i>
-                  <i class="swatch" style="background:#4A9EFF"></i>
-                </div>
-              </div>
-            </div>
-
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">Snapshot</span><span class="spacer"></span><span class="mono-sm">保存 8 / 32</span></div>
-              <div class="pnl__bd">
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px" id="snapGrid"></div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- ---------- SOURCES ---------- -->
-      <section class="view" id="v-sources">
-        <div class="vhead"><h1>Sources</h1><p>入力の名前・色・バス配置を1画面で。KAIROS Creator の入力定義とパネル配置をまとめて扱います。</p></div>
-        <div class="srcgrid">
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">Input Inventory</span><span class="spacer"></span>
-              <button class="btn">NDI 自動検出</button><button class="btn">CSV 読み込み</button></div>
-            <div class="pnl__bd pnl__bd--flush" style="overflow:auto;max-height:60vh">
-              <table class="tbl">
-                <thead><tr>
-                  <th>#</th><th>名前</th><th>種別</th><th>フォーマット</th><th>状態</th><th>バス</th><th>色</th>
-                </tr></thead>
-                <tbody id="srcRows"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <aside style="display:flex;flex-direction:column;gap:12px">
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">選択中の入力</span></div>
-              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:10px">
-                <div class="mon" style="aspect-ratio:16/9"><div class="mon__img" id="srcPrev"></div>
-                  <div class="mon__cap"><span class="mon__num" id="srcPrevNum">01</span><span id="srcPrevName">CAM1 センター</span></div></div>
-                <dl class="kv" id="srcMeta"></dl>
-                <div style="display:flex;gap:6px"><button class="btn">PVW に出す</button><button class="btn">名前を変更</button></div>
-              </div>
-            </div>
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">配置アシスト</span></div>
-              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
-                <p class="note">よく使う並びをワンクリックで。パネルのキー番号とマルチビューのペイン番号も一緒に付け替えます。</p>
-                <button class="btn btn--wide">カメラ優先で並べ替え</button>
-                <button class="btn btn--wide">中継・リモートを右端へ</button>
-                <button class="btn btn--wide">未接続の入力を隠す</button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- ---------- MULTIVIEW ---------- -->
-      <section class="view" id="v-multiview">
-        <div class="vhead"><h1>Multiview</h1><p>ペインを選んでソースを差し替えるだけ。タリー枠・音声メーター・ラベルは自動で付いてきます。</p></div>
-        <div class="mv">
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">Layout</span></div>
-            <div class="pnl__bd pnl__bd--flush"><div class="layouts" id="layoutList"></div></div>
-          </div>
-
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">MV 1 — 出力 SDI 5</span><span class="spacer"></span>
-              <span class="mono-sm" id="mvName">4×4 / 16 ペイン</span></div>
-            <div class="pnl__bd"><div class="mvcanvas" id="mvCanvas"></div></div>
-          </div>
-
-          <aside class="pnl">
-            <div class="pnl__hd"><span class="lbl">ペイン設定</span><span class="spacer"></span><span class="mono-sm" id="paneNo">—</span></div>
-            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:10px">
-              <label class="lbl" for="paneSrc">ソース</label>
-              <select class="sel" id="paneSrc"></select>
-              <label class="lbl" for="paneLbl">ラベル</label>
-              <input class="sel" id="paneLbl" value="CAM1">
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" checked> タリー枠を表示</label>
-                <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" checked> 音声メーターを重ねる</label>
-                <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox"> セーフエリアを表示</label>
-              </div>
-              <div class="hint"><span>💡</span><span>ペインをドラッグすると入れ替え。<b>結合</b>で2×2の大画面ペインになります。</span></div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- ---------- MACRO ---------- -->
-      <section class="view" id="v-macro">
-        <div class="vhead"><h1>Macro</h1><p>ブロックを並べるだけ。KAIROS のコマンド列は下の欄に自動で書き出されます。</p></div>
-        <div class="mac">
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">ブロック</span></div>
-            <div class="pnl__bd pnl__bd--flush">
-              <div class="blocks" id="blockPalette"></div>
-            </div>
-          </div>
-
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">Macro 07</span><span class="spacer"></span>
-              <span class="mono-sm" id="stepCount">6 ステップ</span></div>
-
-            <div class="trigger">
-              <span class="lbl">起動条件</span>
-              <button class="chip is-on" data-trig="key">パネルキー <span class="chip__k">MACRO 7</span></button>
-              <button class="chip" data-trig="gpi">GPI 入力 <span class="chip__k">IN 2</span></button>
-              <button class="chip" data-trig="tc">タイムコード</button>
-              <button class="chip" data-trig="manual">手動のみ</button>
-            </div>
-
-            <div class="pnl__bd pnl__bd--flush">
-              <div class="steps" id="stepList"></div>
-            </div>
-
-            <div class="pnl__hd" style="border-top:1px solid var(--edge);border-bottom:0">
-              <button class="btn btn--amber">テスト実行</button>
-              <button class="btn">1 ステップずつ確認</button>
-              <span class="spacer"></span>
-              <button class="btn" id="undoStep">元に戻す</button>
-              <button class="btn">Core に書き込み</button>
-            </div>
-          </div>
-
-          <aside style="display:flex;flex-direction:column;gap:12px">
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">ステップ設定</span><span class="spacer"></span><span class="mono-sm" id="selStepNo">—</span></div>
-              <div class="pnl__bd" id="stepProps" style="display:flex;flex-direction:column;gap:9px"></div>
-            </div>
-
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">生成コマンド</span><span class="spacer"></span>
-                <button class="btn" id="copyCmd">コピー</button></div>
-              <pre class="code" id="cmdOut"></pre>
-              <div class="pnl__bd">
-                <p class="note">手で書くと事故りやすい行を、ブロックの並びからそのまま書き出します。
-                  ※ 表記は Core のファームウェアに合わせて確定させる想定のサンプルです。</p>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- ---------- PANEL ---------- -->
-      <section class="view" id="v-panel">
-        <div class="vhead"><h1>Panel</h1><p>KAIROS Control 1M/E のキーに、作った操作を貼り付けます。</p></div>
-        <div class="pmap">
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">User Keys — 上段バンク</span><span class="spacer"></span>
-              <span class="mono-sm">バンク A</span><button class="btn">バンク B</button></div>
-            <div class="pnl__bd pnl__bd--flush"><div class="pkeys" id="panelKeys"></div></div>
-          </div>
-          <aside style="display:flex;flex-direction:column;gap:12px">
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">割り当てる機能</span></div>
-              <div class="pnl__bd pnl__bd--flush"><div class="blocks" id="assignList"></div></div>
-            </div>
-            <div class="pnl">
-              <div class="pnl__hd"><span class="lbl">キーの見え方</span></div>
-              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
-                <p class="note">割り当て済みのキーはアンバーで点灯。押している間だけ有効／トグルの切り替えもここで。</p>
-                <div style="display:flex;gap:6px"><button class="btn is-on">トグル</button><button class="btn">モーメンタリ</button></div>
-                <button class="btn btn--wide">パネル配置を印刷用に書き出す</button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- ---------- AUDIO ---------- -->
-      <section class="view" id="v-audio">
-        <div class="vhead"><h1>Audio</h1><p>映像のバスに音を追従させる（AFV）か、独立で持つか。フェーダーの並びは Sources と同じ順番です。</p></div>
-        <div class="pnl">
-          <div class="pnl__hd"><span class="lbl">Mixer</span><span class="spacer"></span>
-            <span class="mono-sm">Master −3.0 dB</span><button class="btn is-on">AFV 連動</button></div>
-          <div class="pnl__bd pnl__bd--flush"><div class="strips" id="audioStrips"></div></div>
-        </div>
-
-        <div class="split" style="margin-top:12px">
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">AFV の対応</span><span class="spacer"></span>
-              <span class="mono-sm">映像 → 音声</span></div>
-            <div class="pnl__bd pnl__bd--flush">
-              <table class="tbl">
-                <thead><tr><th>映像ソース</th><th>音声 CH</th><th>動作</th></tr></thead>
-                <tbody>
-                  <tr><td>CAM1 センター</td><td class="fmt">CH 1</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
-                  <tr><td>CAM2 サイド</td><td class="fmt">CH 2</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
-                  <tr><td>PC1 スライド</td><td class="fmt">CH 8</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
-                  <tr><td>VTR / 番宣</td><td class="fmt">CH 9</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
-                  <tr><td>ワイヤレス 1 / 2</td><td class="fmt">CH 6 · 7</td><td><span class="dot dot--warn">常時オープン（手動）</span></td></tr>
-                  <tr><td>リモート中継</td><td class="fmt">CH 10</td><td><span class="dot dot--warn">常時オープン（手動）</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">出力ルーティング</span></div>
-            <div class="pnl__bd pnl__bd--flush">
-              <table class="tbl">
-                <thead><tr><th>バス</th><th>行き先</th><th>備考</th></tr></thead>
-                <tbody>
-                  <tr><td class="fmt">MIX 1</td><td>SDI OUT 1 — 収録</td><td style="color:var(--txt-3)">テロップ・SE 込み</td></tr>
-                  <tr><td class="fmt">MIX 2</td><td>配信エンコーダー</td><td style="color:var(--txt-3)">クリーンフィード</td></tr>
-                  <tr><td class="fmt">AUX 1</td><td>楽屋モニター</td><td style="color:var(--txt-3)">PGM 追従</td></tr>
-                  <tr><td class="fmt">AUX 2</td><td>会場スピーカー</td><td style="color:var(--txt-3)">中継音を除外</td></tr>
-                  <tr><td class="fmt">MADI 1-2</td><td>音声卓へ返し</td><td style="color:var(--txt-3)">−20 dBFS 基準</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ---------- SETUP ---------- -->
-      <section class="view" id="v-setup">
-        <div class="vhead"><h1>Setup</h1><p>現場に入る前の準備をここに集約します。</p></div>
-        <div class="split">
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">接続</span></div>
-            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
-              <dl class="kv">
-                <dt>Core</dt><dd>192.168.10.20 : 20020</dd>
-                <dt>Control パネル</dt><dd>192.168.10.31</dd>
-                <dt>プロトコル</dt><dd>KAIROS 制御 / REST</dd>
-                <dt>応答</dt><dd>3.2 ms</dd>
-              </dl>
-              <button class="btn btn--wide">接続テスト</button>
-            </div>
-          </div>
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">プロジェクト</span></div>
-            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
-              <p class="note">Core 上の設定と、この端末の編集内容の差分を出してから書き込みます。上書き事故を防ぐための一手間です。</p>
-              <button class="btn btn--wide">差分を確認して書き込み</button>
-              <button class="btn btn--wide">現在の設定を取り込む</button>
-              <button class="btn btn--wide">テンプレートとして保存</button>
-            </div>
-          </div>
-          <div class="pnl">
-            <div class="pnl__hd"><span class="lbl">テンプレート</span></div>
-            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:6px">
-              <button class="chip" style="justify-content:flex-start">3カメ配信 標準セット</button>
-              <button class="chip" style="justify-content:flex-start">ホールA 定期公演</button>
-              <button class="chip" style="justify-content:flex-start">スポーツ 4カメ＋リプレイ</button>
-              <button class="chip" style="justify-content:flex-start">セミナー（PC切替中心）</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </main>
+    <div class="top__r">
+      <span class="top__cell"><i class="led"></i>Core 200 <b class="m">192.168.10.20</b></span>
+      <span class="top__cell">1080/59.94p</span>
+      <span class="top__cell m" id="tc">10:24:51:12</span>
+      <span class="onair"><i></i>ON AIR</span>
+    </div>
   </div>
 
-  <!-- ================= CONTROL SURFACE ================= -->
-  <footer class="surface">
-    <div class="buses">
-      <div class="bus bus--pgm">
-        <div class="bus__tag">PGM</div>
-        <div class="bus__keys" id="pgmKeys"></div>
-      </div>
-      <div class="bus bus--pvw">
-        <div class="bus__tag">PVW</div>
-        <div class="bus__keys" id="pvwKeys"></div>
-      </div>
-    </div>
+  <!-- ============ workspace ============ -->
+  <div class="stage">
 
-    <div class="tblock">
-      <div class="tcol tsel" style="justify-content:flex-end">
-        <span class="lbl">Next</span>
-        <button class="is-on" data-next="bkgd">BKGD</button>
-        <button data-next="key1">KEY 1</button>
-        <button data-next="key2">KEY 2</button>
-      </div>
+    <!-- ---------- switcher ---------- -->
+    <section class="view v-sw on" id="w-sw">
+      <div class="pn">
+        <div class="hd"><h2>モニター</h2><span class="sp"></span><span class="m" id="monFmt">1080/59.94p</span></div>
+        <div class="bd bd--fix">
+          <div class="mons">
+            <div>
+              <div class="vid mon mon--pvw">
+                <div class="vid__i" id="imPvw"></div>
+                <span class="mon__t mon__t--pvw">PVW</span>
+                <div class="mon__bar"><span class="m" id="nPvw">02</span><span id="cPvw">CAM2 上手</span></div>
+              </div>
+            </div>
+            <div>
+              <div class="vid mon mon--pgm">
+                <div class="vid__i" id="imPgm"></div>
+                <div class="vid__i" id="imNext" style="opacity:0"></div>
+                <span class="mon__t mon__t--pgm">PGM</span>
+                <div class="mon__bar"><span class="m" id="nPgm">01</span><span id="cPgm">CAM1 センター</span></div>
+              </div>
+            </div>
+            <div class="mons__st">
+              <dl class="pl">
+                <dt>収録</dt><dd>REC 00:42:18</dd>
+                <dt>配信</dt><dd>LIVE 6.0 Mbps</dd>
+                <dt>RAM 残り</dt><dd>1 / 2 系統</dd>
+                <dt>ストレージ</dt><dd>412 GB</dd>
+              </dl>
+              <div class="alert"><i></i><span><b>CAM5</b> フォーマット不一致 1080/59.94i</span></div>
+              <div class="alert"><i></i><span><b>PTZ2</b> NDI 帯域 91%</span></div>
+              <div class="alert x"><i></i><span><b>PC2</b> 未結線</span></div>
+              <div class="alert x"><i></i><span><b>中継B</b> 待機のみ</span></div>
+            </div>
+          </div>
+        </div>
 
-      <div class="tcol">
-        <span class="lbl">T-Bar</span>
-        <div class="tbar">
-          <input type="range" id="tbar" min="0" max="100" value="0" aria-label="Tバー">
-          <span class="tbar__pct mono" id="tbarPct">0%</span>
+        <div class="hd sect"><h2>シーン</h2><span class="sp"></span><button class="b">複製</button><button class="b">追加</button></div>
+        <div class="bd bd--fix"><div class="scn" id="scn"></div></div>
+
+        <div class="hz" style="flex:1;min-height:0">
+          <div class="pn" style="flex:1">
+            <div class="hd"><h2>レイヤー</h2><span class="sp"></span><span class="m">上＝前面</span><button class="b">追加</button></div>
+            <div class="bd" id="layers"></div>
+          </div>
+          <div class="pn" style="flex:none;width:322px">
+            <div class="hd"><h2>AUX 出力</h2><span class="sp"></span><span class="m">12 系統</span></div>
+            <div class="bd"><table class="tb"><tbody id="auxRows"></tbody></table></div>
+          </div>
         </div>
       </div>
 
-      <div class="tcol">
-        <div class="rate"><span class="lbl">Rate</span><input class="mono" id="rate" value="30"></div>
-        <button class="tkey tkey--auto" id="btnAuto">AUTO</button>
-        <button class="tkey tkey--cut" id="btnCut">CUT</button>
+      <div class="pn">
+        <div class="hd"><h2>トランジション</h2></div>
+        <div class="bd bd--fix bd--pad col">
+          <div class="row"><select class="f" id="trType">
+            <option value="mix">MIX</option><option value="wipe">WIPE 左→右</option><option value="dve">DVE プッシュ</option>
+          </select></div>
+          <dl class="pl">
+            <dt>デュレーション</dt><dd id="trDur">30F / 0.50s</dd>
+            <dt>対象</dt><dd>Background</dd>
+            <dt>NEXT</dt><dd id="trNext">BKGD</dd>
+          </dl>
+        </div>
+
+        <div class="hd sect"><h2>キー 1</h2><span class="sp"></span><button class="b on" id="k1">ON AIR</button></div>
+        <div class="bd bd--fix bd--pad col">
+          <select class="f"><option>リニア（フィル＋キー）</option><option>クロマ</option><option>ルミナンス</option></select>
+          <dl class="pl">
+            <dt>フィル</dt><dd>IP08 PC1 講演資料</dd>
+            <dt>キー</dt><dd>IP09 PC1 KEY</dd>
+            <dt>クリップ</dt><dd>12.0</dd>
+            <dt>ゲイン</dt><dd>48.0</dd>
+            <dt>マスク</dt><dd class="u">なし</dd>
+          </dl>
+        </div>
+
+        <div class="hd sect"><h2>スナップショット</h2><span class="sp"></span><span class="m" id="snapN">8 / 64</span></div>
+        <div class="bd" id="snaps"></div>
+      </div>
+    </section>
+
+    <!-- ---------- sources ---------- -->
+    <section class="view v-sw" id="w-sr">
+      <div class="pn">
+        <div class="hd"><h2>入力一覧</h2><span class="sp"></span>
+          <span class="m" id="srcCount"></span>
+          <button class="b">NDI 検出</button><button class="b">取り込み</button></div>
+        <div class="bd"><table class="tb">
+          <thead><tr><th>#</th><th>名前</th><th>接続</th><th>種別</th><th>フォーマット</th><th>状態</th><th>KAIROS 名</th></tr></thead>
+          <tbody id="srcRows"></tbody>
+        </table></div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>入力</h2><span class="sp"></span><span class="m" id="srcSelNo">01</span></div>
+        <div class="bd bd--fix bd--pad col">
+          <div class="vid mon"><div class="vid__i" id="srcPrev"></div>
+            <div class="mon__bar"><span class="m" id="srcPrevN">01</span><span id="srcPrevT">CAM1 センター</span></div></div>
+          <dl class="pl" id="srcMeta"></dl>
+          <div class="row"><button class="b b--w">PVW</button><button class="b b--w">名前変更</button></div>
+        </div>
+        <div class="hd sect"><h2>並べ替え</h2></div>
+        <div class="bd bd--pad col">
+          <button class="b b--w">カメラを先頭へ</button>
+          <button class="b b--w">未接続を末尾へ</button>
+          <button class="b b--w">パネル番号を振り直す</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- multiview ---------- -->
+    <section class="view v-mv" id="w-mv">
+      <div class="pn">
+        <div class="hd"><h2>レイアウト</h2></div>
+        <div class="bd"><div class="lay" id="layouts"></div></div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>MV1 — SDI OUT 7</h2><span class="sp"></span><span class="m" id="mvInfo"></span></div>
+        <div class="mvw"><div class="mvc" id="mvc"></div></div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>ペイン</h2><span class="sp"></span><span class="m" id="paneNo">01</span></div>
+        <div class="bd bd--fix bd--pad col">
+          <select class="f" id="paneSrc"></select>
+          <input class="f" id="paneLbl" value="CAM1">
+          <dl class="pl">
+            <dt>タリー枠</dt><dd class="u">表示</dd>
+            <dt>音声メーター</dt><dd class="u">重ねる</dd>
+            <dt>セーフエリア</dt><dd class="u">非表示</dd>
+          </dl>
+        </div>
+        <div class="hd sect"><h2>操作</h2></div>
+        <div class="bd bd--pad col">
+          <button class="b b--w">ペインを結合（2×2）</button>
+          <button class="b b--w">ラベルを入力名に合わせる</button>
+          <button class="b b--w">MV2 に複製</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- macro ---------- -->
+    <section class="view v-mc" id="w-mc">
+      <div class="pn">
+        <div class="hd"><h2>マクロ</h2><span class="sp"></span><button class="b">新規</button></div>
+        <div class="bd bd--fix" style="max-height:236px;overflow:auto"><div class="bl" id="macList"></div></div>
+        <div class="hd sect"><h2>ブロック</h2></div>
+        <div class="bd"><div class="bl" id="palette"></div></div>
       </div>
 
-      <div class="tcol tcol--macro">
-        <span class="lbl">Macro</span>
-        <button class="tkey" id="macroRun">MACRO 7</button>
-        <button class="tkey" id="ftb">FTB</button>
+      <div class="pn">
+        <div class="hd"><h2 id="macTitle">M07 OP → 2ボックス</h2><span class="sp"></span><span class="m" id="stepN"></span></div>
+        <div class="trg">
+          <span class="lb">起動</span>
+          <button class="b on" data-trig>パネル USER 07</button>
+          <button class="b" data-trig>GPI IN 2</button>
+          <button class="b" data-trig>タイムコード</button>
+          <button class="b" data-trig>手動</button>
+        </div>
+        <div class="bd" id="steps"></div>
+        <div class="hd sect"><button class="b b--go" id="mTest">テスト実行</button><button class="b">1 ステップ実行</button>
+          <span class="sp"></span><button class="b" id="mUndo">元に戻す</button><button class="b">Core へ書込</button></div>
+      </div>
+
+      <div class="pn">
+        <div class="hd"><h2>ステップ</h2><span class="sp"></span><span class="m" id="stepSel">—</span></div>
+        <div class="bd bd--fix bd--pad col" id="stepProp"></div>
+        <div class="hd sect"><h2>生成コマンド</h2><span class="sp"></span><button class="b" id="cpCmd">コピー</button></div>
+        <pre class="code" id="cmd"></pre>
+      </div>
+    </section>
+
+    <!-- ---------- panel ---------- -->
+    <section class="view v-pl" id="w-pl">
+      <div class="pn">
+        <div class="hd"><h2>コントロールパネル — 大型</h2><span class="sp"></span>
+          <div class="shsw" id="shsw"><button class="on" data-sh="0">通常</button><button data-sh="1">SHIFT</button></div>
+          <span class="m" id="plStat"></span></div>
+        <div class="cp"><div class="cpx" id="cpx"></div></div>
+        <div class="hd sect"><h2>割当一覧</h2><span class="sp"></span>
+          <button class="b" id="fltFree">未割り当てのみ</button>
+          <button class="b">印刷用に書き出す</button></div>
+        <div class="bd" style="flex:1;min-height:0">
+          <table class="tb">
+            <thead><tr><th>行</th><th>キー</th><th>通常</th><th>SHIFT</th></tr></thead>
+            <tbody id="cpList"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>キー</h2><span class="sp"></span><span class="m" id="ckNo">—</span></div>
+        <div class="bd bd--fix bd--pad col" id="ckProp"></div>
+        <div class="hd sect"><h2>割り当てる</h2></div>
+        <div class="bd"><div class="bl" id="assign"></div></div>
+      </div>
+    </section>
+
+    <!-- ---------- audio ---------- -->
+    <section class="view v-au" id="w-au">
+      <div class="pn">
+        <div class="hd"><h2>ミキサー</h2><span class="sp"></span><span class="m">MASTER −3.0 dB</span><button class="b on">AFV</button></div>
+        <div class="bd bd--fix"><div class="str" id="strips"></div></div>
+        <div class="hz" style="flex:1;min-height:0">
+          <div class="pn" style="border-left:0">
+            <div class="hd"><h2>AFV 対応</h2></div>
+            <div class="bd"><table class="tb">
+              <thead><tr><th>映像</th><th>CH</th><th>動作</th></tr></thead>
+              <tbody>
+                <tr><td>CAM1 センター</td><td class="m">1</td><td><span class="st st--ok">PGM 追従</span></td></tr>
+                <tr><td>CAM2 上手</td><td class="m">2</td><td><span class="st st--ok">PGM 追従</span></td></tr>
+                <tr><td>CAM4 ハンディ</td><td class="m">4</td><td><span class="st st--ok">PGM 追従</span></td></tr>
+                <tr><td>PC1 講演資料</td><td class="m">8</td><td><span class="st st--ok">PGM 追従</span></td></tr>
+                <tr><td>VTR / MP1</td><td class="m">13</td><td><span class="st st--ok">PGM 追従</span></td></tr>
+                <tr><td>ワイヤレス 1・2</td><td class="m">17 / 18</td><td><span class="st st--w">常時開放</span></td></tr>
+                <tr><td>中継A</td><td class="m">11</td><td><span class="st st--w">常時開放</span></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+          <div class="pn">
+            <div class="hd"><h2>出力</h2></div>
+            <div class="bd"><table class="tb">
+              <thead><tr><th>バス</th><th>行き先</th><th>備考</th></tr></thead>
+              <tbody>
+                <tr><td class="m">MIX 1</td><td>SDI OUT 1 収録</td><td class="faint">SE・テロップ込み</td></tr>
+                <tr><td class="m">MIX 2</td><td>配信エンコーダー</td><td class="faint">クリーン</td></tr>
+                <tr><td class="m">AUX 1</td><td>楽屋モニター</td><td class="faint">PGM 追従</td></tr>
+                <tr><td class="m">AUX 2</td><td>場内 SR</td><td class="faint">中継音カット</td></tr>
+                <tr><td class="m">MADI 1-2</td><td>音声卓返し</td><td class="faint">−20 dBFS</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- setup ---------- -->
+    <section class="view v-st" id="w-st">
+      <div class="pn">
+        <div class="hd"><h2>接続</h2></div>
+        <div class="bd bd--pad col">
+          <dl class="pl">
+            <dt>Core</dt><dd>KAIROS Core 200</dd>
+            <dt>アドレス</dt><dd>192.168.10.20</dd>
+            <dt>パネル</dt><dd>大型 / 192.168.10.31</dd>
+            <dt>応答</dt><dd>3.2 ms</dd>
+            <dt>ファームウェア</dt><dd>要確認</dd>
+          </dl>
+          <button class="b b--w">接続テスト</button>
+        </div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>プロジェクト</h2></div>
+        <div class="bd bd--pad col">
+          <dl class="pl">
+            <dt>名前</dt><dd class="u">ホールA 定期公演</dd>
+            <dt>更新</dt><dd>08-29 10:02</dd>
+            <dt>未書込</dt><dd id="stDirty">0 件</dd>
+          </dl>
+          <button class="b b--w b--go">差分を確認して書込</button>
+          <button class="b b--w">Core から取り込み</button>
+          <button class="b b--w">テンプレート保存</button>
+        </div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>テンプレート</h2></div>
+        <div class="bd">
+          <table class="tb"><tbody>
+            <tr><td>ホールA 定期公演</td><td class="m faint">08-22</td></tr>
+            <tr><td>3カメ配信 標準</td><td class="m faint">07-30</td></tr>
+            <tr><td>スポーツ 4カメ＋RAM</td><td class="m faint">06-11</td></tr>
+            <tr><td>セミナー PC 中心</td><td class="m faint">05-28</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ control surface ============ -->
+  <div class="surf">
+    <div class="surf__l">
+      <div class="bus bus--p"><div class="bus__l">PGM</div><div class="bus__k" id="kPgm"></div></div>
+      <div class="bus bus--v"><div class="bus__l">PVW</div><div class="bus__k" id="kPvw"></div></div>
+    </div>
+    <div class="surf__r">
+      <div class="tg">
+        <span class="tg__l">Bank</span>
+        <button class="nx on" id="bank0">01-12</button>
+        <button class="nx" id="bank1">13-24</button>
+      </div>
+      <div class="tg">
+        <span class="tg__l">Next</span>
+        <button class="nx on" data-nx>BKGD</button>
+        <button class="nx" data-nx>KEY 1</button>
+        <button class="nx" data-nx>KEY 2</button>
+      </div>
+      <div class="tg">
+        <span class="tg__l">T-Bar</span>
+        <div class="tbarw"><input type="range" id="tbar" min="0" max="100" value="0" aria-label="Tバー"><span id="tbarP">0%</span></div>
+      </div>
+      <div class="tg">
+        <span class="tg__l">Rate</span>
+        <div class="rt"><input class="m" id="rate" value="30"><span class="faint">F</span></div>
+        <button class="tk tk--a" id="bAuto">AUTO</button>
+        <button class="tk tk--c" id="bCut">CUT</button>
+      </div>
+      <div class="tg">
+        <span class="tg__l">User</span>
+        <button class="tk" id="bMacro">M07</button>
+        <button class="tk" id="bFtb">FTB</button>
       </div>
     </div>
-  </footer>
+  </div>
+
+  <!-- ============ status ============ -->
+  <div class="sb">
+    <span class="sb__c sb__msg" id="msg">準備完了</span>
+    <span class="sb__c">未書込 <b id="dirty" class="m">0</b></span>
+    <span class="sb__c">選択 <b id="selInfo">CAM1 センター</b></span>
+    <span class="sp"></span>
+    <span class="sb__c">入力 <b class="m">24</b></span>
+    <span class="sb__c">シーン <b class="m" id="sbScene">5</b></span>
+    <span class="sb__c">マクロ <b class="m">12</b></span>
+    <span class="sb__c m" id="sbTc">10:24:51:12</span>
+  </div>
 </div>
 
 <script>
-/* ============================================================
-   KAIROS Support Console — mockup behaviour
-   Everything here is local state; no device is contacted.
-   ============================================================ */
+/* ================================================================
+   KAIROS Support Console — mockup behaviour (no device is contacted)
+   ================================================================ */
 (function(){
 "use strict";
-const $  = (s,r)=> (r||document).querySelector(s);
-const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
-const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $=(s,r)=>(r||document).querySelector(s), $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ---------- data ---------- */
-const SOURCES = [
-  {n:"01", id:"IP1",  name:"CAM1 センター",     short:"CAM1",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"AK-UC3300 / 光カメ 1", v:"v-cam1",  c:"#2B4C6F"},
-  {n:"02", id:"IP2",  name:"CAM2 サイド",       short:"CAM2",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"AK-UC3300 / 光カメ 2", v:"v-cam2",  c:"#4A3B63"},
-  {n:"03", id:"IP3",  name:"CAM3 ハンディ",     short:"CAM3",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"AG-CX350 / 無線伝送",  v:"v-cam3",  c:"#5A4326"},
-  {n:"04", id:"IP4",  name:"CAM4 俯瞰",         short:"CAM4",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"固定 / 天井吊り",      v:"v-cam4",  c:"#1F5049"},
-  {n:"05", id:"IP5",  name:"PTZ-A 客席",        short:"PTZ-A", type:"NDI HX3",   ip:true,  fmt:"1080/59.94p", st:"ok",   note:"AW-UE100 / PoE",       v:"v-ptza",  c:"#264A5C"},
-  {n:"06", id:"IP6",  name:"PTZ-B 舞台袖",      short:"PTZ-B", type:"NDI HX3",   ip:true,  fmt:"1080/59.94p", st:"warn", note:"帯域 92% / 要確認",    v:"v-ptzb",  c:"#3D3550"},
-  {n:"07", id:"IP7",  name:"PC1 スライド",      short:"PC1",   type:"ST 2110-20",ip:true,  fmt:"1080/60p",    st:"ok",   note:"講演資料 / キーあり",  v:"v-pc1",   c:"#0E1B2C"},
-  {n:"08", id:"IP8",  name:"PC2 予備",          short:"PC2",   type:"ST 2110-20",ip:true,  fmt:"—",           st:"off",  note:"未接続",               v:"v-pc2",   c:"#141A22"},
-  {n:"09", id:"MP1",  name:"VTR / 番宣",        short:"VTR",   type:"メディア",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"メディアプレーヤー 1", v:"v-vtr",   c:"#6B2436"},
-  {n:"10", id:"RAM1", name:"RAM プレーヤー 1",  short:"RAM1",  type:"RAM",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"リプレイ 8 秒",        v:"v-ram",   c:"#1D3F63"},
-  {n:"11", id:"SRT1", name:"リモート中継",      short:"中継",  type:"SRT",       ip:true,  fmt:"1080/59.94p", st:"ok",   note:"遅延 800 ms",          v:"v-srt",   c:"#3C3F1E"},
-  {n:"12", id:"BAR",  name:"カラーバー",        short:"BARS",  type:"内部",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"内部生成",             v:"v-bars",  c:"#C0C000"},
-  {n:"13", id:"BLK",  name:"ブラック",          short:"BLACK", type:"内部",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"内部生成",             v:"v-black", c:"#05070A"},
-  {n:"14", id:"STL1", name:"スチル 1",          short:"STILL", type:"内部",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"スチルストア",         v:"v-still", c:"#2A2F3A"}
-];
-
-const SCENES = [
-  {name:"メイン PGM", key:"F1", layers:[
-    {nm:"Logo Bug",        src:13, kind:"dve", on:true,  op:100},
-    {nm:"Key 2 — 帯テロップ", src:12, kind:"key", on:false, op:100},
-    {nm:"Key 1 — L3",      src:6,  kind:"key", on:true,  op:100},
-    {nm:"DVE ボックス B",   src:4,  kind:"dve", on:false, op:100},
-    {nm:"DVE ボックス A",   src:1,  kind:"dve", on:false, op:100},
-    {nm:"Background",      src:0,  kind:"bg",  on:true,  op:100}
-  ]},
-  {name:"2ボックス対談", key:"F2", layers:[
-    {nm:"Key 1 — 名前スーパー", src:6, kind:"key", on:true, op:100},
-    {nm:"DVE 右",  src:1, kind:"dve", on:true, op:100},
-    {nm:"DVE 左",  src:0, kind:"dve", on:true, op:100},
-    {nm:"背景 CG", src:13, kind:"bg", on:true, op:100},
-    {nm:"Background", src:12, kind:"bg", on:true, op:100}
-  ]},
-  {name:"リプレイ", key:"F3", layers:[
-    {nm:"リプレイ枠", src:13, kind:"dve", on:true, op:90},
-    {nm:"スロー再生", src:9,  kind:"bg",  on:true, op:100},
-    {nm:"Background", src:12, kind:"bg",  on:true, op:100}
-  ]},
-  {name:"スポンサー", key:"F4", layers:[
-    {nm:"ロゴ",  src:13, kind:"dve", on:true, op:100},
-    {nm:"静止画", src:8, kind:"bg", on:true, op:100}
-  ]},
-  {name:"客席ワイド", key:"F5", layers:[
-    {nm:"Key 1 — L3", src:6, kind:"key", on:false, op:100},
-    {nm:"Background", src:4, kind:"bg",  on:true,  op:100}
-  ]}
-];
-
-const SNAPS = ["OP_ワイド","2ボックス","講演_PC1","客席_引き","リプレイ待機","スポンサー","質疑応答","エンド"];
-
-/* ---------- state ---------- */
-const S = {pgm:0, pvw:1, scene:0, tr:"mix", rate:30, src:0, mvLayout:"16", pane:0, step:0, pkey:0};
-
-/* ---------- helpers ---------- */
-const src = i => SOURCES[i];
-function fmtSec(f){ return (f/60).toFixed(2).replace(/0$/,"") + " 秒"; }
-function toast(msg){
-  let t = $("#toast");
-  if(!t){
-    t = document.createElement("div"); t.id="toast";
-    t.style.cssText="position:fixed;left:50%;bottom:210px;transform:translateX(-50%);z-index:99;"+
-      "padding:9px 16px;border:1px solid #FFB020;background:#241B06;color:#FFB020;border-radius:2px;"+
-      "font-family:var(--ff-ui);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .15s";
-    document.body.appendChild(t);
+/* film grain for the monitor surfaces */
+(function grain(){
+  const c=document.createElement("canvas"); c.width=c.height=72;
+  const x=c.getContext("2d"), d=x.createImageData(72,72);
+  for(let i=0;i<d.data.length;i+=4){
+    const v=190+Math.random()*130|0;
+    d.data[i]=d.data[i+1]=d.data[i+2]=v; d.data[i+3]=26;
   }
-  t.textContent = msg; t.style.opacity = "1";
-  clearTimeout(t._h); t._h = setTimeout(()=>{ t.style.opacity="0"; }, 1600);
+  x.putImageData(d,0,0);
+  document.documentElement.style.setProperty("--grain","url("+c.toDataURL()+")");
+})();
+
+/* ---------------- data ---------------- */
+const SRC=[
+ {n:"01",id:"IP01",nm:"CAM1 センター",sh:"CAM1",cn:"SDI IN 1",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"AK-UC3300",v:"v1",c:"#24404F"},
+ {n:"02",id:"IP02",nm:"CAM2 上手",sh:"CAM2",cn:"SDI IN 2",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"AK-UC3300",v:"v2",c:"#3B3550"},
+ {n:"03",id:"IP03",nm:"CAM3 下手",sh:"CAM3",cn:"SDI IN 3",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"AK-UC3300",v:"v3",c:"#4E3A22"},
+ {n:"04",id:"IP04",nm:"CAM4 ハンディ",sh:"CAM4",cn:"SDI IN 4",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"無線伝送 / 遅延 2F",v:"v4",c:"#1D4740"},
+ {n:"05",id:"IP05",nm:"CAM5 客席後方",sh:"CAM5",cn:"SDI IN 5",tp:"3G-SDI",ip:0,fmt:"1080/59.94i",st:"w",no:"フォーマット不一致",v:"v5",c:"#22414F"},
+ {n:"06",id:"IP06",nm:"PTZ1 舞台袖",sh:"PTZ1",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"ok",no:"AW-UE100",v:"v6",c:"#35304A"},
+ {n:"07",id:"IP07",nm:"PTZ2 天吊り",sh:"PTZ2",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"w",no:"帯域 91%",v:"v6",c:"#35304A"},
+ {n:"08",id:"IP08",nm:"PC1 講演資料",sh:"PC1",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",no:"HDMI→IP 変換",v:"v7",c:"#0D1826"},
+ {n:"09",id:"IP09",nm:"PC1 KEY",sh:"PC1K",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",no:"アルファ",v:"vstl",c:"#262B33"},
+ {n:"10",id:"IP10",nm:"PC2 予備",sh:"PC2",cn:"SDI IN 6",tp:"3G-SDI",ip:0,fmt:"—",st:"x",no:"未結線",v:"voff",c:"#101419"},
+ {n:"11",id:"IP11",nm:"中継A 大阪",sh:"中継A",cn:"SRT",tp:"SRT",ip:1,fmt:"1080/59.94p",st:"ok",no:"遅延 800 ms",v:"v10",c:"#373A1D"},
+ {n:"12",id:"IP12",nm:"中継B（未使用）",sh:"中継B",cn:"SRT",tp:"SRT",ip:1,fmt:"—",st:"x",no:"待機のみ",v:"voff",c:"#101419"},
+ {n:"13",id:"MP1",nm:"VTR / 本編",sh:"VTR",cn:"内部",tp:"メディア",ip:0,fmt:"1080/59.94p",st:"ok",no:"MP1",v:"v8",c:"#5E2130"},
+ {n:"14",id:"MP2",nm:"CM / 番宣",sh:"CM",cn:"内部",tp:"メディア",ip:0,fmt:"1080/59.94p",st:"ok",no:"MP2",v:"v8",c:"#5E2130"},
+ {n:"15",id:"RAM1",nm:"リプレイ 1",sh:"RAM1",cn:"内部",tp:"RAM",ip:0,fmt:"1080/59.94p",st:"ok",no:"8 秒",v:"v9",c:"#1B3A5B"},
+ {n:"16",id:"RAM2",nm:"リプレイ 2",sh:"RAM2",cn:"内部",tp:"RAM",ip:0,fmt:"1080/59.94p",st:"ok",no:"8 秒",v:"v9",c:"#1B3A5B"},
+ {n:"17",id:"STL1",nm:"タイトル",sh:"STL1",cn:"内部",tp:"スチル",ip:0,fmt:"1080/59.94p",st:"ok",no:"スチルストア",v:"vstl",c:"#262B33"},
+ {n:"18",id:"STL2",nm:"スポンサー",sh:"STL2",cn:"内部",tp:"スチル",ip:0,fmt:"1080/59.94p",st:"ok",no:"スチルストア",v:"vstl",c:"#262B33"},
+ {n:"19",id:"IP13",nm:"CG1 テロップ",sh:"CG1",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",no:"外部 CG",v:"v11",c:"#24304A"},
+ {n:"20",id:"IP14",nm:"CG1 KEY",sh:"CG1K",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",no:"アルファ",v:"vstl",c:"#262B33"},
+ {n:"21",id:"CLK",nm:"時計",sh:"時計",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"内部生成",v:"vstl",c:"#262B33"},
+ {n:"22",id:"BAR",nm:"カラーバー",sh:"BARS",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"内部生成",v:"vbars",c:"#B4B400"},
+ {n:"23",id:"BLK",nm:"ブラック",sh:"BLACK",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"内部生成",v:"vblk",c:"#05070A"},
+ {n:"24",id:"AX1R",nm:"AUX1 戻り",sh:"AUX1R",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"ループ注意",v:"v1",c:"#24404F"}
+];
+const S_ = i=>SRC[i];
+
+const SCENES=[
+ {nm:"メイン",id:"Main",layers:[
+   {nm:"ウォーターマーク",s:16,k:"d",on:1,o:70},
+   {nm:"KEY2 テロップ帯",s:18,k:"k",on:0,o:100},
+   {nm:"KEY1 スーパー",s:7,k:"k",on:1,o:100},
+   {nm:"BOX 右",s:3,k:"d",on:0,o:100},
+   {nm:"BOX 左",s:0,k:"d",on:0,o:100},
+   {nm:"BKGD",s:0,k:"b",on:1,o:100}]},
+ {nm:"2ボックス",id:"TwoBox",layers:[
+   {nm:"KEY1 名前",s:18,k:"k",on:1,o:100},
+   {nm:"BOX 右",s:1,k:"d",on:1,o:100},
+   {nm:"BOX 左",s:0,k:"d",on:1,o:100},
+   {nm:"背景 CG",s:16,k:"b",on:1,o:100},
+   {nm:"BKGD",s:22,k:"b",on:1,o:100}]},
+ {nm:"リプレイ",id:"Replay",layers:[
+   {nm:"リプレイ枠",s:16,k:"d",on:1,o:90},
+   {nm:"スロー",s:14,k:"b",on:1,o:100},
+   {nm:"BKGD",s:22,k:"b",on:1,o:100}]},
+ {nm:"スポンサー",id:"Spon",layers:[
+   {nm:"ロゴ",s:17,k:"d",on:1,o:100},
+   {nm:"BKGD",s:17,k:"b",on:1,o:100}]},
+ {nm:"客席",id:"Wide",layers:[
+   {nm:"KEY1 スーパー",s:7,k:"k",on:0,o:100},
+   {nm:"BKGD",s:4,k:"b",on:1,o:100}]}
+];
+const SNAPS=["OP ワイド","2ボックス","講演 PC1","客席引き","リプレイ待機","スポンサー","質疑","エンド"];
+
+const S={pgm:0,pvw:1,scene:0,tr:"mix",rate:30,src:0,bank:0,mv:"16",pane:0,step:0,sh:0,ck:null,dirty:0};
+
+/* ---------------- status bar ---------------- */
+let msgT=null;
+function say(t){
+  $("#msg").textContent=t;
+  clearTimeout(msgT); msgT=setTimeout(()=>{ $("#msg").textContent="準備完了"; },2600);
+}
+function touch(n){
+  S.dirty+=(n===undefined?1:n);
+  $("#dirty").textContent=S.dirty;
+  $("#dirty").classList.toggle("dirty",S.dirty>0);
+  $("#stDirty").textContent=S.dirty+" 件";
 }
 
-/* ---------- navigation ---------- */
-$$(".nav").forEach(b=>{
-  b.addEventListener("click", ()=>{
-    $$(".nav").forEach(n=> n.removeAttribute("aria-current"));
-    b.setAttribute("aria-current","page");
-    $$(".view").forEach(v=> v.classList.remove("is-on"));
-    $("#v-"+b.dataset.view).classList.add("is-on");
-    $(".stage").scrollTop = 0;
-  });
-});
+/* ---------------- tabs ---------------- */
+$$(".tab").forEach(b=>b.addEventListener("click",()=>{
+  $$(".tab").forEach(t=>t.removeAttribute("aria-current"));
+  b.setAttribute("aria-current","page");
+  $$(".view").forEach(v=>v.classList.remove("on"));
+  $("#w-"+b.dataset.v).classList.add("on");
+}));
 
-/* ---------- bus keys ---------- */
-function buildBus(el, bus){
-  el.innerHTML = "";
-  SOURCES.forEach((s,i)=>{
-    const b = document.createElement("button");
-    b.className = "key" + (s.st==="off" ? " is-dead" : "");
-    b.innerHTML = '<span class="key__n">'+s.n+'</span><span class="key__t">'+s.short+'</span>';
-    b.title = s.name + " — " + s.type;
-    b.addEventListener("click", ()=>{
-      if(bus==="pgm"){ S.pgm = i; } else { S.pvw = i; }
+/* ---------------- bus ---------------- */
+function bank(){ return S.bank?SRC.slice(12,24):SRC.slice(0,12); }
+function bankOff(){ return S.bank?12:0; }
+function buildBus(el,which){
+  el.innerHTML="";
+  bank().forEach((s,j)=>{
+    const i=j+bankOff();
+    const b=document.createElement("button");
+    b.className="k"+(s.st==="x"?" off":"")+((which==="pgm"?S.pgm:S.pvw)===i?" on":"");
+    b.innerHTML='<span class="k__n">'+s.n+'</span><span class="k__t">'+s.sh+"</span>";
+    b.title=s.nm+" — "+s.tp;
+    b.addEventListener("click",()=>{
+      if(which==="pgm") S.pgm=i; else S.pvw=i;
+      say((which==="pgm"?"PGM":"PVW")+" → "+s.nm);
       paint();
     });
     el.appendChild(b);
   });
 }
-buildBus($("#pgmKeys"),"pgm");
-buildBus($("#pvwKeys"),"pvw");
-
-/* ---------- monitors ---------- */
-function paintMonitors(){
-  const p = src(S.pgm), v = src(S.pvw);
-  $("#imgPgm").className = "mon__img " + p.v;
-  $("#imgPvw").className = "mon__img " + v.v;
-  $("#numPgm").textContent = p.n; $("#capPgm").textContent = p.name;
-  $("#numPvw").textContent = v.n; $("#capPvw").textContent = v.name;
-  $("#pgmFmt").textContent = p.fmt; $("#pvwFmt").textContent = v.fmt;
-}
-function paintBuses(){
-  $$("#pgmKeys .key").forEach((k,i)=> k.classList.toggle("is-on", i===S.pgm));
-  $$("#pvwKeys .key").forEach((k,i)=> k.classList.toggle("is-on", i===S.pvw));
+function paintBus(){ buildBus($("#kPgm"),"pgm"); buildBus($("#kPvw"),"pvw"); }
+$("#bank0").addEventListener("click",()=>{S.bank=0;paintBank();});
+$("#bank1").addEventListener("click",()=>{S.bank=1;paintBank();});
+function paintBank(){
+  $("#bank0").classList.toggle("on",S.bank===0);
+  $("#bank1").classList.toggle("on",S.bank===1);
+  paintBus();
 }
 
-/* ---------- transition ---------- */
-const nextImg = $("#imgPgmNext");
-function setMix(p){
-  nextImg.className = "mon__img " + src(S.pvw).v;
-  if(S.tr==="mix"){ nextImg.style.opacity = p; nextImg.style.clipPath="none"; nextImg.style.transform="none"; }
-  else if(S.tr==="wipe"){ nextImg.style.opacity = p>0?1:0; nextImg.style.clipPath = "inset(0 "+((1-p)*100)+"% 0 0)"; nextImg.style.transform="none"; }
-  else { nextImg.style.opacity = p>0?1:0; nextImg.style.clipPath="none"; nextImg.style.transform = "translateX("+((1-p)*100)+"%)"; }
+/* ---------------- monitors & transition ---------------- */
+function paintMon(){
+  const p=S_(S.pgm), v=S_(S.pvw);
+  $("#imPgm").className="vid__i "+p.v; $("#imPvw").className="vid__i "+v.v;
+  $("#nPgm").textContent=p.n; $("#cPgm").textContent=p.nm;
+  $("#nPvw").textContent=v.n; $("#cPvw").textContent=v.nm;
+  $("#monFmt").textContent=p.fmt;
 }
-function finishTake(){
-  const a = S.pgm; S.pgm = S.pvw; S.pvw = a;
-  nextImg.style.opacity = 0; nextImg.style.clipPath="none"; nextImg.style.transform="none";
-  $("#tbar").value = 0; $("#tbarPct").textContent = "0%";
+const nx=()=>$("#imNext");
+function mix(p){
+  const e=nx(); e.className="vid__i "+S_(S.pvw).v;
+  if(S.tr==="mix"){ e.style.opacity=p; e.style.clipPath="none"; e.style.transform="none"; }
+  else if(S.tr==="wipe"){ e.style.opacity=p>0?1:0; e.style.clipPath="inset(0 "+((1-p)*100)+"% 0 0)"; e.style.transform="none"; }
+  else { e.style.opacity=p>0?1:0; e.style.clipPath="none"; e.style.transform="translateX("+((1-p)*100)+"%)"; }
+}
+function take(){
+  const a=S.pgm; S.pgm=S.pvw; S.pvw=a;
+  const e=nx(); e.style.opacity=0; e.style.clipPath="none"; e.style.transform="none";
+  $("#tbar").value=0; $("#tbarP").textContent="0%";
   paint();
 }
-let running = false;
-function autoTake(){
-  if(running) return;
-  if(reduce){ finishTake(); return; }
-  running = true;
-  const ms = (S.rate/60)*1000, t0 = performance.now();
-  (function frame(now){
-    const p = Math.min(1,(now-t0)/ms);
-    setMix(p);
-    $("#tbar").value = Math.round(p*100); $("#tbarPct").textContent = Math.round(p*100)+"%";
-    if(p<1) requestAnimationFrame(frame);
-    else { running = false; finishTake(); }
+let busy=false;
+function auto(){
+  if(busy) return;
+  if(reduce){ take(); return; }
+  busy=true;
+  const ms=(S.rate/60)*1000,t0=performance.now();
+  (function f(t){
+    const p=Math.min(1,(t-t0)/ms); mix(p);
+    $("#tbar").value=Math.round(p*100); $("#tbarP").textContent=Math.round(p*100)+"%";
+    if(p<1) requestAnimationFrame(f); else { busy=false; take(); }
   })(t0);
 }
-$("#btnCut").addEventListener("click", ()=>{ if(!running) finishTake(); });
-$("#btnAuto").addEventListener("click", autoTake);
-$("#tbar").addEventListener("input", e=>{
-  const p = e.target.value/100;
-  $("#tbarPct").textContent = e.target.value+"%";
-  setMix(p);
-  if(p>=1) finishTake();
+$("#bCut").addEventListener("click",()=>{ if(!busy){ take(); say("CUT"); }});
+$("#bAuto").addEventListener("click",()=>{ auto(); say("AUTO "+(S.rate/60).toFixed(2)+"s"); });
+$("#tbar").addEventListener("input",e=>{
+  const p=e.target.value/100; $("#tbarP").textContent=e.target.value+"%"; mix(p);
+  if(p>=1) take();
 });
-$("#trType").addEventListener("change", e=>{ S.tr = e.target.value; setMix(0); });
-$("#rate").addEventListener("change", e=>{
-  const f = Math.max(1, Math.min(300, parseInt(e.target.value,10)||30));
-  S.rate = f; e.target.value = f; $("#trDur").textContent = f+" フレーム / "+(f/60).toFixed(2)+" 秒";
+$("#trType").addEventListener("change",e=>{ S.tr=e.target.value; mix(0); touch(); say("トランジション "+e.target.selectedOptions[0].textContent); });
+$("#rate").addEventListener("change",e=>{
+  const f=Math.max(1,Math.min(300,parseInt(e.target.value,10)||30));
+  S.rate=f; e.target.value=f; $("#trDur").textContent=f+"F / "+(f/60).toFixed(2)+"s"; touch();
 });
-$$(".tsel button").forEach(b=> b.addEventListener("click", ()=>{
-  $$(".tsel button").forEach(x=> x.classList.remove("is-on"));
-  b.classList.add("is-on");
-  $("#trNext").textContent = b.textContent.trim();
+$$("[data-nx]").forEach(b=>b.addEventListener("click",()=>{
+  $$("[data-nx]").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  $("#trNext").textContent=b.textContent.trim();
 }));
-$("#ftb").addEventListener("click", ()=>{ S.pvw = 12; paint(); toast("FTB — ブラックへ"); });
-$("#macroRun").addEventListener("click", ()=>{ runMacro(); });
-$("#k1On").addEventListener("click", e=> e.currentTarget.classList.toggle("is-on"));
+$("#bFtb").addEventListener("click",()=>{ S.pvw=22; paint(); say("FTB"); });
+$("#bMacro").addEventListener("click",()=>{ runMacro(); });
+$("#k1").addEventListener("click",e=>{ e.currentTarget.classList.toggle("on"); touch(); });
 
-/* ---------- scenes & layers ---------- */
-function paintScenes(){
-  const el = $("#sceneChips"); el.innerHTML = "";
-  SCENES.forEach((sc,i)=>{
-    const b = document.createElement("button");
-    b.className = "chip" + (i===S.scene ? " is-on" : "");
-    b.innerHTML = sc.name + ' <span class="chip__k">'+sc.key+'</span>';
-    b.addEventListener("click", ()=>{ S.scene = i; paintScenes(); paintLayers(); });
+/* ---------------- scenes / layers ---------------- */
+function paintScn(){
+  const el=$("#scn"); el.innerHTML="";
+  SCENES.forEach((s,i)=>{
+    const b=document.createElement("button");
+    b.className=i===S.scene?"on":"";
+    b.innerHTML=s.nm+' <span class="m">'+s.layers.length+"L</span>";
+    b.addEventListener("click",()=>{ S.scene=i; paintScn(); paintLayers(); paintCmd(); say("シーン "+s.nm); });
     el.appendChild(b);
   });
+  $("#sbScene").textContent=SCENES.length;
 }
+const KT={k:"KEY",d:"DVE",b:"BGD"};
 function paintLayers(){
-  const sc = SCENES[S.scene], el = $("#layerList"); el.innerHTML = "";
-  $("#swSub").textContent = "シーン「"+sc.name+"」／ レイヤー "+sc.layers.length+" 枚";
-  sc.layers.forEach((L,i)=>{
-    const s = src(L.src);
-    const row = document.createElement("div");
-    row.className = "layer";
-    row.innerHTML =
-      '<span class="layer__grip" title="ドラッグで並べ替え">⣿</span>'+
-      '<span class="layer__name">'+L.nm+'</span>'+
-      '<span class="layer__src"><i class="layer__sw" style="background:'+s.c+'"></i>'+
-        '<span class="layer__srcname">'+s.n+' '+s.name+'</span></span>'+
-      '<span><span class="tagx tagx--'+L.kind+'">'+(L.kind==="key"?"KEY":L.kind==="dve"?"DVE / PinP":"BG")+'</span></span>'+
-      '<input class="fadr" type="range" min="0" max="100" value="'+L.op+'" aria-label="'+L.nm+' 不透明度">'+
-      '<button class="onoff'+(L.on?" is-on":"")+'">'+(L.on?"ON AIR":"OFF")+'</button>';
-    row.querySelector(".onoff").addEventListener("click", e=>{
-      L.on = !L.on;
-      e.currentTarget.classList.toggle("is-on", L.on);
-      e.currentTarget.textContent = L.on ? "ON AIR" : "OFF";
+  const el=$("#layers"); el.innerHTML="";
+  SCENES[S.scene].layers.forEach((L,i)=>{
+    const s=S_(L.s), r=document.createElement("div");
+    r.className="ly";
+    r.innerHTML='<span class="ly__g">::</span>'+
+      '<span class="ly__n">'+L.nm+"</span>"+
+      '<span class="ly__s"><i class="ly__c" style="background:'+s.c+'"></i><span>'+s.n+" "+s.nm+"</span></span>"+
+      '<span><span class="tag tag--'+(L.k==="k"?"k":L.k==="d"?"d":"")+'">'+KT[L.k]+"</span></span>"+
+      '<input class="op" type="range" min="0" max="100" value="'+L.o+'" aria-label="'+L.nm+' 不透明度">'+
+      '<button class="oa'+(L.on?" on":"")+'">'+(L.on?"ON":"OFF")+"</button>";
+    r.querySelector(".oa").addEventListener("click",e=>{
+      L.on=!L.on; e.currentTarget.classList.toggle("on",L.on);
+      e.currentTarget.textContent=L.on?"ON":"OFF"; touch();
     });
-    row.querySelector(".fadr").addEventListener("input", e=>{ L.op = +e.target.value; });
-    el.appendChild(row);
+    r.querySelector(".op").addEventListener("input",e=>{ L.o=+e.target.value; });
+    el.appendChild(r);
   });
 }
 function paintSnaps(){
-  const el = $("#snapGrid"); el.innerHTML = "";
+  const el=$("#snaps"); el.innerHTML="";
   SNAPS.forEach((nm,i)=>{
-    const b = document.createElement("button");
-    b.className = "btn"; b.style.height = "30px"; b.style.justifyContent="center";
-    b.style.fontSize = "11px"; b.style.overflow = "hidden"; b.style.whiteSpace = "nowrap";
-    b.style.textOverflow = "ellipsis"; b.style.display = "block"; b.style.lineHeight = "28px";
-    b.textContent = nm; b.title = nm;
-    b.addEventListener("click", ()=>{ toast("スナップショット「"+nm+"」を呼び出しました"); });
-    el.appendChild(b);
+    const r=document.createElement("div");
+    r.className="ly"; r.style.gridTemplateColumns="24px minmax(0,1fr) 46px";
+    r.innerHTML='<span class="m faint">'+String(i+1).padStart(2,"0")+"</span>"+
+      '<span class="ly__n">'+nm+"</span>"+'<button class="oa">呼出</button>';
+    r.querySelector(".oa").addEventListener("click",()=>say("スナップショット "+nm+" 呼出"));
+    el.appendChild(r);
   });
 }
 
-/* ---------- sources ---------- */
-const ST_TXT = {ok:"受信中", warn:"要確認", off:"未接続"};
-function paintSources(){
-  const el = $("#srcRows"); el.innerHTML = "";
-  SOURCES.forEach((s,i)=>{
-    const tr = document.createElement("tr");
-    if(i===S.src) tr.className = "is-sel";
-    const kindCls = s.ip ? " iotype--ip" : (s.type==="内部" ? " iotype--int" : "");
-    tr.innerHTML =
-      '<td class="num">'+s.n+'</td>'+
-      '<td><b style="font-weight:500">'+s.name+'</b><div style="color:var(--txt-3);font-size:12px">'+s.note+'</div></td>'+
-      '<td><span class="iotype'+kindCls+'">'+s.type+'</span></td>'+
-      '<td class="fmt">'+s.fmt+'</td>'+
-      '<td><span class="dot dot--'+(s.st==="ok"?"ok":s.st==="warn"?"warn":"off")+'">'+ST_TXT[s.st]+'</span></td>'+
-      '<td class="fmt">'+s.id+'</td>'+
-      '<td><i class="layer__sw" style="background:'+s.c+';display:inline-block"></i></td>';
-    tr.addEventListener("click", ()=>{ S.src = i; paintSources(); paintSrcDetail(); });
+/* ---------------- AUX 出力 ---------------- */
+const AUX=[
+ {n:1,d:"楽屋モニター",s:-1},{n:2,d:"副調モニター",s:-2},{n:3,d:"カメラ返し 1",s:0},
+ {n:4,d:"カメラ返し 2",s:1},{n:5,d:"場内ビジョン",s:-1},{n:6,d:"CG 確認",s:18},
+ {n:7,d:"中継返し",s:-1},{n:8,d:"予備",s:22},{n:9,d:"未使用",s:22},{n:10,d:"未使用",s:22},
+ {n:11,d:"未使用",s:22},{n:12,d:"未使用",s:22}
+];
+const auxName=v=> v===-1?"PGM":v===-2?"PVW":SRC[v].sh;
+function paintAux(){
+  const el=$("#auxRows"); el.innerHTML="";
+  AUX.forEach(a=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML='<td class="n">'+String(a.n).padStart(2,"0")+"</td>"+
+      "<td"+(a.d==="未使用"?' class="faint"':"")+">"+a.d+"</td>"+
+      '<td style="text-align:right"><button class="pv">'+auxName(a.s)+"</button></td>";
+    tr.querySelector(".pv").addEventListener("click",()=>{
+      a.s = a.s===-1?-2 : a.s===-2?0 : (a.s+1>=SRC.length? -1 : a.s+1);
+      paintAux(); touch(); say("AUX"+a.n+" → "+auxName(a.s));
+    });
     el.appendChild(tr);
   });
 }
-function paintSrcDetail(){
-  const s = src(S.src);
-  $("#srcPrev").className = "mon__img " + s.v;
-  $("#srcPrevNum").textContent = s.n;
-  $("#srcPrevName").textContent = s.name;
-  $("#srcMeta").innerHTML =
+
+/* ---------------- sources ---------------- */
+const STT={ok:"受信",w:"要確認",x:"未接続"};
+function paintSrc(){
+  const el=$("#srcRows"); el.innerHTML="";
+  SRC.forEach((s,i)=>{
+    const tr=document.createElement("tr");
+    if(i===S.src) tr.className="sel";
+    tr.innerHTML='<td class="n">'+s.n+"</td>"+
+      "<td>"+s.nm+' <span class="faint" style="font-size:11.5px">'+s.no+"</span></td>"+
+      '<td class="m">'+s.cn+"</td>"+
+      '<td><span class="tag'+(s.ip?" tag--ip":s.tp==="内部"?" tag--in":"")+'">'+s.tp+"</span></td>"+
+      '<td class="m">'+s.fmt+"</td>"+
+      '<td><span class="st st--'+(s.st==="ok"?"ok":s.st==="w"?"w":"x")+'">'+STT[s.st]+"</span></td>"+
+      '<td class="m">'+s.id+"</td>";
+    tr.addEventListener("click",()=>{ S.src=i; paintSrc(); paintSrcDet(); $("#selInfo").textContent=s.nm; });
+    el.appendChild(tr);
+  });
+  $("#srcCount").textContent=SRC.filter(s=>s.st!=="x").length+" / "+SRC.length+" 受信";
+}
+function paintSrcDet(){
+  const s=S_(S.src);
+  $("#srcPrev").className="vid__i "+s.v;
+  $("#srcPrevN").textContent=s.n; $("#srcPrevT").textContent=s.nm; $("#srcSelNo").textContent=s.n;
+  $("#srcMeta").innerHTML=
     "<dt>KAIROS 名</dt><dd>"+s.id+"</dd>"+
-    "<dt>種別</dt><dd>"+s.type+"</dd>"+
+    "<dt>接続</dt><dd>"+s.cn+"</dd>"+
+    "<dt>種別</dt><dd>"+s.tp+"</dd>"+
     "<dt>フォーマット</dt><dd>"+s.fmt+"</dd>"+
-    "<dt>状態</dt><dd>"+ST_TXT[s.st]+"</dd>"+
-    "<dt>備考</dt><dd style=\"font-family:var(--ff-ui);font-size:13px\">"+s.note+"</dd>";
+    "<dt>状態</dt><dd>"+STT[s.st]+"</dd>"+
+    '<dt>備考</dt><dd class="u">'+s.no+"</dd>";
 }
 
-/* ---------- multiview ---------- */
-const LAYOUTS = [
-  {id:"4",  label:"2×2 / 4 ペイン",     cols:2, rows:2, n:4},
-  {id:"10", label:"大2 ＋ 小8 / 10 ペイン", cols:4, rows:4, n:10, big:2},
-  {id:"16", label:"4×4 / 16 ペイン",    cols:4, rows:4, n:16}
+/* ---------------- multiview ---------------- */
+const LAY=[
+ {id:"4",t:"2×2 / 4",c:2,r:2,n:4},
+ {id:"10",t:"大2 + 小8 / 10",c:4,r:4,n:10,big:2},
+ {id:"16",t:"4×4 / 16",c:4,r:4,n:16}
 ];
-let paneSrc = SOURCES.map((s,i)=> i).concat([-1,-2]);  // -1 = PGM, -2 = PVW
-function paintLayouts(){
-  const el = $("#layoutList"); el.innerHTML = "";
-  LAYOUTS.forEach(L=>{
-    const b = document.createElement("button");
-    b.className = "lay" + (L.id===S.mvLayout ? " is-on" : "");
-    let ico = '<span class="lay__ico" style="grid-template-columns:repeat('+L.cols+',1fr)">';
-    for(let i=0;i<L.cols*L.rows;i++) ico += "<i></i>";
-    ico += "</span>";
-    b.innerHTML = ico + "<span>" + L.label + "</span>";
-    b.addEventListener("click", ()=>{ S.mvLayout = L.id; S.pane = 0; paintLayouts(); paintMV(); });
+let pane=SRC.map((s,i)=>i).concat([-1,-2]);
+function paintLay(){
+  const el=$("#layouts"); el.innerHTML="";
+  LAY.forEach(L=>{
+    const b=document.createElement("button");
+    if(L.id===S.mv) b.className="on";
+    let ic='<i style="grid-template-columns:repeat('+L.c+',1fr)">';
+    for(let i=0;i<L.c*L.r;i++) ic+="<b></b>";
+    b.innerHTML=ic+"</i><span>"+L.t+"</span>";
+    b.addEventListener("click",()=>{ S.mv=L.id; S.pane=0; paintLay(); paintMV(); paintPane(); });
     el.appendChild(b);
   });
 }
 function paintMV(){
-  const L = LAYOUTS.find(x=> x.id===S.mvLayout);
-  const c = $("#mvCanvas");
-  c.style.gridTemplateColumns = "repeat("+L.cols+",1fr)";
-  c.style.gridTemplateRows = "repeat("+L.rows+",1fr)";
-  c.innerHTML = "";
-  $("#mvName").textContent = L.label;
+  const L=LAY.find(x=>x.id===S.mv), c=$("#mvc");
+  c.style.gridTemplateColumns="repeat("+L.c+",1fr)";
+  c.style.gridTemplateRows="repeat("+L.r+",1fr)";
+  c.innerHTML=""; $("#mvInfo").textContent=L.t+" ペイン";
   for(let i=0;i<L.n;i++){
-    const ref = paneSrc[i % paneSrc.length];
-    const isPgm = ref===-1, isPvw = ref===-2;
-    const s = src(isPgm ? S.pgm : isPvw ? S.pvw : ref);
-    const b = document.createElement("button");
-    let tally = "";
-    if(isPgm || ref===S.pgm) tally = " t-pgm"; else if(isPvw || ref===S.pvw) tally = " t-pvw";
-    b.className = "pane"+tally+(i===S.pane?" is-sel":"");
-    if(L.big && i<L.big){ b.style.gridColumn = "span 2"; b.style.gridRow = "span 2"; }
-    b.innerHTML = '<span class="mon__img '+s.v+'"></span>'+
-      '<span class="pane__meter"><i style="height:'+(18+((i*17)%56))+'%"></i></span>'+
-      '<span class="pane__lbl">'+(isPgm?"PGM ／ "+s.short:isPvw?"PVW ／ "+s.short:s.short)+'</span>';
-    b.addEventListener("click", ()=>{ S.pane = i; paintMV(); paintPane(); });
+    const ref=pane[i%pane.length], isP=ref===-1, isV=ref===-2;
+    const s=S_(isP?S.pgm:isV?S.pvw:ref);
+    const b=document.createElement("button");
+    let t=""; if(isP||ref===S.pgm) t=" pgm"; else if(isV||ref===S.pvw) t=" pvw";
+    b.className="pa vid"+t+(i===S.pane?" sel":"");
+    if(L.big&&i<L.big){ b.style.gridColumn="span 2"; b.style.gridRow="span 2"; }
+    b.innerHTML='<span class="vid__i '+s.v+'"></span>'+
+      '<span class="pa__m"><i style="height:'+(14+((i*23)%58))+'%"></i></span>'+
+      '<span class="pa__l">'+(isP?"PGM":isV?"PVW":s.sh)+"</span>";
+    b.addEventListener("click",()=>{ S.pane=i; paintMV(); paintPane(); });
     c.appendChild(b);
   }
 }
 function paintPane(){
-  const i = S.pane, ref = paneSrc[i];
-  $("#paneNo").textContent = "ペイン " + String(i+1).padStart(2,"0");
-  $("#paneLbl").value = ref===-1 ? "PGM" : ref===-2 ? "PVW" : src(ref).short;
-  const sel = $("#paneSrc");
-  const special = '<option value="-1"'+(ref===-1?" selected":"")+'>PGM 出力</option>'+
-                  '<option value="-2"'+(ref===-2?" selected":"")+'>PVW 出力</option>';
-  sel.innerHTML = special + SOURCES.map((x,j)=> '<option value="'+j+'"'+(j===ref?" selected":"")+'>'+x.n+" "+x.name+"</option>").join("");
+  const ref=pane[S.pane];
+  $("#paneNo").textContent=String(S.pane+1).padStart(2,"0");
+  $("#paneLbl").value=ref===-1?"PGM":ref===-2?"PVW":S_(ref).sh;
+  $("#paneSrc").innerHTML='<option value="-1"'+(ref===-1?" selected":"")+">PGM 出力</option>"+
+    '<option value="-2"'+(ref===-2?" selected":"")+">PVW 出力</option>"+
+    SRC.map((x,j)=>'<option value="'+j+'"'+(j===ref?" selected":"")+">"+x.n+" "+x.nm+"</option>").join("");
 }
-$("#paneSrc").addEventListener("change", e=>{ paneSrc[S.pane] = +e.target.value; paintMV(); paintPane(); });
+$("#paneSrc").addEventListener("change",e=>{ pane[S.pane]=+e.target.value; paintMV(); paintPane(); touch(); });
 
-/* ---------- macro builder ---------- */
-const SCENE_ID = ["MainPGM","TwoBox","Replay","Sponsor","WideHall"];
-const sid = ()=> SCENE_ID[S.scene];
-const KEYS = ["Key1 — L3","Key2 — 帯テロップ","DVE ボックス A","DVE ボックス B"];
-const KEY_ID = ["Key1","Key2","DveA","DveB"];
-const SECS = [0.2,0.3,0.5,1,1.5,2,3];
-const nextSec = v => SECS[(SECS.indexOf(v)+1+SECS.length)%SECS.length] || 0.5;
+/* ---------------- macro ---------------- */
+const KEYN=["KEY1 スーパー","KEY2 テロップ帯","BOX 左","BOX 右"];
+const KEYI=["Key1","Key2","BoxL","BoxR"];
+const SEC=[0.2,0.3,0.5,1,1.5,2,3];
+const nsec=v=>SEC[(SEC.indexOf(v)+1)%SEC.length]||0.5;
+const sid=()=>SCENES[S.scene].id;
 
-const STEPS = {
-  src:{ verb:"ソースを切り替える", ic:"SRC", cls:"blk--src", def:()=>({bus:"PVW", s:1}),
-    chips:[
-      {txt:p=>p.bus+" バス", cyc:p=>{ p.bus = p.bus==="PVW"?"PGM":"PVW"; }},
-      {txt:p=>SOURCES[p.s].name, cyc:p=>{ p.s = (p.s+1)%SOURCES.length; }}
-    ],
-    cmd:p=>["SCENES."+sid()+".Layers.Background  "+(p.bus==="PGM"?"sourceA":"sourceB")+" = INPUTS."+SOURCES[p.s].id]},
-
-  trans:{ verb:"トランジション実行", ic:"TRN", cls:"blk--trn", def:()=>({fx:"MIX", sec:0.5}),
-    chips:[
-      {txt:p=>p.fx, cyc:p=>{ p.fx = p.fx==="MIX"?"WIPE":p.fx==="WIPE"?"DVE PUSH":"MIX"; }},
-      {txt:p=>p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}
-    ],
-    cmd:p=>["SCENES."+sid()+".Layers.Background  effect = "+p.fx.replace(" ","_")+"  duration = "+Math.round(p.sec*60),
-            "SCENES."+sid()+".Layers.Background  TransitionAuto()"]},
-
-  key:{ verb:"キーを切り替える", ic:"KEY", cls:"blk--src", def:()=>({k:0, on:true, sec:0.3}),
-    chips:[
-      {txt:p=>KEYS[p.k], cyc:p=>{ p.k = (p.k+1)%KEYS.length; }},
-      {txt:p=>p.on?"ON":"OFF", cyc:p=>{ p.on = !p.on; }},
-      {txt:p=>"フェード "+p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}
-    ],
-    cmd:p=>["SCENES."+sid()+".Layers."+KEY_ID[p.k]+"  opacity = "+(p.on?"1.0":"0.0")+"  duration = "+Math.round(p.sec*60)]},
-
-  scene:{ verb:"シーンを切り替える", ic:"SCN", cls:"blk--trn", def:()=>({i:1}),
-    chips:[{txt:p=>SCENES[p.i].name, cyc:p=>{ p.i = (p.i+1)%SCENES.length; }}],
-    cmd:p=>["# "+SCENES[p.i].name, "SCENES."+SCENE_ID[p.i]+"  Activate()"]},
-
-  snap:{ verb:"スナップショット呼出", ic:"SNP", cls:"blk--trn", def:()=>({i:0}),
-    chips:[{txt:p=>SNAPS[p.i], cyc:p=>{ p.i = (p.i+1)%SNAPS.length; }}],
-    cmd:p=>["# "+SNAPS[p.i], "SCENES."+sid()+".Snapshots.SNAP"+(p.i+1)+"  Recall()"]},
-
-  aux:{ verb:"AUX 出力を切り替える", ic:"AUX", cls:"blk--io", def:()=>({a:3, s:-1}),
-    chips:[
-      {txt:p=>"AUX "+p.a, cyc:p=>{ p.a = p.a%8 + 1; }},
-      {txt:p=>p.s<0?"PGM":SOURCES[p.s].name, cyc:p=>{ p.s = p.s+1 >= SOURCES.length ? -1 : p.s+1; }}
-    ],
-    cmd:p=>["AUX."+p.a+"  source = "+(p.s<0 ? "SCENES."+sid()+".Program" : "INPUTS."+SOURCES[p.s].id)]},
-
-  mv:{ verb:"マルチビューを切り替える", ic:"MV", cls:"blk--io", def:()=>({n:2}),
-    chips:[{txt:p=>"プリセット "+p.n, cyc:p=>{ p.n = p.n%4 + 1; }}],
-    cmd:p=>["MV1.Presets.P"+p.n+"  Recall()"]},
-
-  wait:{ verb:"待機", ic:"WAI", cls:"blk--tim", def:()=>({sec:1}),
-    chips:[{txt:p=>p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}],
-    cmd:p=>["WAIT  frames = "+Math.round(p.sec*60)]},
-
-  hold:{ verb:"次の操作を待つ", ic:"HLD", cls:"blk--tim", def:()=>({}),
-    chips:[],
-    cmd:()=>["PAUSE  # オペレーターがキーを押すまで停止"]},
-
-  gpi:{ verb:"GPI 出力", ic:"GPI", cls:"blk--io", def:()=>({n:2}),
-    chips:[{txt:p=>"OUT "+p.n, cyc:p=>{ p.n = p.n%8 + 1; }}],
-    cmd:p=>["GPIO.OUT"+p.n+"  Pulse(200)"]},
-
-  afade:{ verb:"音声フェード", ic:"AUD", cls:"blk--io", def:()=>({ch:9, db:-60, sec:1}),
-    chips:[
-      {txt:p=>"CH "+p.ch, cyc:p=>{ p.ch = p.ch%14 + 1; }},
-      {txt:p=>p.db+" dB", cyc:p=>{ p.db = p.db===-60 ? 0 : p.db===0 ? -10 : -60; }},
-      {txt:p=>p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}
-    ],
-    cmd:p=>["AUDIO.CH"+p.ch+"  gain = "+p.db.toFixed(1)+"  duration = "+Math.round(p.sec*60)]}
+const B={
+ src:{v:"ソース",c:"#5A8FC7",d:()=>({b:"PVW",s:1}),
+  p:[{t:p=>p.b,f:p=>{p.b=p.b==="PVW"?"PGM":"PVW";}},{t:p=>SRC[p.s].nm,f:p=>{p.s=(p.s+1)%SRC.length;}}],
+  c2:p=>["SCENES."+sid()+".Layers.BKGD  "+(p.b==="PGM"?"sourceA":"sourceB")+" = INPUTS."+SRC[p.s].id]},
+ trans:{v:"トランジション",c:"#E8A33D",d:()=>({f:"MIX",s:0.5}),
+  p:[{t:p=>p.f,f:p=>{p.f=p.f==="MIX"?"WIPE":p.f==="WIPE"?"DVE_PUSH":"MIX";}},{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
+  c2:p=>["SCENES."+sid()+".Layers.BKGD  effect = "+p.f+"  duration = "+Math.round(p.s*60),
+        "SCENES."+sid()+".Layers.BKGD  TransitionAuto()"]},
+ key:{v:"キー",c:"#5A8FC7",d:()=>({k:0,on:1,s:0.3}),
+  p:[{t:p=>KEYN[p.k],f:p=>{p.k=(p.k+1)%KEYN.length;}},{t:p=>p.on?"ON":"OFF",f:p=>{p.on=p.on?0:1;}},{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
+  c2:p=>["SCENES."+sid()+".Layers."+KEYI[p.k]+"  opacity = "+(p.on?"1.0":"0.0")+"  duration = "+Math.round(p.s*60)]},
+ scene:{v:"シーン",c:"#E8A33D",d:()=>({i:1}),
+  p:[{t:p=>SCENES[p.i].nm,f:p=>{p.i=(p.i+1)%SCENES.length;}}],
+  c2:p=>["SCENES."+SCENES[p.i].id+"  Activate()"]},
+ snap:{v:"スナップショット",c:"#E8A33D",d:()=>({i:0}),
+  p:[{t:p=>SNAPS[p.i],f:p=>{p.i=(p.i+1)%SNAPS.length;}}],
+  c2:p=>["# "+SNAPS[p.i],"SCENES."+sid()+".Snapshots.SNAP"+(p.i+1)+"  Recall()"]},
+ aux:{v:"AUX",c:"#2FBF6B",d:()=>({a:3,s:-1}),
+  p:[{t:p=>"AUX"+p.a,f:p=>{p.a=p.a%12+1;}},{t:p=>p.s<0?"PGM":SRC[p.s].nm,f:p=>{p.s=p.s+1>=SRC.length?-1:p.s+1;}}],
+  c2:p=>["AUX."+p.a+"  source = "+(p.s<0?"SCENES."+sid()+".Program":"INPUTS."+SRC[p.s].id)]},
+ mv:{v:"マルチビュー",c:"#2FBF6B",d:()=>({n:2}),
+  p:[{t:p=>"P"+p.n,f:p=>{p.n=p.n%4+1;}}],
+  c2:p=>["MV1.Presets.P"+p.n+"  Recall()"]},
+ wait:{v:"待機",c:"#D9822B",d:()=>({s:1}),
+  p:[{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
+  c2:p=>["WAIT  frames = "+Math.round(p.s*60)]},
+ hold:{v:"操作待ち",c:"#D9822B",d:()=>({}),p:[],
+  c2:()=>["PAUSE  # オペレーター操作まで停止"]},
+ gpi:{v:"GPI 出力",c:"#2FBF6B",d:()=>({n:2}),
+  p:[{t:p=>"OUT"+p.n,f:p=>{p.n=p.n%8+1;}}],
+  c2:p=>["GPIO.OUT"+p.n+"  Pulse(200)"]},
+ aud:{v:"音声フェード",c:"#2FBF6B",d:()=>({c:13,db:-60,s:1}),
+  p:[{t:p=>"CH"+p.c,f:p=>{p.c=p.c%18+1;}},{t:p=>p.db+"dB",f:p=>{p.db=p.db===-60?0:p.db===0?-10:-60;}},{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
+  c2:p=>["AUDIO.CH"+p.c+"  gain = "+p.db.toFixed(1)+"  duration = "+Math.round(p.s*60)]}
 };
-
-let macro = [
-  {t:"snap",  p:{i:0}},
-  {t:"src",   p:{bus:"PVW", s:1}},
-  {t:"trans", p:{fx:"MIX", sec:0.5}},
-  {t:"wait",  p:{sec:1}},
-  {t:"key",   p:{k:0, on:true, sec:0.3}},
-  {t:"aux",   p:{a:3, s:-1}}
+const MACROS=[
+ {id:"M01",nm:"OP 立ち上げ",s:[{t:"snap",p:{i:0}},{t:"src",p:{b:"PVW",s:0}},{t:"trans",p:{f:"MIX",s:1}},{t:"key",p:{k:0,on:1,s:0.5}}]},
+ {id:"M07",nm:"OP → 2ボックス",s:[{t:"snap",p:{i:0}},{t:"src",p:{b:"PVW",s:1}},{t:"trans",p:{f:"MIX",s:0.5}},
+   {t:"wait",p:{s:1}},{t:"key",p:{k:0,on:1,s:0.3}},{t:"aux",p:{a:3,s:-1}}]},
+ {id:"M09",nm:"リプレイ送出",s:[{t:"scene",p:{i:2}},{t:"src",p:{b:"PVW",s:14}},{t:"trans",p:{f:"DVE_PUSH",s:0.5}},
+   {t:"wait",p:{s:3}},{t:"scene",p:{i:0}}]},
+ {id:"M12",nm:"エンド処理",s:[{t:"key",p:{k:0,on:0,s:0.5}},{t:"aud",p:{c:13,db:-60,s:2}},{t:"trans",p:{f:"MIX",s:2}}]},
+ {id:"M02",nm:"",s:[]},{id:"M03",nm:"",s:[]},{id:"M04",nm:"",s:[]},{id:"M05",nm:"",s:[]},
+ {id:"M06",nm:"",s:[]},{id:"M08",nm:"",s:[]},{id:"M10",nm:"",s:[]},{id:"M11",nm:"",s:[]}
 ];
-let macroUndo = null;
-
-function paintPalette(){
-  const el = $("#blockPalette"); el.innerHTML = "";
-  Object.keys(STEPS).forEach(t=>{
-    const d = STEPS[t];
-    const b = document.createElement("button");
-    b.className = "blk " + d.cls;
-    b.innerHTML = '<span class="blk__ic">'+d.ic+'</span><span>'+d.verb+'</span>';
-    b.addEventListener("click", ()=>{
-      macroUndo = JSON.parse(JSON.stringify(macro));
-      macro.push({t:t, p:d.def()});
-      S.step = macro.length-1;
-      paintMacro();
-      toast("「"+d.verb+"」を追加しました");
+let MI=1, MAC=MACROS[MI].s, MUNDO=null;
+function paintMacList(){
+  const el=$("#macList"); el.innerHTML="";
+  MACROS.forEach((m,i)=>{
+    const b=document.createElement("button");
+    if(i===MI) b.style.background="#232B34";
+    b.innerHTML='<i style="--c:'+(m.nm?"#E8A33D":"#2A323A")+'"></i>'+
+      '<span class="m" style="font-size:11px;color:var(--txt-3);width:30px">'+m.id+"</span>"+
+      "<span"+(m.nm?"":' class="faint"')+">"+(m.nm||"未作成")+"</span>"+
+      "<small>"+(m.s.length||"")+"</small>";
+    b.addEventListener("click",()=>{
+      MI=i; MAC=MACROS[i].s; S.step=0; MUNDO=null;
+      $("#macTitle").textContent=m.id+(m.nm?" "+m.nm:"");
+      paintMacList(); paintMac();
     });
     el.appendChild(b);
   });
 }
-function paintMacro(){
-  const el = $("#stepList"); el.innerHTML = "";
-  $("#stepCount").textContent = macro.length + " ステップ";
-  if(!macro.length){
-    el.innerHTML = '<div class="steps__empty">左のブロックを押して、やりたい順に並べてください。</div>';
-  }
-  macro.forEach((st,i)=>{
-    const d = STEPS[st.t];
-    const row = document.createElement("div");
-    row.className = "step " + d.cls + (i===S.step ? " is-sel" : "");
-    let chips = d.chips.map((c,ci)=> '<button class="param" data-ci="'+ci+'"><b>'+c.txt(st.p)+"</b></button>").join("");
-    row.innerHTML =
-      '<span class="step__n">'+(i+1)+'</span>'+
-      '<span class="blk__ic">'+d.ic+'</span>'+
-      '<span class="step__body"><span class="step__verb">'+d.verb+'</span>'+chips+'</span>'+
-      '<button class="step__x" title="削除">✕</button>';
-    row.addEventListener("click", ()=>{ S.step = i; paintMacro(); });
-    row.querySelectorAll(".param").forEach(btn=>{
-      btn.addEventListener("click", e=>{
-        e.stopPropagation();
-        d.chips[+btn.dataset.ci].cyc(st.p);
-        S.step = i; paintMacro();
-      });
+
+function paintPal(){
+  const el=$("#palette"); el.innerHTML="";
+  Object.keys(B).forEach(k=>{
+    const d=B[k], b=document.createElement("button");
+    b.innerHTML='<i style="--c:'+d.c+'"></i><span>'+d.v+"</span>";
+    b.addEventListener("click",()=>{
+      MUNDO=JSON.parse(JSON.stringify(MAC));
+      MAC.push({t:k,p:d.d()}); S.step=MAC.length-1; paintMac(); touch(); say(d.v+" を追加");
     });
-    row.querySelector(".step__x").addEventListener("click", e=>{
-      e.stopPropagation();
-      macroUndo = JSON.parse(JSON.stringify(macro));
-      macro.splice(i,1);
-      S.step = Math.max(0, Math.min(S.step, macro.length-1));
-      paintMacro();
-    });
-    el.appendChild(row);
+    el.appendChild(b);
   });
-  paintStepProps();
-  paintCmd();
 }
-function paintStepProps(){
-  const box = $("#stepProps");
-  if(!macro.length){ $("#selStepNo").textContent = "—"; box.innerHTML = '<p class="note">ステップを選ぶと、ここで細かく調整できます。</p>'; return; }
-  const st = macro[Math.min(S.step, macro.length-1)], d = STEPS[st.t];
-  $("#selStepNo").textContent = "STEP " + (S.step+1);
-  let rows = d.chips.map((c,ci)=> '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'+
-      '<span class="lbl">項目 '+(ci+1)+'</span><button class="param" data-ci="'+ci+'"><b>'+c.txt(st.p)+'</b></button></div>').join("");
-  if(!rows) rows = '<p class="note">このブロックに設定項目はありません。</p>';
-  box.innerHTML = '<div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">'+
-      '<span class="blk__ic">'+d.ic+'</span><b>'+d.verb+'</b></div>'+ rows +
-      '<div style="display:flex;gap:6px;margin-top:4px"><button class="btn" id="mvUp">↑ 上へ</button><button class="btn" id="mvDn">↓ 下へ</button></div>';
-  box.querySelectorAll(".param").forEach(btn=> btn.addEventListener("click", ()=>{
-    d.chips[+btn.dataset.ci].cyc(st.p); paintMacro();
-  }));
-  const swap = (a,b)=>{ if(b<0||b>=macro.length) return; const t=macro[a]; macro[a]=macro[b]; macro[b]=t; S.step=b; paintMacro(); };
-  $("#mvUp").addEventListener("click", ()=> swap(S.step, S.step-1));
-  $("#mvDn").addEventListener("click", ()=> swap(S.step, S.step+1));
+function paintMac(){
+  const el=$("#steps"); el.innerHTML="";
+  $("#stepN").textContent=MAC.length+" ステップ";
+  if(!MAC.length) el.innerHTML='<div class="empty">左のブロックから追加</div>';
+  MAC.forEach((st,i)=>{
+    const d=B[st.t], r=document.createElement("div");
+    r.className="stp"+(i===S.step?" sel":""); r.style.setProperty("--c",d.c);
+    r.innerHTML='<span class="stp__n">'+(i+1)+"</span>"+
+      '<span class="stp__b"><span class="stp__v">'+d.v+"</span>"+
+      d.p.map((c,ci)=>'<button class="pv" data-i="'+ci+'">'+c.t(st.p)+"</button>").join("")+"</span>"+
+      '<button class="stp__x">×</button>';
+    r.addEventListener("click",()=>{ S.step=i; paintMac(); });
+    r.querySelectorAll(".pv").forEach(b=>b.addEventListener("click",e=>{
+      e.stopPropagation(); d.p[+b.dataset.i].f(st.p); S.step=i; paintMac(); touch();
+    }));
+    r.querySelector(".stp__x").addEventListener("click",e=>{
+      e.stopPropagation(); MUNDO=JSON.parse(JSON.stringify(MAC));
+      MAC.splice(i,1); S.step=Math.max(0,Math.min(S.step,MAC.length-1)); paintMac(); touch();
+    });
+    el.appendChild(r);
+  });
+  paintStepProp(); paintCmd();
 }
-function colorLine(l){
-  if(l.trim().charAt(0)==="#") return '<span class="c-cmt">'+l+"</span>";
-  return l.replace(/^([A-Za-z0-9_.()]+)/, '<span class="c-path">$1</span>')
-          .replace(/=\s([^=]+)$/, '= <span class="c-val">$1</span>');
+function paintStepProp(){
+  const box=$("#stepProp");
+  if(!MAC.length){ $("#stepSel").textContent="—"; box.innerHTML='<span class="faint">ステップ未選択</span>'; return; }
+  const st=MAC[Math.min(S.step,MAC.length-1)], d=B[st.t];
+  $("#stepSel").textContent="STEP "+(S.step+1);
+  box.innerHTML='<div class="row"><i style="width:3px;height:14px;background:'+d.c+'"></i><b>'+d.v+"</b></div>"+
+    (d.p.length?'<dl class="pl">'+d.p.map((c,ci)=>"<dt>項目 "+(ci+1)+'</dt><dd><button class="pv" data-i="'+ci+'">'+c.t(st.p)+"</button></dd>").join("")+"</dl>"
+               :'<span class="faint">設定項目なし</span>')+
+    '<div class="row"><button class="b b--w" id="up">上へ</button><button class="b b--w" id="dn">下へ</button></div>';
+  box.querySelectorAll(".pv").forEach(b=>b.addEventListener("click",()=>{ d.p[+b.dataset.i].f(st.p); paintMac(); touch(); }));
+  const sw=(a,b)=>{ if(b<0||b>=MAC.length) return; const t=MAC[a]; MAC[a]=MAC[b]; MAC[b]=t; S.step=b; paintMac(); touch(); };
+  $("#up").addEventListener("click",()=>sw(S.step,S.step-1));
+  $("#dn").addEventListener("click",()=>sw(S.step,S.step+1));
+}
+function col(l){
+  if(l.trim()[0]==="#") return '<span class="c-c">'+l+"</span>";
+  return l.replace(/^([A-Za-z0-9_.()]+)/,'<span class="c-p">$1</span>').replace(/=\s([^=]+)$/,'= <span class="c-v">$1</span>');
 }
 function paintCmd(){
-  const out = ["# Macro 07 — パネルキー MACRO 7 で起動", "# シーン: " + SCENES[S.scene].name, ""];
-  macro.forEach((st,i)=>{
-    STEPS[st.t].cmd(st.p).forEach(l=> out.push(l));
-  });
-  $("#cmdOut").innerHTML = out.map(colorLine).join("\n");
+  const out=["# "+MACROS[MI].id+"  起動: パネル USER 07","# 対象シーン: "+SCENES[S.scene].nm,""];
+  MAC.forEach(st=>B[st.t].c2(st.p).forEach(l=>out.push(l)));
+  $("#cmd").innerHTML=out.map(col).join("\n");
 }
-$("#undoStep").addEventListener("click", ()=>{
-  if(!macroUndo){ toast("戻せる操作がありません"); return; }
-  macro = macroUndo; macroUndo = null; S.step = 0; paintMacro(); toast("元に戻しました");
+$("#mUndo").addEventListener("click",()=>{
+  if(!MUNDO){ say("戻せる操作はありません"); return; }
+  MAC=MUNDO; MACROS[MI].s=MAC; MUNDO=null; S.step=0; paintMac(); say("元に戻しました");
 });
-$("#copyCmd").addEventListener("click", ()=>{
-  const txt = $("#cmdOut").textContent;
-  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=> toast("コマンドをコピーしました"), ()=> toast("コピーできませんでした"));
-  else toast("コピーできませんでした");
+$("#cpCmd").addEventListener("click",()=>{
+  const t=$("#cmd").textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>say("コピーしました"),()=>say("コピーできません"));
+  else say("コピーできません");
 });
-$$("[data-trig]").forEach(b=> b.addEventListener("click", ()=>{
-  $$("[data-trig]").forEach(x=> x.classList.remove("is-on")); b.classList.add("is-on");
+$$("[data-trig]").forEach(b=>b.addEventListener("click",()=>{
+  $$("[data-trig]").forEach(x=>x.classList.remove("on")); b.classList.add("on"); touch();
 }));
-function runMacro(){
-  toast("Macro 07 を実行しました（" + macro.length + " ステップ）");
-  autoTake();
+$("#mTest").addEventListener("click",runMacro);
+function runMacro(){ say(MACROS[MI].id+" 実行 — "+MAC.length+" ステップ"); auto(); }
+
+/* ---------------- control panel (large) ---------------- */
+const C_SRC="#5A8FC7", C_KEY="#8E7BC4", C_MAC="#E8A33D", C_AUX="#2FBF6B";
+const ROWS=[
+ {id:"user",l:"USER",n:12,lcd:1},
+ {id:"pgm", l:"PGM", n:20,bus:"pgm"},
+ {id:"pst", l:"PST", n:20,bus:"pvw"},
+ {id:"key", l:"KEY / UTIL",n:20},
+ {id:"axs", l:"AUX SEL",n:12},
+ {id:"axb", l:"AUX BUS",n:20}
+];
+const MAP={};
+ROWS.forEach(r=>{ MAP[r.id]=[]; for(let i=0;i<r.n;i++) MAP[r.id].push([null,null]); });
+function put(row,i,layer,o){ MAP[row][i][layer]=o; }
+/* バス行：通常レイヤーに 01-20、SHIFT に 21-24 */
+for(let i=0;i<20;i++){
+  ["pgm","pst","axb"].forEach(r=>put(r,i,0,{t:SRC[i].sh,s:SRC[i].n,c:C_SRC,fn:"SRC:"+SRC[i].id,src:i}));
 }
+for(let i=0;i<4;i++){
+  ["pgm","pst","axb"].forEach(r=>put(r,i,1,{t:SRC[20+i].sh,s:SRC[20+i].n,c:C_SRC,fn:"SRC:"+SRC[20+i].id,src:20+i}));
+}
+/* AUX SEL */
+for(let i=0;i<12;i++){
+  put("axs",i,0,{t:"AUX"+(i+1),s:"",c:C_AUX,fn:"AUXSEL:"+(i+1)});
+  put("axs",i,1,{t:"AUX"+(i+13),s:"",c:C_AUX,fn:"AUXSEL:"+(i+13)});
+}
+/* KEY / UTIL */
+[["KEY1","スーパー"],["KEY2","帯"],["BOX 左",""],["BOX 右",""],["ウォーター",""]].forEach((k,i)=>
+  put("key",i,0,{t:k[0],s:k[1],c:C_KEY,fn:"KEY:"+k[0]}));
+put("key",8,0,{t:"DSK PVW","s":"",c:C_KEY,fn:"KEY:DSKPVW"});
+put("key",2,1,{t:"BOX 入替",s:"",c:C_KEY,fn:"KEY:BOXSWAP"});
+put("key",7,1,{t:"KEY1 PVW",s:"",c:C_KEY,fn:"KEY:K1PVW"});
+/* USER（LCD キー） */
+[["M01","OP 立ち上げ"],["M07","OP→2ボックス"],["M09","リプレイ送出"],["OP ワイド","スナップ"],
+ ["2ボックス","シーン"],["FTB",""],["MV P2","マルチビュー"],["GPI2","照明きっかけ"]].forEach((k,i)=>
+  put("user",i,0,{t:k[0],s:k[1],c:C_MAC,fn:"USER:"+k[0]}));
+put("user",1,1,{t:"M12",s:"エンド処理",c:C_MAC,fn:"USER:M12"});
+put("user",5,1,{t:"CG1 更新",s:"",c:C_MAC,fn:"USER:CG1"});
 
-/* ---------- panel mapping ---------- */
-const PANEL = new Array(32).fill(null);
-PANEL[0]={t:"CAM1",s:"IP1"};      PANEL[1]={t:"CAM2",s:"IP2"};
-PANEL[2]={t:"CAM3",s:"IP3"};      PANEL[3]={t:"CAM4",s:"IP4"};
-PANEL[4]={t:"2ボックス",s:"SCENE"}; PANEL[5]={t:"OP_ワイド",s:"SNAP"};
-PANEL[6]={t:"Macro 07",s:"MACRO"}; PANEL[7]={t:"FTB",s:"SYS"};
-PANEL[8]={t:"PTZ-A",s:"IP5"};      PANEL[9]={t:"VTR",s:"MP1"};
-PANEL[16]={t:"Key1 L3",s:"KEY"};   PANEL[17]={t:"AUX3→PGM",s:"AUX"};
-
-const ASSIGNABLE = [
-  {ic:"SRC", cls:"blk--src", t:"ソース: PTZ-B 舞台袖", s:"IP6"},
-  {ic:"SRC", cls:"blk--src", t:"ソース: リモート中継", s:"SRT1"},
-  {ic:"SCN", cls:"blk--trn", t:"シーン: リプレイ", s:"SCENE"},
-  {ic:"SNP", cls:"blk--trn", t:"スナップ: 質疑応答", s:"SNAP"},
-  {ic:"MAC", cls:"blk--trn", t:"マクロ 07 を実行", s:"MACRO"},
-  {ic:"KEY", cls:"blk--src", t:"Key2 帯テロップ ON/OFF", s:"KEY"},
-  {ic:"AUX", cls:"blk--io",  t:"AUX 5 → CAM3", s:"AUX"},
-  {ic:"MV",  cls:"blk--io",  t:"マルチビュー プリセット 2", s:"MV"}
+const ASSIGN=[
+ {t:"ソース: CAM5 客席後方",c:C_SRC,fn:"SRC:IP05",o:{t:"CAM5",s:"05"}},
+ {t:"ソース: 中継A 大阪",c:C_SRC,fn:"SRC:IP11",o:{t:"中継A",s:"11"}},
+ {t:"ソース: CG1 テロップ",c:C_SRC,fn:"SRC:IP13",o:{t:"CG1",s:"19"}},
+ {t:"キー: KEY2 帯 ON/OFF",c:C_KEY,fn:"KEY:KEY2",o:{t:"KEY2",s:"帯"}},
+ {t:"キー: BOX 入替",c:C_KEY,fn:"KEY:BOXSWAP",o:{t:"BOX 入替",s:""}},
+ {t:"マクロ: M07 OP→2ボックス",c:C_MAC,fn:"USER:M07",o:{t:"M07",s:"OP→2ボックス"}},
+ {t:"マクロ: M12 エンド処理",c:C_MAC,fn:"USER:M12",o:{t:"M12",s:"エンド処理"}},
+ {t:"シーン: リプレイ",c:C_MAC,fn:"SCN:Replay",o:{t:"リプレイ",s:"シーン"}},
+ {t:"スナップ: 質疑",c:C_MAC,fn:"SNP:7",o:{t:"質疑",s:"スナップ"}},
+ {t:"AUX: AUX5 → CAM3",c:C_AUX,fn:"AUX:5",o:{t:"AUX5",s:"CAM3"}},
+ {t:"マルチビュー: プリセット 3",c:C_AUX,fn:"MV:3",o:{t:"MV P3",s:""}},
+ {t:"割り当てを消す",c:"#3A434D",fn:null,o:null}
 ];
 
-function paintPanel(){
-  const el = $("#panelKeys"); el.innerHTML = "";
-  PANEL.forEach((m,i)=>{
-    const b = document.createElement("button");
-    b.className = "pkey" + (m ? " is-mapped" : "") + (i===S.pkey ? " is-sel" : "");
-    b.innerHTML = m ? "<b>"+m.t+"</b><small>"+m.s+"</small>"
-                    : "<b style='color:var(--txt-3)'>空き</b><small>"+String(i+1).padStart(2,"0")+"</small>";
-    b.addEventListener("click", ()=>{ S.pkey = i; paintPanel(); });
-    el.appendChild(b);
+function dupSet(){
+  const c={},d=new Set();
+  ROWS.forEach(r=>MAP[r.id].forEach(k=>k.forEach(a=>{
+    if(a&&a.fn&&a.fn.indexOf("SRC:")!==0&&a.fn.indexOf("AUXSEL:")!==0){
+      c[a.fn]=(c[a.fn]||0)+1; if(c[a.fn]>1) d.add(a.fn);
+    }
+  })));
+  return d;
+}
+function paintCP(){
+  const dup=dupSet(), x=$("#cpx"); x.innerHTML="";
+  let free=0;
+  const mkRow=r=>{
+    const g=document.createElement("div"); g.className="cpg";
+    g.innerHTML='<div class="cpg__t">'+r.l+"</div>";
+    const rw=document.createElement("div"); rw.className="cpr";
+    rw.innerHTML='<span class="cpr__l">'+(r.bus?"BUS":r.id==="user"?"LCD":"")+"</span>";
+    for(let i=0;i<r.n;i++){
+      const a=MAP[r.id][i][S.sh];
+      const b=document.createElement("button");
+      let cls="ck"+(r.lcd?" ck--lcd":"")+(a?"":" free");
+      if(a&&r.bus&&a.src!==undefined){
+        if(r.bus==="pgm"&&a.src===S.pgm) cls+=" pgmlit";
+        if(r.bus==="pvw"&&a.src===S.pvw) cls+=" pvwlit";
+      }
+      if(a&&dup.has(a.fn)) cls+=" dup";
+      if(S.ck&&S.ck.r===r.id&&S.ck.i===i) cls+=" sel";
+      b.className=cls;
+      if(a) b.style.setProperty("--c",a.c);
+      b.innerHTML=a?"<b>"+a.t+"</b>"+(a.s?"<small>"+a.s+"</small>":"")
+                   :"<b>空き</b><small>"+String(i+1).padStart(2,"0")+"</small>";
+      if(!a) free++;
+      b.addEventListener("click",()=>{ S.ck={r:r.id,i:i}; paintCP(); paintCK(); });
+      rw.appendChild(b);
+    }
+    if(r.bus||r.id==="axb"){
+      const sh=document.createElement("button");
+      sh.className="ck ck--sh"+(S.sh?" sel":"");
+      sh.innerHTML="<b>SHIFT</b>";
+      sh.addEventListener("click",()=>{ S.sh=S.sh?0:1; paintSh(); });
+      rw.appendChild(sh);
+    }
+    g.appendChild(rw); return g;
+  };
+  const left=document.createElement("div");
+  left.style.cssText="display:flex;flex-direction:column;gap:10px";
+  ROWS.forEach(r=>left.appendChild(mkRow(r)));
+
+  const right=document.createElement("div");
+  right.style.cssText="display:flex;gap:12px;align-items:flex-start";
+  right.innerHTML=
+   '<div class="cpg"><div class="cpg__t">Next / Trans</div>'+
+     '<div class="cpr"><button class="ck"><b>BKGD</b></button><button class="ck"><b>KEY1</b></button></div>'+
+     '<div class="cpr"><button class="ck"><b>KEY2</b></button><button class="ck"><b>DSK</b></button></div>'+
+     '<div class="cpr"><button class="ck"><b>MIX</b></button><button class="ck"><b>WIPE</b></button></div>'+
+     '<div class="cpr"><button class="ck"><b>DVE</b></button><button class="ck"><b>PATT</b></button></div>'+
+     '<div class="cpr"><button class="ck" style="width:92px"><b>AUTO</b></button></div>'+
+     '<div class="cpr"><button class="ck" style="width:92px"><b>CUT</b></button></div></div>'+
+   '<div class="cpg"><div class="cpg__t">T-Bar</div><div class="cpt"><i></i></div></div>'+
+   '<div class="cpg"><div class="cpg__t">Menu</div>'+
+     '<div class="lcdb">MENU / M-E 1<br>SOURCE  : IP01<br>SHIFT   : '+(S.sh?"ON":"OFF")+'<br>MACRO   : M07</div>'+
+     '<div class="num">'+["7","8","9","4","5","6","1","2","3","CL","0","ENT"].map(k=>"<button>"+k+"</button>").join("")+"</div></div>";
+
+  const wrap=document.createElement("div"); wrap.className="cpb";
+  wrap.appendChild(left); wrap.appendChild(right);
+  x.appendChild(wrap);
+  $("#plStat").textContent="空き "+free+" / 重複 "+dup.size;
+  paintCPList(dup);
+}
+let onlyFree=false;
+function paintCPList(dup){
+  const el=$("#cpList"); el.innerHTML="";
+  ROWS.forEach(r=>{
+    MAP[r.id].forEach((k,i)=>{
+      const a=k[0], b=k[1];
+      if(onlyFree ? (a||b) : (!a&&!b)) return;
+      const tr=document.createElement("tr");
+      if(S.ck&&S.ck.r===r.id&&S.ck.i===i) tr.className="sel";
+      const cell=x=> x ? (dup.has(x.fn)?'<span class="st st--w">'+x.t+"</span>":x.t)+(x.s?' <span class="faint">'+x.s+"</span>":"")
+                       : '<span class="faint">—</span>';
+      tr.innerHTML='<td class="m">'+r.l+"</td><td class=\"n\">"+String(i+1).padStart(2,"0")+"</td>"+
+        "<td>"+cell(a)+"</td><td>"+cell(b)+"</td>";
+      tr.addEventListener("click",()=>{ S.ck={r:r.id,i:i}; paintCP(); paintCK(); });
+      el.appendChild(tr);
+    });
+  });
+}
+function paintSh(){
+  $$("#shsw button").forEach(b=>b.classList.toggle("on",+b.dataset.sh===S.sh));
+  paintCP(); paintCK();
+}
+$$("#shsw button").forEach(b=>b.addEventListener("click",()=>{ S.sh=+b.dataset.sh; paintSh(); }));
+$("#fltFree").addEventListener("click",e=>{ onlyFree=!onlyFree; e.currentTarget.classList.toggle("on",onlyFree); paintCP(); });
+
+const FNTXT={SRC:"バスに載せる",KEY:"キーの ON / OFF",USER:"マクロ実行",SCN:"シーン切替",SNP:"スナップショット呼出",AUX:"AUX 出力切替",MV:"マルチビュー切替",AUXSEL:"AUX バスの選択"};
+function paintCK(){
+  const box=$("#ckProp");
+  if(!S.ck){ $("#ckNo").textContent="—"; box.innerHTML='<span class="faint">キーを選択</span>'; return; }
+  const r=ROWS.find(x=>x.id===S.ck.r), a=MAP[S.ck.r][S.ck.i][S.sh], other=MAP[S.ck.r][S.ck.i][S.sh?0:1];
+  const dup=dupSet();
+  $("#ckNo").textContent=r.l+" "+String(S.ck.i+1).padStart(2,"0");
+  const fnHead=a&&a.fn?a.fn.split(":")[0]:null;
+  box.innerHTML=
+    '<dl class="pl">'+
+      "<dt>行</dt><dd class='u'>"+r.l+"</dd>"+
+      "<dt>キー</dt><dd>"+String(S.ck.i+1).padStart(2,"0")+"</dd>"+
+      "<dt>レイヤー</dt><dd class='u'>"+(S.sh?"SHIFT":"通常")+"</dd>"+
+      "<dt>割当</dt><dd class='u'>"+(a?a.t+(a.s?" / "+a.s:""):"—")+"</dd>"+
+      "<dt>動作</dt><dd class='u'>"+(a&&fnHead?(FNTXT[fnHead]||"—"):"—")+"</dd>"+
+      "<dt>"+(S.sh?"通常":"SHIFT")+"側</dt><dd class='u'>"+(other?other.t+(other.s?" / "+other.s:""):"未割り当て")+"</dd>"+
+    "</dl>"+
+    (a&&dup.has(a.fn)?'<div class="st st--w">同じ機能が他のキーにもあります</div>':"")+
+    '<div class="row"><button class="b b--w" id="ckSwap">通常 ⇄ SHIFT を入替</button></div>';
+  $("#ckSwap").addEventListener("click",()=>{
+    const k=MAP[S.ck.r][S.ck.i]; const t=k[0]; k[0]=k[1]; k[1]=t;
+    paintCP(); paintCK(); touch(); say("入替");
   });
 }
 function paintAssign(){
-  const el = $("#assignList"); el.innerHTML = "";
-  ASSIGNABLE.forEach(a=>{
-    const b = document.createElement("button");
-    b.className = "blk " + a.cls;
-    b.innerHTML = '<span class="blk__ic">'+a.ic+'</span><span>'+a.t+'</span>';
-    b.addEventListener("click", ()=>{
-      PANEL[S.pkey] = {t:a.t.replace(/^.*: /,""), s:a.s};
-      paintPanel();
-      toast("キー " + String(S.pkey+1).padStart(2,"0") + " に割り当てました");
+  const el=$("#assign"); el.innerHTML="";
+  ASSIGN.forEach(a=>{
+    const b=document.createElement("button");
+    b.innerHTML='<i style="--c:'+a.c+'"></i><span>'+a.t+"</span>";
+    b.addEventListener("click",()=>{
+      if(!S.ck){ say("先にキーを選択してください"); return; }
+      MAP[S.ck.r][S.ck.i][S.sh]=a.fn?{t:a.o.t,s:a.o.s,c:a.c,fn:a.fn}:null;
+      paintCP(); paintCK(); touch();
+      say(a.fn?"割り当てました":"割り当てを消しました");
     });
     el.appendChild(b);
   });
 }
 
-/* ---------- audio ---------- */
-const CH = [
-  {nm:"CAM1", db:-6, afv:true}, {nm:"CAM2", db:-6, afv:true}, {nm:"CAM3", db:-12, afv:true},
-  {nm:"CAM4", db:-90, afv:true, mute:true}, {nm:"PTZ-A", db:-90, afv:true, mute:true},
-  {nm:"ワイヤレス1", db:-3, afv:false}, {nm:"ワイヤレス2", db:-4, afv:false},
-  {nm:"PC1", db:-10, afv:true}, {nm:"VTR", db:-6, afv:true}, {nm:"中継", db:-8, afv:false},
-  {nm:"MASTER", db:-3, afv:false, master:true}
+/* ---------------- audio ---------------- */
+const CH=[
+ {n:"CAM1",db:-6},{n:"CAM2",db:-6},{n:"CAM3",db:-12},{n:"CAM4",db:-90,mute:1},
+ {n:"PC1",db:-10},{n:"VTR",db:-6},{n:"CM",db:-8},{n:"中継A",db:-8,afv:0},
+ {n:"ワイヤレス1",db:-3,afv:0},{n:"ワイヤレス2",db:-4,afv:0},{n:"場内",db:-14,afv:0},
+ {n:"MASTER",db:-3,mst:1}
 ];
+CH.forEach(c=>{ if(c.afv===undefined) c.afv=1; });
 function paintAudio(){
-  const el = $("#audioStrips"); el.innerHTML = "";
-  CH.forEach((c,i)=>{
-    const d = document.createElement("div");
-    d.className = "strip";
-    if(c.master) d.style.borderColor = "var(--amber-md)";
-    const pos = Math.round(((c.db+90)/90)*100);
-    d.innerHTML =
-      '<span class="strip__nm">'+c.nm+'</span>'+
-      '<div class="mrow"><span class="meter"><i style="height:0%"></i></span>'+
-      '<input class="vfad" type="range" min="0" max="100" value="'+pos+'" aria-label="'+c.nm+' フェーダー">'+
-      '<span class="meter"><i style="height:0%"></i></span></div>'+
-      '<span class="strip__db">'+(c.db<=-90?"−∞":c.db.toFixed(1))+"</span>"+
-      '<div class="strip__btns">'+
-        '<button class="mini'+(c.mute?" is-on":"")+'">MUTE</button>'+
-        '<button class="mini'+(c.afv?" is-afv":"")+'">AFV</button>'+
-      "</div>";
-    d.querySelector(".vfad").addEventListener("input", e=>{
-      const db = (e.target.value/100)*90 - 90;
-      c.db = db; c.mute = db<=-89;
-      d.querySelector(".strip__db").textContent = db<=-89 ? "−∞" : db.toFixed(1);
+  const el=$("#strips"); el.innerHTML="";
+  CH.forEach(c=>{
+    const d=document.createElement("div");
+    d.className="stc"+(c.mst?" mst":"");
+    const pos=Math.round(((c.db+90)/90)*100);
+    d.innerHTML='<span class="stc__n">'+c.n+"</span>"+
+      '<div class="mrw"><span class="mtr"><i style="height:0"></i></span>'+
+      '<input class="vf" type="range" min="0" max="100" value="'+pos+'" aria-label="'+c.n+' フェーダー">'+
+      '<span class="mtr"><i style="height:0"></i></span></div>'+
+      '<span class="stc__d">'+(c.db<=-89?"−∞":c.db.toFixed(1))+"</span>"+
+      '<div class="row"><button class="mn'+(c.mute?" on":"")+'">MUTE</button>'+
+      '<button class="mn'+(c.afv?" afv":"")+'">AFV</button></div>';
+    d.querySelector(".vf").addEventListener("input",e=>{
+      const db=(e.target.value/100)*90-90; c.db=db; c.mute=db<=-89?1:0;
+      d.querySelector(".stc__d").textContent=db<=-89?"−∞":db.toFixed(1);
     });
-    d.querySelectorAll(".mini").forEach((b,bi)=> b.addEventListener("click", ()=>{
-      b.classList.toggle(bi===0 ? "is-on" : "is-afv");
+    d.querySelectorAll(".mn").forEach((b,i)=>b.addEventListener("click",()=>{
+      b.classList.toggle(i===0?"on":"afv"); touch();
     }));
     el.appendChild(d);
   });
 }
-if(!reduce){
-  setInterval(()=>{
-    $$("#audioStrips .meter i").forEach((m,i)=>{
-      const strip = CH[Math.floor(i/2)];
-      if(!strip || strip.db<=-89){ m.style.height = "0%"; return; }
-      const base = Math.max(0, 100 + strip.db*0.9);
-      m.style.height = Math.max(0, Math.min(100, base - 18 + Math.random()*22)) + "%";
-    });
-  }, 140);
-}
+if(!reduce) setInterval(()=>{
+  $$("#strips .mtr i").forEach((m,i)=>{
+    const c=CH[Math.floor(i/2)];
+    if(!c||c.db<=-89){ m.style.height="0"; return; }
+    const base=Math.max(0,100+c.db*0.85);
+    m.style.height=Math.max(0,Math.min(100,base-16+Math.random()*20))+"%";
+  });
+},150);
 
-/* ---------- timecode ---------- */
-let tcSec = 10*3600 + 24*60 + 51;
+/* ---------------- clock ---------------- */
+let sec=10*3600+24*60+51;
 setInterval(()=>{
-  tcSec++;
-  const h = Math.floor(tcSec/3600)%24, m = Math.floor(tcSec/60)%60, s = tcSec%60;
-  const f = Math.floor(Math.random()*30);
-  $("#tc").textContent = [h,m,s,f].map(x=> String(x).padStart(2,"0")).join(":");
-}, 1000);
+  sec++;
+  const h=Math.floor(sec/3600)%24,m=Math.floor(sec/60)%60,s=sec%60,f=Math.floor(Math.random()*30);
+  const t=[h,m,s,f].map(x=>String(x).padStart(2,"0")).join(":");
+  $("#tc").textContent=t; $("#sbTc").textContent=t;
+},1000);
 
-/* ---------- boot ---------- */
-function paint(){
-  paintBuses(); paintMonitors(); paintMV();
-}
-paintScenes(); paintLayers(); paintSnaps();
-paintSources(); paintSrcDetail();
-paintLayouts(); paintPane();
-paintPalette(); paintMacro();
-paintPanel(); paintAssign();
+/* ---------------- boot ---------------- */
+function paint(){ paintBus(); paintMon(); paintMV(); paintCP(); }
+paintScn(); paintLayers(); paintSnaps();
+paintSrc(); paintSrcDet();
+paintLay(); paintPane();
+paintAux();
+paintMacList(); paintPal(); paintMac();
+paintAssign(); paintCK();
 paintAudio();
 paint();
-$("#trDur").textContent = S.rate + " フレーム / " + (S.rate/60).toFixed(2) + " 秒";
+$("#trDur").textContent=S.rate+"F / "+(S.rate/60).toFixed(2)+"s";
+$("#selInfo").textContent=SRC[0].nm;
 })();
 </script>
 </body>

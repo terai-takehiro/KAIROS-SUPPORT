@@ -2,6 +2,7 @@
 
 対象機材: **KAIROS Core 200** ／ **大型コントロールパネル**
 
+実機仕様の根拠は [kairos-facts.md](kairos-facts.md)（メーカー資料から確定）、
 表記ルールの根拠は [ui-research.md](ui-research.md)（他社スイッチャー UI 調査）にある。
 
 ## 1. 解こうとしていること
@@ -17,8 +18,12 @@ ATEM が広く使われている理由は機能の多さではなく、
 
 ## 2. UI の骨格
 
+KAIROS Creator は「メニューは各 1 階層以内、最大 2 クリックで全ページへ」という
+構造を持つ。これに合わせてメインタブ＋サブタブの 2 階層にした。
+
 ```
-┌ 上部バー：識別 / タブ / 接続先 / TC / ON AIR ────────────┐
+┌ 上部バー：識別 / メインタブ / 接続先 / TC / ON AIR ───────┐
+├ サブタブ ＋ QSFP・CPU・GPU メーター ──────────────────────┤
 ├ ワークスペース（ドッキングされたペイン、1px 罫線で区切る）─┤
 ├ コントロールサーフェス（常時表示：PGM・PVW・BANK・T バー）┤
 └ ステータスバー：メッセージ / 未書込 / 選択 / 各種カウント ┘
@@ -73,11 +78,12 @@ IBM Plex は計測機器・エンジニアリング寄りの表情で、副調�
 
 | KAIROS | 見せ方 |
 | --- | --- |
-| Mixer / Multiviewer / Macro / System | そのままタブ名にする（KAIROS Creator と同じ語彙） |
+| Mixer / Macros / Multiviewer / Config / Setup | そのままメインタブにする |
+| Mixer > Control / Audio Mixer、Config > Inputs / Panel | サブタブにする |
 | Scene | シーンのタブ列。M/E に相当する単位として扱う |
-| Layer | レイヤースタック。上が前面。BKGD / KEY / DVE をバッジで区別 |
+| Layer | レイヤースタック。上が前面。1 レイヤーに複数の属性（輝度キー・クロマキー・マスク・DVE・カラー補正）を組み合わせる |
 | Background | 各シーンの固定名レイヤー。名前は変えない |
-| Layer の source A / B | PGM / PST バス |
+| Background の SourceA / SourceB | PGM / PST バス。シーン毎に PGM/PST と A/B を切り替え |
 | Clip Player / RAM Recorder | 入力の種別としてそのまま表示（`CLIP PLAYER` `RAM REC`） |
 | GPU 負荷 | ステータスバーに常時表示 |
 | Layer トランジション | NEXT（BKGD / KEY1 / KEY2）＋ T バー ＋ AUTO / CUT |
@@ -87,54 +93,55 @@ IBM Plex は計測機器・エンジニアリング寄りの表情で、副調�
 
 ## 6. マクロエディタ
 
-ブロック 1 つ = KAIROS コマンド 1〜2 行。
+KAIROS のマクロは **LUA スクリプト**で、スコープは **Global / Scene / Panel** の 3 種。
+Creator の Macro Edit には「Insert Function Template」（Action と Crosspoint）があり、
+Crosspoint のパス表記は `Scenes / Main / Layers / Background / SourceA`。
 
-ブロックの種類は Panasonic が公表しているマクロ機能（クロスポイント選択・ソース切替・
-AUTO トランジション・AUX 再アサイン・MultiView レイアウト・RAM レコーダー /
-クリッププレーヤー再生）に 1:1 で対応させています。
+ブロックはこの Insert Function Template に 1:1 で対応させています。
 
-| ブロック | 生成される行（サンプル） |
+| ブロック | 生成される LUA（サンプル） |
 | --- | --- |
-| XPT | `SCENES.Main.Layers.Background  sourceB = INPUTS.IP02` |
-| AUTO TRANS | `… effect = MIX  rate = 30` ＋ `… TransitionAuto()` |
-| KEY | `SCENES.Main.Layers.Key1  opacity = 1.0  rate = 18` |
-| SCENE | `SCENES.Replay  Activate()` |
-| SNAPSHOT | `SCENES.Main.Snapshots.SNAP1  Recall()` |
-| AUX | `AUX.3  source = SCENES.Main.Program` |
-| MULTIVIEW | `MV1.Presets.P2  Recall()` |
-| CLIP PLAYER / RAM REC | `CLIPPLAYERS.CP1  PLAY()` / `RAMRECORDERS.RR1  CUE()` |
-| WAIT / PAUSE | `WAIT  60` / `PAUSE` |
-| GPI OUT | `GPIO.OUT2  Pulse(200)` |
-| AUDIO | `AUDIO.CH13  gain = -60.0  rate = 60` |
+| CROSSPOINT | `crosspoint("Scenes/Main/Layers/Background/SourceB", "Inputs/IP02")` |
+| AUX | `crosspoint("Aux/AUX3", "Scenes/Main/Program")` |
+| AUTO / CUT | `transition_auto("Scenes/Main/Transitions/BgdMix", 30)` |
+| LAYER ON / OFF | `layer_enable("Scenes/Main/Layers/Layer-1", true)` |
+| SNAPSHOT | `snapshot_recall("Scenes/Main/Snapshots/SNAP1")` |
+| MACRO | `macro_play("Macros/Global/M09")` |
+| TMC | `tmc("Players/RamPlayer1", "Play")` |
+| MULTIVIEWER | `multiviewer_preset("Multiviewer/MV1/Presets/P2")` |
+| GPO | `gpo_send(2)` |
+| WAIT | `wait_frame(60)` / `wait_msec(500)` |
+| WAIT USER | `wait_user()` |
 
-**生成コマンドは隠さない。** 隠すと「何をされたか分からない道具」になり、
-現場では信用されません。書けない人はブロックだけ見て、
-書ける人は右の欄で確認する二層構造にしています。
+シーンのタリーで自動実行される **`AUTOSTART` / `AUTOSTOP`** もマクロ一覧に出しています。
 
-> コマンド表記は UI 検討用のサンプルです。実装前に Core 200 の仕様で確定させます。
+**生成コードは隠さない。** 隠すと「何をされたか分からない道具」になり、現場では信用されません。
+書けない人はブロックだけ見て、書ける人は右の LUA 欄で確認する二層構造にしています。
 
-## 7. パネル画面
+> パス表記は資料で確定しましたが、**関数名はまだ仮**です。Creator の
+> 「Insert Function Template」「Help Macro Description」で確定させます。
 
-大型パネルを想定した行構成（キー数は実測で要確定）:
+## 7. パネル画面（AT-KC10C1G）
+
+実機の構造をそのまま描いています。
 
 ```
-USER (LCD)  ×12
-PGM  BUS    ×20 + SHIFT
-PST  BUS    ×20 + SHIFT
-KEY / UTIL  ×20
-AUX SEL     ×12
-AUX BUS     ×20 + SHIFT
-右ブロック   NEXT / TRANS、T バー、メニュー LCD、テンキー
+DECK A / TOP      [DELEG][24 XPT × 4 行]  [6.6型液晶 / F1-F8 / AUTO CUT / フェーダー]   [KEYPAD 12 + ディジポット]
+DECK B / BOTTOM   [DELEG][24 XPT × 4 行]  [6.6型液晶 / F1-F8 / AUTO CUT / フェーダー]   [KEYPAD 12 + ディジポット]
+                                                                                        [ジョイスティック]
 ```
+
+- 行は**バスへのデリゲート**（初期レイヤー名 BGD-A / BGD-B / Layer-1 / Layer-2）
+- ソースの並びは**シフトレベル 1st〜4th** でページングされる（24 × 4 = 96 スロット）
+- Profile 1〜8、Sapphire モード
 
 仕込みで効くのは次の 5 つです。
 
-1. 通常 / SHIFT を切り替えて、実機と同じ配置で確認できる
-2. 割当一覧で**通常と SHIFT を横並び**に見る（純正で見えないのはここ）
-3. **重複割当の警告** — 同じ機能が複数キーに入っているのは事故のもと
-4. 空きキー数を常に表示し、印刷用に書き出す
-5. キーに出るのは **8 文字のニーモニック**。実機と同じ切れ方で見える
-   （長い和名を 8 文字 / 16 文字へ詰める作業は INPUTS 画面で完結させる）
+1. 実機と同じ配置で、押す前に何が起きるか分かる
+2. 割当一覧で **1st〜4th を横並び**に見る（純正で見えないのはここ）
+3. XPT を選ぶと**その列の 4 段すべての割当**が右に出る
+4. **重複割当の警告** — 同じソースが複数スロットに入っているのは事故のもと
+5. パネル表示名を `#` 付きで編集すると、**キーの見え方（改行）がその場で分かる**
 
 ## 8. 次に決めること
 

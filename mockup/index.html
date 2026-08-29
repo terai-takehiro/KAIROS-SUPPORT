@@ -1,0 +1,1556 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>KAIROS Support Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* ============================================================
+   KAIROS Support Console — mockup stylesheet
+   Single visual world: broadcast rack / control surface (dark only).
+   Every colour is painted explicitly so the page holds on any host ground.
+   ============================================================ */
+:root{
+  color-scheme: dark;
+
+  /* chassis neutrals — graphite with a blue bias */
+  --chassis:#0C0F13;
+  --panel:#141922;
+  --panel-2:#1B212B;
+  --raise:#232B37;
+  --raise-hi:#2B3542;
+  --edge:#2E3846;
+  --edge-hi:#3E4B5D;
+
+  /* ink */
+  --txt:#E7ECF3;
+  --txt-2:#98A5B6;
+  --txt-3:#66717F;
+
+  /* accent — signal amber, used only for app state (selection, focus, active tool) */
+  --amber:#FFB020;
+  --amber-lo:rgba(255,176,32,.14);
+  --amber-md:rgba(255,176,32,.34);
+
+  /* semantic — broadcast conventions, never used as decoration */
+  --pgm:#FF2D46;
+  --pgm-lo:rgba(255,45,70,.16);
+  --pvw:#38D46A;
+  --pvw-lo:rgba(56,212,106,.16);
+  --aux:#4A9EFF;
+  --aux-lo:rgba(74,158,255,.14);
+  --caution:#FF7A2F;
+
+  --ff-cond:"Barlow Condensed","Noto Sans JP",system-ui,sans-serif;
+  --ff-ui:"Barlow","Noto Sans JP",system-ui,sans-serif;
+  --ff-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --r:3px;
+  --sh-key:inset 0 1px 0 rgba(255,255,255,.07), 0 1px 2px rgba(0,0,0,.5);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--chassis);
+  color:var(--txt);
+  font-family:var(--ff-ui);
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--chassis)}
+::-webkit-scrollbar-thumb{background:var(--raise);border:2px solid var(--chassis);border-radius:6px}
+
+.lbl{
+  font-family:var(--ff-cond);
+  font-weight:600;
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--txt-3);
+}
+.mono{font-family:var(--ff-mono);font-variant-numeric:tabular-nums}
+
+/* ---------- chassis ---------- */
+.chassis{
+  height:100dvh;
+  min-height:640px;
+  display:grid;
+  grid-template-rows:46px minmax(0,1fr) auto;
+}
+
+/* ---------- top rail ---------- */
+.rail-top{
+  display:flex;align-items:center;gap:18px;
+  padding:0 14px;
+  background:linear-gradient(180deg,#171D26,#10151C);
+  border-bottom:1px solid var(--edge);
+}
+.brand{display:flex;align-items:baseline;gap:8px;padding-right:16px;border-right:1px solid var(--edge)}
+.brand b{font-family:var(--ff-cond);font-weight:600;font-size:19px;letter-spacing:.18em;color:var(--txt)}
+.brand span{font-family:var(--ff-cond);font-size:12px;letter-spacing:.2em;color:var(--amber)}
+
+.dev{display:flex;align-items:center;gap:10px;min-width:0}
+.dev__dot{width:8px;height:8px;border-radius:50%;background:var(--pvw);box-shadow:0 0 0 3px rgba(56,212,106,.16);flex:none}
+.dev__name{font-weight:600;white-space:nowrap}
+.dev__ip{color:var(--txt-3);font-size:13px}
+
+.rail-top .spacer{margin-left:auto}
+.stat{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--txt-2);white-space:nowrap}
+.stat b{color:var(--txt);font-weight:500}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;
+  border:1px solid var(--edge-hi);border-radius:2px;
+  font-family:var(--ff-cond);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
+}
+.pill--onair{border-color:var(--pgm);color:#fff;background:var(--pgm-lo)}
+.pill--onair::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pgm);animation:tally 1.6s steps(1,end) infinite}
+@keyframes tally{0%,60%{opacity:1}61%,100%{opacity:.25}}
+.pill--ok{border-color:rgba(56,212,106,.5);color:var(--pvw)}
+.tc{font-family:var(--ff-mono);font-size:15px;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--txt)}
+
+/* ---------- middle ---------- */
+.mid{display:grid;grid-template-columns:76px minmax(0,1fr);min-height:0}
+
+.rail-left{
+  display:flex;flex-direction:column;gap:2px;padding:8px 6px;
+  background:#10141B;border-right:1px solid var(--edge);
+}
+.nav{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:9px 2px 7px;border-radius:var(--r);
+  color:var(--txt-3);border:1px solid transparent;
+  transition:background .12s ease,color .12s ease;
+}
+.nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.nav span{font-family:var(--ff-cond);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.nav:hover{background:var(--panel);color:var(--txt-2)}
+.nav[aria-current="page"]{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
+.rail-left .rail-gap{margin-top:auto}
+
+.stage{min-width:0;min-height:0;overflow:auto;padding:14px}
+.view{display:none}
+.view.is-on{display:block}
+
+/* ---------- panels ---------- */
+.pnl{background:var(--panel);border:1px solid var(--edge);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
+.pnl__hd{
+  display:flex;align-items:center;gap:10px;
+  height:32px;padding:0 10px;
+  background:linear-gradient(180deg,#1C222C,#161B24);
+  border-bottom:1px solid var(--edge);border-radius:var(--r) var(--r) 0 0;
+}
+.pnl__hd .lbl{color:var(--txt-2)}
+.pnl__hd .spacer{margin-left:auto}
+.pnl__bd{padding:10px;min-width:0}
+.pnl__bd--flush{padding:0}
+
+.btn{
+  height:26px;padding:0 10px;border:1px solid var(--edge-hi);border-radius:2px;
+  background:linear-gradient(180deg,var(--raise-hi),var(--raise));
+  box-shadow:var(--sh-key);
+  font-family:var(--ff-cond);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-2);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{color:var(--txt);border-color:#4C5A6D}
+.btn.is-on{background:linear-gradient(180deg,#3A2A08,#2A1E05);border-color:var(--amber);color:var(--amber)}
+.btn--amber{background:linear-gradient(180deg,#FFC24D,#E89400);border-color:#FFD07A;color:#1A1204;font-weight:600}
+.btn--amber:hover{color:#1A1204}
+.btn--wide{height:34px;padding:0 16px;font-size:13px}
+
+.grid-2{display:grid;gap:12px}
+.mono-sm{font-family:var(--ff-mono);font-size:12px;color:var(--txt-2)}
+
+/* ---------- video thumbnails ---------- */
+.mon{position:relative;aspect-ratio:16/9;border-radius:2px;overflow:hidden;background:#05070A;border:1px solid var(--edge)}
+.mon__img{position:absolute;inset:0}
+.mon__cap{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;align-items:center;gap:6px;
+  padding:4px 7px;background:linear-gradient(0deg,rgba(4,6,9,.92),rgba(4,6,9,0));
+  font-family:var(--ff-cond);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#DCE3EC;
+}
+.mon__num{font-family:var(--ff-mono);font-size:11px;color:#93A0B1}
+.mon--pgm{border-color:var(--pgm);box-shadow:0 0 0 1px var(--pgm),0 0 22px rgba(255,45,70,.2)}
+.mon--pvw{border-color:var(--pvw);box-shadow:0 0 0 1px var(--pvw)}
+.mon__tag{
+  position:absolute;top:6px;left:6px;height:19px;padding:0 7px;display:flex;align-items:center;
+  font-family:var(--ff-cond);font-size:11px;letter-spacing:.16em;color:#fff;border-radius:1px;
+}
+.mon__tag--pgm{background:var(--pgm)}
+.mon__tag--pvw{background:var(--pvw);color:#06210F}
+.mon__wipe{position:absolute;inset:0;width:0;overflow:hidden}
+.mon__wipe>*{position:absolute;inset:0;width:var(--mw,100%)}
+
+/* generated "video" grounds */
+.v-cam1{background:linear-gradient(155deg,#2B4C6F 0%,#123049 45%,#0A1D2E 100%)}
+.v-cam2{background:linear-gradient(155deg,#4A3B63 0%,#2A2141 48%,#150F24 100%)}
+.v-cam3{background:linear-gradient(155deg,#5A4326 0%,#33260F 50%,#1A1207 100%)}
+.v-cam4{background:linear-gradient(200deg,#1F5049 0%,#123430 50%,#08201C 100%)}
+.v-ptza{background:linear-gradient(140deg,#264A5C 0%,#14313E 60%,#0A1C24 100%)}
+.v-ptzb{background:linear-gradient(140deg,#3D3550 0%,#231E33 60%,#12101B 100%)}
+.v-pc1{background:linear-gradient(180deg,#0E1B2C 0%,#0B1522 100%)}
+.v-pc1::after{content:"";position:absolute;left:12%;top:22%;width:66%;height:12%;background:#8FA6BE;opacity:.5}
+.v-pc2{background:linear-gradient(180deg,#141A22,#0C1017)}
+.v-vtr{background:linear-gradient(120deg,#6B2436 0%,#3A1420 55%,#1A0A10 100%)}
+.v-ram{background:linear-gradient(120deg,#1D3F63 0%,#12253C 60%,#0A1421 100%)}
+.v-srt{background:linear-gradient(160deg,#3C3F1E 0%,#242712 55%,#111206 100%)}
+.v-bars{background:repeating-linear-gradient(90deg,
+  #C0C0C0 0 14.28%,#C0C000 14.28% 28.56%,#00C0C0 28.56% 42.84%,#00C000 42.84% 57.12%,
+  #C000C0 57.12% 71.4%,#C00000 71.4% 85.68%,#0000C0 85.68% 100%)}
+.v-black{background:#05070A}
+.v-still{background:linear-gradient(135deg,#2A2F3A,#161A22)}
+.v-off{background:repeating-linear-gradient(45deg,#12161D 0 6px,#0D1116 6px 12px)}
+</style>
+<style>
+/* ---------- control surface (bolted under the screen, always visible) ---------- */
+.surface{
+  background:linear-gradient(180deg,#121720,#0A0D12);
+  border-top:1px solid var(--edge-hi);
+  box-shadow:0 -12px 24px rgba(0,0,0,.45);
+  padding:9px 12px 11px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;
+}
+.buses{min-width:0;display:flex;flex-direction:column;gap:6px}
+.bus{display:flex;align-items:center;gap:8px;min-width:0}
+.bus__tag{
+  flex:none;width:52px;height:44px;display:grid;place-items:center;border-radius:2px;
+  font-family:var(--ff-cond);font-size:13px;letter-spacing:.14em;font-weight:600;
+  border:1px solid var(--edge-hi);color:var(--txt-2);background:var(--panel-2);
+}
+.bus--pgm .bus__tag{border-color:var(--pgm);color:var(--pgm);background:var(--pgm-lo)}
+.bus--pvw .bus__tag{border-color:var(--pvw);color:var(--pvw);background:var(--pvw-lo)}
+.bus__keys{display:flex;gap:4px;overflow-x:auto;padding-bottom:2px;min-width:0}
+
+.key{
+  flex:none;width:74px;height:44px;border-radius:2px;
+  border:1px solid var(--edge-hi);
+  background:linear-gradient(180deg,var(--raise-hi),var(--raise));
+  box-shadow:var(--sh-key);
+  display:flex;flex-direction:column;justify-content:center;gap:1px;
+  padding:0 6px;text-align:left;color:var(--txt-2);
+  transition:transform .06s ease;
+}
+.key:hover{border-color:#55647A;color:var(--txt)}
+.key:active{transform:translateY(1px)}
+.key__n{font-family:var(--ff-mono);font-size:10px;color:var(--txt-3);letter-spacing:.04em}
+.key__t{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.bus--pgm .key.is-on{background:linear-gradient(180deg,#FF4A60,#D01029);border-color:#FF7488;color:#fff;box-shadow:0 0 14px rgba(255,45,70,.45),var(--sh-key)}
+.bus--pgm .key.is-on .key__n{color:rgba(255,255,255,.75)}
+.bus--pvw .key.is-on{background:linear-gradient(180deg,#4CE07E,#159B47);border-color:#7BEDA2;color:#04240F;box-shadow:0 0 12px rgba(56,212,106,.35),var(--sh-key)}
+.bus--pvw .key.is-on .key__n{color:rgba(4,36,15,.7)}
+.key.is-dead{opacity:.45}
+
+/* transition block */
+.tblock{display:flex;gap:12px;align-items:stretch}
+.tcol{display:flex;flex-direction:column;gap:6px;justify-content:flex-end}
+.tcol .lbl{text-align:center}
+.tbar{
+  width:74px;height:94px;border:1px solid var(--edge-hi);border-radius:2px;
+  background:linear-gradient(180deg,#0E1219,#161C25);
+  position:relative;display:grid;place-items:center;padding:6px;
+}
+.tbar input[type=range]{
+  -webkit-appearance:none;appearance:none;background:none;
+  width:84px;height:16px;transform:rotate(-90deg);margin:0;cursor:ns-resize;
+}
+.tbar input[type=range]::-webkit-slider-runnable-track{height:6px;background:#0A0D12;border:1px solid var(--edge);border-radius:3px}
+.tbar input[type=range]::-moz-range-track{height:6px;background:#0A0D12;border:1px solid var(--edge);border-radius:3px}
+.tbar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:34px;margin-top:-15px;border-radius:2px;background:linear-gradient(90deg,#3A4657,#252E3B);border:1px solid #5A6B80;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.tbar input[type=range]::-moz-range-thumb{width:14px;height:34px;border-radius:2px;background:linear-gradient(90deg,#3A4657,#252E3B);border:1px solid #5A6B80}
+.tbar__pct{position:absolute;bottom:3px;left:0;right:0;text-align:center;font-family:var(--ff-mono);font-size:10px;color:var(--txt-3)}
+
+.tkey{
+  width:74px;height:44px;border-radius:2px;border:1px solid var(--edge-hi);
+  background:linear-gradient(180deg,var(--raise-hi),var(--raise));box-shadow:var(--sh-key);
+  font-family:var(--ff-cond);font-size:14px;letter-spacing:.12em;font-weight:600;color:var(--txt-2);
+  display:grid;place-items:center;white-space:nowrap;
+}
+.tkey:hover{color:var(--txt)}
+.tkey--auto{background:linear-gradient(180deg,#FFC24D,#E09000);border-color:#FFD07A;color:#1A1204}
+.tkey--cut{background:linear-gradient(180deg,#F2F5F9,#C6CFDA);border-color:#fff;color:#0C0F13}
+.tkey.is-on{outline:2px solid var(--amber);outline-offset:-3px;color:var(--amber)}
+.tcol--macro .tkey{width:92px}
+.tsel{display:flex;flex-direction:column;gap:4px}
+.tsel button{
+  height:24px;padding:0 9px;border:1px solid var(--edge);border-radius:2px;background:var(--panel-2);
+  font-family:var(--ff-cond);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt-3);text-align:left;
+}
+.tsel button.is-on{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
+.rate{display:flex;align-items:center;gap:6px;justify-content:center}
+.rate input{
+  width:46px;height:24px;background:#0A0D12;border:1px solid var(--edge);border-radius:2px;
+  color:var(--txt);font-family:var(--ff-mono);font-size:12px;text-align:center;
+}
+
+/* ---------- switcher view ---------- */
+.sw{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:12px;align-items:start}
+.mons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scenes{display:flex;gap:6px;flex-wrap:wrap;padding:10px}
+.chip{
+  height:28px;padding:0 12px;border:1px solid var(--edge);border-radius:2px;background:var(--panel-2);
+  color:var(--txt-2);font-size:13px;display:inline-flex;align-items:center;gap:8px;
+}
+.chip:hover{border-color:var(--edge-hi);color:var(--txt)}
+.chip.is-on{background:var(--amber-lo);border-color:var(--amber);color:var(--amber);font-weight:500}
+.chip__k{font-family:var(--ff-mono);font-size:11px;opacity:.7}
+
+/* layer stack */
+.layers{display:flex;flex-direction:column}
+.layer{
+  display:grid;grid-template-columns:26px 136px minmax(0,1fr) 104px 70px 70px;
+  align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid #1E2530;
+}
+.layer:last-child{border-bottom:0}
+.layer:hover{background:#181E27}
+.layer__grip{color:var(--txt-3);font-family:var(--ff-mono);font-size:12px;cursor:grab}
+.layer__name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layer__src{display:flex;align-items:center;gap:7px;min-width:0}
+.layer__sw{width:22px;height:14px;border-radius:1px;flex:none;border:1px solid rgba(255,255,255,.14)}
+.layer__srcname{font-size:13px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tagx{
+  height:19px;padding:0 6px;display:inline-flex;align-items:center;border-radius:1px;
+  font-family:var(--ff-cond);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--edge-hi);color:var(--txt-3);
+}
+.tagx--key{border-color:rgba(74,158,255,.5);color:var(--aux);background:var(--aux-lo)}
+.tagx--dve{border-color:var(--amber-md);color:var(--amber);background:var(--amber-lo)}
+.tagx--bg{border-color:var(--edge-hi);color:var(--txt-3)}
+.onoff{
+  width:70px;height:24px;border-radius:2px;border:1px solid var(--edge-hi);background:var(--panel-2);
+  font-family:var(--ff-cond);font-size:11px;letter-spacing:.12em;color:var(--txt-3);
+}
+.onoff.is-on{background:var(--pgm-lo);border-color:var(--pgm);color:#FF7488}
+.fadr{width:100%;accent-color:var(--amber);height:4px}
+
+/* palettes */
+.pal{display:flex;flex-direction:column;gap:12px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:13px}
+.kv dt{color:var(--txt-3);font-size:12px}
+.kv dd{margin:0;color:var(--txt);font-family:var(--ff-mono);font-size:12px}
+.sel{
+  width:100%;height:26px;background:#0A0D12;border:1px solid var(--edge);border-radius:2px;
+  color:var(--txt);font-family:var(--ff-ui);font-size:13px;padding:0 6px;
+}
+.swatchrow{display:flex;gap:6px;align-items:center}
+.swatch{width:26px;height:22px;border-radius:1px;border:1px solid rgba(255,255,255,.16)}
+</style>
+<style>
+/* ---------- sources view ---------- */
+.srcgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;align-items:start}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{
+  position:sticky;top:0;background:#161C25;text-align:left;padding:7px 10px;
+  font-family:var(--ff-cond);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--txt-3);
+  border-bottom:1px solid var(--edge);white-space:nowrap;
+}
+.tbl td{padding:7px 10px;border-bottom:1px solid #1C222C;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover{background:#181E27}
+.tbl tbody tr.is-sel{background:var(--amber-lo);box-shadow:inset 2px 0 0 var(--amber)}
+.tbl .num{font-family:var(--ff-mono);color:var(--txt-3);width:34px}
+.tbl .fmt{font-family:var(--ff-mono);font-size:12px;color:var(--txt-2);white-space:nowrap}
+.dot{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:12.5px}
+.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--txt-3)}
+.dot--ok{color:var(--pvw)} .dot--ok::before{background:var(--pvw)}
+.dot--warn{color:var(--caution)} .dot--warn::before{background:var(--caution)}
+.dot--off{color:var(--txt-3)} .dot--off::before{background:var(--txt-3)}
+.iotype{
+  height:19px;padding:0 7px;display:inline-flex;align-items:center;border-radius:1px;
+  font-family:var(--ff-cond);font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+  border:1px solid var(--edge-hi);color:var(--txt-2);background:var(--panel-2);
+}
+.iotype--ip{border-color:rgba(74,158,255,.45);color:var(--aux)}
+.iotype--int{border-color:var(--amber-md);color:var(--amber)}
+
+/* ---------- multiview view ---------- */
+.mv{display:grid;grid-template-columns:186px minmax(0,1fr) 274px;gap:12px;align-items:start}
+.mvcanvas{background:#05070A;border:1px solid var(--edge);border-radius:2px;padding:6px;aspect-ratio:16/9;display:grid;gap:5px}
+.pane{
+  position:relative;border:1px solid #212936;border-radius:1px;overflow:hidden;
+  display:block;width:100%;height:100%;min-height:0;
+}
+.pane__lbl{
+  position:absolute;left:0;bottom:0;right:0;padding:2px 5px;
+  background:rgba(4,6,9,.78);font-size:11px;font-family:var(--ff-cond);letter-spacing:.08em;
+  text-transform:uppercase;color:#CFD8E3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.pane.is-sel{outline:2px solid var(--amber);outline-offset:-2px;z-index:2}
+.pane.t-pgm{border-color:var(--pgm);box-shadow:inset 0 0 0 1px var(--pgm)}
+.pane.t-pvw{border-color:var(--pvw);box-shadow:inset 0 0 0 1px var(--pvw)}
+.pane__meter{position:absolute;right:2px;top:2px;bottom:14px;width:4px;background:rgba(0,0,0,.5);border-radius:1px;overflow:hidden}
+.pane__meter i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,var(--pvw),var(--amber));display:block}
+.layouts{display:flex;flex-direction:column;gap:6px;padding:10px}
+.lay{
+  display:flex;align-items:center;gap:9px;padding:6px;border:1px solid var(--edge);border-radius:2px;
+  background:var(--panel-2);color:var(--txt-2);font-size:13px;text-align:left;
+}
+.lay.is-on{border-color:var(--amber);background:var(--amber-lo);color:var(--amber)}
+.lay__ico{width:34px;height:20px;display:grid;gap:1.5px;flex:none}
+.lay__ico i{background:currentColor;opacity:.55;display:block;border-radius:1px}
+
+/* ---------- macro view ---------- */
+.mac{display:grid;grid-template-columns:214px minmax(0,1fr) 372px;gap:12px;align-items:start}
+.blocks{display:flex;flex-direction:column;gap:5px;padding:10px}
+.blk{
+  display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:2px;
+  border:1px solid var(--edge);background:var(--panel-2);color:var(--txt-2);
+  font-size:13px;text-align:left;transition:border-color .12s ease,color .12s ease;
+}
+.blk:hover{border-color:var(--amber-md);color:var(--txt)}
+.blk__ic{
+  width:22px;height:22px;flex:none;border-radius:2px;display:grid;place-items:center;
+  font-family:var(--ff-cond);font-size:12px;font-weight:600;letter-spacing:.02em;
+  background:var(--raise);color:var(--txt-2);border:1px solid var(--edge-hi);
+}
+.blk--src .blk__ic{background:rgba(74,158,255,.16);border-color:rgba(74,158,255,.5);color:var(--aux)}
+.blk--trn .blk__ic{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
+.blk--tim .blk__ic{background:rgba(255,122,47,.14);border-color:rgba(255,122,47,.45);color:var(--caution)}
+.blk--io  .blk__ic{background:rgba(56,212,106,.14);border-color:rgba(56,212,106,.45);color:var(--pvw)}
+
+.steps{display:flex;flex-direction:column;padding:8px;gap:6px;min-height:220px}
+.step{
+  display:grid;grid-template-columns:26px 26px minmax(0,1fr) auto;align-items:center;gap:10px;
+  padding:8px 10px;border:1px solid var(--edge);border-radius:2px;
+  background:linear-gradient(180deg,#1A212B,#151A23);
+}
+.step.is-sel{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-md)}
+.step__n{font-family:var(--ff-mono);font-size:12px;color:var(--txt-3);text-align:right}
+.step__body{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.step__verb{font-weight:600;white-space:nowrap}
+.param{
+  height:22px;padding:0 8px;display:inline-flex;align-items:center;gap:6px;border-radius:11px;
+  border:1px dashed var(--edge-hi);background:#0E131A;color:var(--txt);
+  font-size:12.5px;font-family:var(--ff-ui);white-space:nowrap;
+}
+.param:hover{border-style:solid;border-color:var(--amber);color:var(--amber)}
+.param b{font-weight:500}
+.step__x{color:var(--txt-3);font-size:16px;line-height:1;padding:2px 5px;border-radius:2px}
+.step__x:hover{color:var(--pgm);background:var(--pgm-lo)}
+.steps__empty{
+  border:1px dashed var(--edge-hi);border-radius:2px;padding:26px 14px;text-align:center;
+  color:var(--txt-3);font-size:13px;
+}
+.code{
+  margin:0;padding:10px;background:#080B0F;border-top:1px solid var(--edge);
+  font-family:var(--ff-mono);font-size:11.5px;line-height:1.7;color:#9FB3C8;
+  white-space:pre-wrap;text-indent:-1.6em;padding-left:26px;max-height:300px;overflow-y:auto;
+}
+.code .c-path{color:#7FB2E5}
+.code .c-val{color:#F0C070}
+.code .c-cmt{color:#4E5A69}
+.note{font-size:12px;color:var(--txt-3);line-height:1.5}
+.trigger{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--edge);flex-wrap:wrap}
+
+/* ---------- panel mapping ---------- */
+.pmap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px;align-items:start}
+.pkeys{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;padding:10px}
+.pkey{
+  aspect-ratio:1.25;border-radius:2px;border:1px solid var(--edge-hi);
+  background:linear-gradient(180deg,var(--raise-hi),var(--raise));box-shadow:var(--sh-key);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;padding:2px;
+  color:var(--txt-3);
+}
+.pkey b{font-size:11.5px;font-weight:500;color:var(--txt-2);text-align:center;line-height:1.15}
+.pkey small{font-family:var(--ff-mono);font-size:9.5px}
+.pkey.is-mapped{border-color:var(--amber-md);background:linear-gradient(180deg,#3A2C0C,#241B06);color:var(--amber)}
+.pkey.is-mapped b{color:var(--amber)}
+.pkey.is-sel{outline:2px solid var(--amber);outline-offset:-3px}
+
+/* ---------- audio ---------- */
+.strips{display:flex;gap:8px;padding:12px;overflow-x:auto}
+.strip{
+  flex:none;width:86px;background:var(--panel-2);border:1px solid var(--edge);border-radius:2px;
+  padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;
+}
+.strip__nm{font-size:12px;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.meter{width:9px;height:118px;background:#080B0F;border:1px solid var(--edge);border-radius:1px;position:relative;overflow:hidden}
+.meter i{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,#159B47 0%,var(--pvw) 55%,var(--amber) 80%,var(--pgm) 100%)}
+.mrow{display:flex;gap:5px;align-items:flex-end}
+.vfad{
+  -webkit-appearance:none;appearance:none;writing-mode:vertical-lr;direction:rtl;
+  width:24px;height:118px;margin:0;background:none;cursor:ns-resize;accent-color:var(--amber);
+}
+.vfad::-webkit-slider-runnable-track{width:6px;background:#0A0D12;border:1px solid var(--edge);border-radius:3px}
+.vfad::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:13px;border-radius:2px;margin-left:-8px;
+  background:linear-gradient(180deg,#46536580,#252E3B);border:1px solid #6A7B90;box-shadow:0 2px 5px rgba(0,0,0,.6);
+}
+.strip__db{font-family:var(--ff-mono);font-size:11px;color:var(--txt-2)}
+.strip__btns{display:flex;gap:3px}
+.mini{
+  width:36px;height:20px;border:1px solid var(--edge-hi);border-radius:2px;background:var(--raise);
+  font-family:var(--ff-cond);font-size:10px;letter-spacing:.04em;color:var(--txt-3);
+}
+.mini.is-on{background:var(--pgm-lo);border-color:var(--pgm);color:#FF7488}
+.mini.is-afv{background:var(--amber-lo);border-color:var(--amber-md);color:var(--amber)}
+
+/* ---------- misc ---------- */
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.hint{
+  display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border-radius:2px;
+  background:var(--amber-lo);border:1px solid var(--amber-md);color:#E9D6AE;font-size:12.5px;line-height:1.5;
+}
+.hint b{color:var(--amber);font-weight:600}
+.vhead{display:flex;align-items:baseline;gap:12px;margin:0 0 12px}
+.vhead h1{font-family:var(--ff-cond);font-size:22px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin:0;color:var(--txt)}
+.vhead p{margin:0;color:var(--txt-3);font-size:13px}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+}
+@media (max-width:1180px){
+  .sw,.srcgrid,.mv,.mac,.pmap{grid-template-columns:minmax(0,1fr)}
+  .mv,.mac{gap:12px}
+}
+</style>
+
+<div class="chassis">
+
+  <!-- ================= TOP RAIL ================= -->
+  <header class="rail-top">
+    <div class="brand"><b>KAIROS</b><span>SUPPORT</span></div>
+
+    <div class="dev">
+      <i class="dev__dot" aria-hidden="true"></i>
+      <span class="dev__name">KAIROS Core 100</span>
+      <span class="dev__ip mono">192.168.10.20</span>
+    </div>
+
+    <span class="pill pill--ok">接続中</span>
+    <span class="stat">プロジェクト <b>ホールA_定期公演</b></span>
+
+    <div class="spacer"></div>
+
+    <span class="stat">基準信号 <b>1080/59.94p</b></span>
+    <span class="stat">同期 <b class="mono">Black Burst</b></span>
+    <span class="tc" id="tc">10:24:51:12</span>
+    <span class="pill pill--onair">On Air</span>
+  </header>
+
+  <!-- ================= MIDDLE ================= -->
+  <div class="mid">
+    <nav class="rail-left" aria-label="ワークスペース">
+      <button class="nav" data-view="switcher" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M3 13l9 5 9-5"/></svg>
+        <span>Switch</span>
+      </button>
+      <button class="nav" data-view="sources">
+        <svg viewBox="0 0 24 24"><path d="M4 7h11"/><path d="m12 4 3 3-3 3"/><path d="M20 17H9"/><path d="m12 14-3 3 3 3"/></svg>
+        <span>Source</span>
+      </button>
+      <button class="nav" data-view="multiview">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 12h18M12 12v8M12 4v8"/></svg>
+        <span>Multi</span>
+      </button>
+      <button class="nav" data-view="macro">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="6" rx="1"/><rect x="13" y="14" width="8" height="6" rx="1"/><path d="M7 10v4a3 3 0 0 0 3 3h3"/></svg>
+        <span>Macro</span>
+      </button>
+      <button class="nav" data-view="panel">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M7 9h2M11 9h2M15 9h2M7 14h10"/></svg>
+        <span>Panel</span>
+      </button>
+      <button class="nav" data-view="audio">
+        <svg viewBox="0 0 24 24"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="9" r="2"/><circle cx="12" cy="15" r="2"/><circle cx="18" cy="8" r="2"/></svg>
+        <span>Audio</span>
+      </button>
+      <div class="rail-gap"></div>
+      <button class="nav" data-view="setup">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg>
+        <span>Setup</span>
+      </button>
+    </nav>
+
+    <main class="stage">
+
+      <!-- ---------- SWITCHER ---------- -->
+      <section class="view is-on" id="v-switcher">
+        <div class="vhead"><h1>Switcher</h1><p id="swSub">シーン「メイン PGM」／ レイヤー 6 枚</p></div>
+        <div class="sw">
+          <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+            <div class="mons">
+              <div class="pnl">
+                <div class="pnl__hd"><span class="lbl">Preview</span><span class="spacer"></span><span class="mono-sm" id="pvwFmt">1080/59.94p</span></div>
+                <div class="pnl__bd">
+                  <div class="mon mon--pvw">
+                    <div class="mon__img" id="imgPvw"></div>
+                    <span class="mon__tag mon__tag--pvw">PVW</span>
+                    <div class="mon__cap"><span class="mon__num" id="numPvw">02</span><span id="capPvw">CAM2 サイド</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="pnl">
+                <div class="pnl__hd"><span class="lbl">Program</span><span class="spacer"></span><span class="mono-sm" id="pgmFmt">1080/59.94p</span></div>
+                <div class="pnl__bd">
+                  <div class="mon mon--pgm">
+                    <div class="mon__img" id="imgPgm"></div>
+                    <div class="mon__img" id="imgPgmNext" style="opacity:0"></div>
+                    <span class="mon__tag mon__tag--pgm">PGM</span>
+                    <div class="mon__cap"><span class="mon__num" id="numPgm">01</span><span id="capPgm">CAM1 センター</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">Scenes</span><span class="spacer"></span>
+                <button class="btn">＋ シーン追加</button></div>
+              <div class="pnl__bd pnl__bd--flush"><div class="scenes" id="sceneChips"></div></div>
+            </div>
+
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">Layer Stack</span><span class="spacer"></span>
+                <span class="mono-sm">上が前面</span><button class="btn">＋ レイヤー</button></div>
+              <div class="pnl__bd pnl__bd--flush"><div class="layers" id="layerList"></div></div>
+            </div>
+          </div>
+
+          <aside class="pal">
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">Transition</span></div>
+              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
+                <label class="lbl" for="trType">効果</label>
+                <select class="sel" id="trType">
+                  <option value="mix">MIX（ディゾルブ）</option>
+                  <option value="wipe">WIPE（左→右）</option>
+                  <option value="dve">DVE（プッシュ）</option>
+                </select>
+                <dl class="kv">
+                  <dt>デュレーション</dt><dd id="trDur">30 フレーム / 0.5 秒</dd>
+                  <dt>対象レイヤー</dt><dd>Background</dd>
+                  <dt>次のトランジション</dt><dd id="trNext">BKGD</dd>
+                </dl>
+                <div class="hint"><span>💡</span><span><b>ここがATEM流。</b>KAIROSのレイヤー単位トランジションを、いつもの「BKGD＋KEY」の考え方で操作できます。</span></div>
+              </div>
+            </div>
+
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">Key 1 — L3</span><span class="spacer"></span>
+                <button class="btn is-on" id="k1On">On Air</button></div>
+              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
+                <select class="sel"><option>クロマキー</option><option>ルミナンスキー</option><option selected>リニアキー（フィル＋キー）</option></select>
+                <dl class="kv">
+                  <dt>フィル</dt><dd>IP7 — PC1 スライド</dd>
+                  <dt>キー</dt><dd>IP8 — PC1 アルファ</dd>
+                  <dt>クリップ / ゲイン</dt><dd>12.0 / 48.0</dd>
+                </dl>
+                <div class="swatchrow"><span class="lbl">ボーダー</span>
+                  <i class="swatch" style="background:#FFB020"></i>
+                  <i class="swatch" style="background:#E7ECF3"></i>
+                  <i class="swatch" style="background:#4A9EFF"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">Snapshot</span><span class="spacer"></span><span class="mono-sm">保存 8 / 32</span></div>
+              <div class="pnl__bd">
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px" id="snapGrid"></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ---------- SOURCES ---------- -->
+      <section class="view" id="v-sources">
+        <div class="vhead"><h1>Sources</h1><p>入力の名前・色・バス配置を1画面で。KAIROS Creator の入力定義とパネル配置をまとめて扱います。</p></div>
+        <div class="srcgrid">
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">Input Inventory</span><span class="spacer"></span>
+              <button class="btn">NDI 自動検出</button><button class="btn">CSV 読み込み</button></div>
+            <div class="pnl__bd pnl__bd--flush" style="overflow:auto;max-height:60vh">
+              <table class="tbl">
+                <thead><tr>
+                  <th>#</th><th>名前</th><th>種別</th><th>フォーマット</th><th>状態</th><th>バス</th><th>色</th>
+                </tr></thead>
+                <tbody id="srcRows"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside style="display:flex;flex-direction:column;gap:12px">
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">選択中の入力</span></div>
+              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:10px">
+                <div class="mon" style="aspect-ratio:16/9"><div class="mon__img" id="srcPrev"></div>
+                  <div class="mon__cap"><span class="mon__num" id="srcPrevNum">01</span><span id="srcPrevName">CAM1 センター</span></div></div>
+                <dl class="kv" id="srcMeta"></dl>
+                <div style="display:flex;gap:6px"><button class="btn">PVW に出す</button><button class="btn">名前を変更</button></div>
+              </div>
+            </div>
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">配置アシスト</span></div>
+              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
+                <p class="note">よく使う並びをワンクリックで。パネルのキー番号とマルチビューのペイン番号も一緒に付け替えます。</p>
+                <button class="btn btn--wide">カメラ優先で並べ替え</button>
+                <button class="btn btn--wide">中継・リモートを右端へ</button>
+                <button class="btn btn--wide">未接続の入力を隠す</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ---------- MULTIVIEW ---------- -->
+      <section class="view" id="v-multiview">
+        <div class="vhead"><h1>Multiview</h1><p>ペインを選んでソースを差し替えるだけ。タリー枠・音声メーター・ラベルは自動で付いてきます。</p></div>
+        <div class="mv">
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">Layout</span></div>
+            <div class="pnl__bd pnl__bd--flush"><div class="layouts" id="layoutList"></div></div>
+          </div>
+
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">MV 1 — 出力 SDI 5</span><span class="spacer"></span>
+              <span class="mono-sm" id="mvName">4×4 / 16 ペイン</span></div>
+            <div class="pnl__bd"><div class="mvcanvas" id="mvCanvas"></div></div>
+          </div>
+
+          <aside class="pnl">
+            <div class="pnl__hd"><span class="lbl">ペイン設定</span><span class="spacer"></span><span class="mono-sm" id="paneNo">—</span></div>
+            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:10px">
+              <label class="lbl" for="paneSrc">ソース</label>
+              <select class="sel" id="paneSrc"></select>
+              <label class="lbl" for="paneLbl">ラベル</label>
+              <input class="sel" id="paneLbl" value="CAM1">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" checked> タリー枠を表示</label>
+                <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" checked> 音声メーターを重ねる</label>
+                <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox"> セーフエリアを表示</label>
+              </div>
+              <div class="hint"><span>💡</span><span>ペインをドラッグすると入れ替え。<b>結合</b>で2×2の大画面ペインになります。</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ---------- MACRO ---------- -->
+      <section class="view" id="v-macro">
+        <div class="vhead"><h1>Macro</h1><p>ブロックを並べるだけ。KAIROS のコマンド列は下の欄に自動で書き出されます。</p></div>
+        <div class="mac">
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">ブロック</span></div>
+            <div class="pnl__bd pnl__bd--flush">
+              <div class="blocks" id="blockPalette"></div>
+            </div>
+          </div>
+
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">Macro 07</span><span class="spacer"></span>
+              <span class="mono-sm" id="stepCount">6 ステップ</span></div>
+
+            <div class="trigger">
+              <span class="lbl">起動条件</span>
+              <button class="chip is-on" data-trig="key">パネルキー <span class="chip__k">MACRO 7</span></button>
+              <button class="chip" data-trig="gpi">GPI 入力 <span class="chip__k">IN 2</span></button>
+              <button class="chip" data-trig="tc">タイムコード</button>
+              <button class="chip" data-trig="manual">手動のみ</button>
+            </div>
+
+            <div class="pnl__bd pnl__bd--flush">
+              <div class="steps" id="stepList"></div>
+            </div>
+
+            <div class="pnl__hd" style="border-top:1px solid var(--edge);border-bottom:0">
+              <button class="btn btn--amber">テスト実行</button>
+              <button class="btn">1 ステップずつ確認</button>
+              <span class="spacer"></span>
+              <button class="btn" id="undoStep">元に戻す</button>
+              <button class="btn">Core に書き込み</button>
+            </div>
+          </div>
+
+          <aside style="display:flex;flex-direction:column;gap:12px">
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">ステップ設定</span><span class="spacer"></span><span class="mono-sm" id="selStepNo">—</span></div>
+              <div class="pnl__bd" id="stepProps" style="display:flex;flex-direction:column;gap:9px"></div>
+            </div>
+
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">生成コマンド</span><span class="spacer"></span>
+                <button class="btn" id="copyCmd">コピー</button></div>
+              <pre class="code" id="cmdOut"></pre>
+              <div class="pnl__bd">
+                <p class="note">手で書くと事故りやすい行を、ブロックの並びからそのまま書き出します。
+                  ※ 表記は Core のファームウェアに合わせて確定させる想定のサンプルです。</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ---------- PANEL ---------- -->
+      <section class="view" id="v-panel">
+        <div class="vhead"><h1>Panel</h1><p>KAIROS Control 1M/E のキーに、作った操作を貼り付けます。</p></div>
+        <div class="pmap">
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">User Keys — 上段バンク</span><span class="spacer"></span>
+              <span class="mono-sm">バンク A</span><button class="btn">バンク B</button></div>
+            <div class="pnl__bd pnl__bd--flush"><div class="pkeys" id="panelKeys"></div></div>
+          </div>
+          <aside style="display:flex;flex-direction:column;gap:12px">
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">割り当てる機能</span></div>
+              <div class="pnl__bd pnl__bd--flush"><div class="blocks" id="assignList"></div></div>
+            </div>
+            <div class="pnl">
+              <div class="pnl__hd"><span class="lbl">キーの見え方</span></div>
+              <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
+                <p class="note">割り当て済みのキーはアンバーで点灯。押している間だけ有効／トグルの切り替えもここで。</p>
+                <div style="display:flex;gap:6px"><button class="btn is-on">トグル</button><button class="btn">モーメンタリ</button></div>
+                <button class="btn btn--wide">パネル配置を印刷用に書き出す</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ---------- AUDIO ---------- -->
+      <section class="view" id="v-audio">
+        <div class="vhead"><h1>Audio</h1><p>映像のバスに音を追従させる（AFV）か、独立で持つか。フェーダーの並びは Sources と同じ順番です。</p></div>
+        <div class="pnl">
+          <div class="pnl__hd"><span class="lbl">Mixer</span><span class="spacer"></span>
+            <span class="mono-sm">Master −3.0 dB</span><button class="btn is-on">AFV 連動</button></div>
+          <div class="pnl__bd pnl__bd--flush"><div class="strips" id="audioStrips"></div></div>
+        </div>
+
+        <div class="split" style="margin-top:12px">
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">AFV の対応</span><span class="spacer"></span>
+              <span class="mono-sm">映像 → 音声</span></div>
+            <div class="pnl__bd pnl__bd--flush">
+              <table class="tbl">
+                <thead><tr><th>映像ソース</th><th>音声 CH</th><th>動作</th></tr></thead>
+                <tbody>
+                  <tr><td>CAM1 センター</td><td class="fmt">CH 1</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
+                  <tr><td>CAM2 サイド</td><td class="fmt">CH 2</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
+                  <tr><td>PC1 スライド</td><td class="fmt">CH 8</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
+                  <tr><td>VTR / 番宣</td><td class="fmt">CH 9</td><td><span class="dot dot--ok">PGM に出たら開く</span></td></tr>
+                  <tr><td>ワイヤレス 1 / 2</td><td class="fmt">CH 6 · 7</td><td><span class="dot dot--warn">常時オープン（手動）</span></td></tr>
+                  <tr><td>リモート中継</td><td class="fmt">CH 10</td><td><span class="dot dot--warn">常時オープン（手動）</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">出力ルーティング</span></div>
+            <div class="pnl__bd pnl__bd--flush">
+              <table class="tbl">
+                <thead><tr><th>バス</th><th>行き先</th><th>備考</th></tr></thead>
+                <tbody>
+                  <tr><td class="fmt">MIX 1</td><td>SDI OUT 1 — 収録</td><td style="color:var(--txt-3)">テロップ・SE 込み</td></tr>
+                  <tr><td class="fmt">MIX 2</td><td>配信エンコーダー</td><td style="color:var(--txt-3)">クリーンフィード</td></tr>
+                  <tr><td class="fmt">AUX 1</td><td>楽屋モニター</td><td style="color:var(--txt-3)">PGM 追従</td></tr>
+                  <tr><td class="fmt">AUX 2</td><td>会場スピーカー</td><td style="color:var(--txt-3)">中継音を除外</td></tr>
+                  <tr><td class="fmt">MADI 1-2</td><td>音声卓へ返し</td><td style="color:var(--txt-3)">−20 dBFS 基準</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------- SETUP ---------- -->
+      <section class="view" id="v-setup">
+        <div class="vhead"><h1>Setup</h1><p>現場に入る前の準備をここに集約します。</p></div>
+        <div class="split">
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">接続</span></div>
+            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
+              <dl class="kv">
+                <dt>Core</dt><dd>192.168.10.20 : 20020</dd>
+                <dt>Control パネル</dt><dd>192.168.10.31</dd>
+                <dt>プロトコル</dt><dd>KAIROS 制御 / REST</dd>
+                <dt>応答</dt><dd>3.2 ms</dd>
+              </dl>
+              <button class="btn btn--wide">接続テスト</button>
+            </div>
+          </div>
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">プロジェクト</span></div>
+            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:9px">
+              <p class="note">Core 上の設定と、この端末の編集内容の差分を出してから書き込みます。上書き事故を防ぐための一手間です。</p>
+              <button class="btn btn--wide">差分を確認して書き込み</button>
+              <button class="btn btn--wide">現在の設定を取り込む</button>
+              <button class="btn btn--wide">テンプレートとして保存</button>
+            </div>
+          </div>
+          <div class="pnl">
+            <div class="pnl__hd"><span class="lbl">テンプレート</span></div>
+            <div class="pnl__bd" style="display:flex;flex-direction:column;gap:6px">
+              <button class="chip" style="justify-content:flex-start">3カメ配信 標準セット</button>
+              <button class="chip" style="justify-content:flex-start">ホールA 定期公演</button>
+              <button class="chip" style="justify-content:flex-start">スポーツ 4カメ＋リプレイ</button>
+              <button class="chip" style="justify-content:flex-start">セミナー（PC切替中心）</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= CONTROL SURFACE ================= -->
+  <footer class="surface">
+    <div class="buses">
+      <div class="bus bus--pgm">
+        <div class="bus__tag">PGM</div>
+        <div class="bus__keys" id="pgmKeys"></div>
+      </div>
+      <div class="bus bus--pvw">
+        <div class="bus__tag">PVW</div>
+        <div class="bus__keys" id="pvwKeys"></div>
+      </div>
+    </div>
+
+    <div class="tblock">
+      <div class="tcol tsel" style="justify-content:flex-end">
+        <span class="lbl">Next</span>
+        <button class="is-on" data-next="bkgd">BKGD</button>
+        <button data-next="key1">KEY 1</button>
+        <button data-next="key2">KEY 2</button>
+      </div>
+
+      <div class="tcol">
+        <span class="lbl">T-Bar</span>
+        <div class="tbar">
+          <input type="range" id="tbar" min="0" max="100" value="0" aria-label="Tバー">
+          <span class="tbar__pct mono" id="tbarPct">0%</span>
+        </div>
+      </div>
+
+      <div class="tcol">
+        <div class="rate"><span class="lbl">Rate</span><input class="mono" id="rate" value="30"></div>
+        <button class="tkey tkey--auto" id="btnAuto">AUTO</button>
+        <button class="tkey tkey--cut" id="btnCut">CUT</button>
+      </div>
+
+      <div class="tcol tcol--macro">
+        <span class="lbl">Macro</span>
+        <button class="tkey" id="macroRun">MACRO 7</button>
+        <button class="tkey" id="ftb">FTB</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   KAIROS Support Console — mockup behaviour
+   Everything here is local state; no device is contacted.
+   ============================================================ */
+(function(){
+"use strict";
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- data ---------- */
+const SOURCES = [
+  {n:"01", id:"IP1",  name:"CAM1 センター",     short:"CAM1",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"AK-UC3300 / 光カメ 1", v:"v-cam1",  c:"#2B4C6F"},
+  {n:"02", id:"IP2",  name:"CAM2 サイド",       short:"CAM2",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"AK-UC3300 / 光カメ 2", v:"v-cam2",  c:"#4A3B63"},
+  {n:"03", id:"IP3",  name:"CAM3 ハンディ",     short:"CAM3",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"AG-CX350 / 無線伝送",  v:"v-cam3",  c:"#5A4326"},
+  {n:"04", id:"IP4",  name:"CAM4 俯瞰",         short:"CAM4",  type:"12G-SDI",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"固定 / 天井吊り",      v:"v-cam4",  c:"#1F5049"},
+  {n:"05", id:"IP5",  name:"PTZ-A 客席",        short:"PTZ-A", type:"NDI HX3",   ip:true,  fmt:"1080/59.94p", st:"ok",   note:"AW-UE100 / PoE",       v:"v-ptza",  c:"#264A5C"},
+  {n:"06", id:"IP6",  name:"PTZ-B 舞台袖",      short:"PTZ-B", type:"NDI HX3",   ip:true,  fmt:"1080/59.94p", st:"warn", note:"帯域 92% / 要確認",    v:"v-ptzb",  c:"#3D3550"},
+  {n:"07", id:"IP7",  name:"PC1 スライド",      short:"PC1",   type:"ST 2110-20",ip:true,  fmt:"1080/60p",    st:"ok",   note:"講演資料 / キーあり",  v:"v-pc1",   c:"#0E1B2C"},
+  {n:"08", id:"IP8",  name:"PC2 予備",          short:"PC2",   type:"ST 2110-20",ip:true,  fmt:"—",           st:"off",  note:"未接続",               v:"v-pc2",   c:"#141A22"},
+  {n:"09", id:"MP1",  name:"VTR / 番宣",        short:"VTR",   type:"メディア",   ip:false, fmt:"1080/59.94p", st:"ok",   note:"メディアプレーヤー 1", v:"v-vtr",   c:"#6B2436"},
+  {n:"10", id:"RAM1", name:"RAM プレーヤー 1",  short:"RAM1",  type:"RAM",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"リプレイ 8 秒",        v:"v-ram",   c:"#1D3F63"},
+  {n:"11", id:"SRT1", name:"リモート中継",      short:"中継",  type:"SRT",       ip:true,  fmt:"1080/59.94p", st:"ok",   note:"遅延 800 ms",          v:"v-srt",   c:"#3C3F1E"},
+  {n:"12", id:"BAR",  name:"カラーバー",        short:"BARS",  type:"内部",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"内部生成",             v:"v-bars",  c:"#C0C000"},
+  {n:"13", id:"BLK",  name:"ブラック",          short:"BLACK", type:"内部",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"内部生成",             v:"v-black", c:"#05070A"},
+  {n:"14", id:"STL1", name:"スチル 1",          short:"STILL", type:"内部",       ip:false, fmt:"1080/59.94p", st:"ok",   note:"スチルストア",         v:"v-still", c:"#2A2F3A"}
+];
+
+const SCENES = [
+  {name:"メイン PGM", key:"F1", layers:[
+    {nm:"Logo Bug",        src:13, kind:"dve", on:true,  op:100},
+    {nm:"Key 2 — 帯テロップ", src:12, kind:"key", on:false, op:100},
+    {nm:"Key 1 — L3",      src:6,  kind:"key", on:true,  op:100},
+    {nm:"DVE ボックス B",   src:4,  kind:"dve", on:false, op:100},
+    {nm:"DVE ボックス A",   src:1,  kind:"dve", on:false, op:100},
+    {nm:"Background",      src:0,  kind:"bg",  on:true,  op:100}
+  ]},
+  {name:"2ボックス対談", key:"F2", layers:[
+    {nm:"Key 1 — 名前スーパー", src:6, kind:"key", on:true, op:100},
+    {nm:"DVE 右",  src:1, kind:"dve", on:true, op:100},
+    {nm:"DVE 左",  src:0, kind:"dve", on:true, op:100},
+    {nm:"背景 CG", src:13, kind:"bg", on:true, op:100},
+    {nm:"Background", src:12, kind:"bg", on:true, op:100}
+  ]},
+  {name:"リプレイ", key:"F3", layers:[
+    {nm:"リプレイ枠", src:13, kind:"dve", on:true, op:90},
+    {nm:"スロー再生", src:9,  kind:"bg",  on:true, op:100},
+    {nm:"Background", src:12, kind:"bg",  on:true, op:100}
+  ]},
+  {name:"スポンサー", key:"F4", layers:[
+    {nm:"ロゴ",  src:13, kind:"dve", on:true, op:100},
+    {nm:"静止画", src:8, kind:"bg", on:true, op:100}
+  ]},
+  {name:"客席ワイド", key:"F5", layers:[
+    {nm:"Key 1 — L3", src:6, kind:"key", on:false, op:100},
+    {nm:"Background", src:4, kind:"bg",  on:true,  op:100}
+  ]}
+];
+
+const SNAPS = ["OP_ワイド","2ボックス","講演_PC1","客席_引き","リプレイ待機","スポンサー","質疑応答","エンド"];
+
+/* ---------- state ---------- */
+const S = {pgm:0, pvw:1, scene:0, tr:"mix", rate:30, src:0, mvLayout:"16", pane:0, step:0, pkey:0};
+
+/* ---------- helpers ---------- */
+const src = i => SOURCES[i];
+function fmtSec(f){ return (f/60).toFixed(2).replace(/0$/,"") + " 秒"; }
+function toast(msg){
+  let t = $("#toast");
+  if(!t){
+    t = document.createElement("div"); t.id="toast";
+    t.style.cssText="position:fixed;left:50%;bottom:210px;transform:translateX(-50%);z-index:99;"+
+      "padding:9px 16px;border:1px solid #FFB020;background:#241B06;color:#FFB020;border-radius:2px;"+
+      "font-family:var(--ff-ui);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.5);pointer-events:none;opacity:0;transition:opacity .15s";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = "1";
+  clearTimeout(t._h); t._h = setTimeout(()=>{ t.style.opacity="0"; }, 1600);
+}
+
+/* ---------- navigation ---------- */
+$$(".nav").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    $$(".nav").forEach(n=> n.removeAttribute("aria-current"));
+    b.setAttribute("aria-current","page");
+    $$(".view").forEach(v=> v.classList.remove("is-on"));
+    $("#v-"+b.dataset.view).classList.add("is-on");
+    $(".stage").scrollTop = 0;
+  });
+});
+
+/* ---------- bus keys ---------- */
+function buildBus(el, bus){
+  el.innerHTML = "";
+  SOURCES.forEach((s,i)=>{
+    const b = document.createElement("button");
+    b.className = "key" + (s.st==="off" ? " is-dead" : "");
+    b.innerHTML = '<span class="key__n">'+s.n+'</span><span class="key__t">'+s.short+'</span>';
+    b.title = s.name + " — " + s.type;
+    b.addEventListener("click", ()=>{
+      if(bus==="pgm"){ S.pgm = i; } else { S.pvw = i; }
+      paint();
+    });
+    el.appendChild(b);
+  });
+}
+buildBus($("#pgmKeys"),"pgm");
+buildBus($("#pvwKeys"),"pvw");
+
+/* ---------- monitors ---------- */
+function paintMonitors(){
+  const p = src(S.pgm), v = src(S.pvw);
+  $("#imgPgm").className = "mon__img " + p.v;
+  $("#imgPvw").className = "mon__img " + v.v;
+  $("#numPgm").textContent = p.n; $("#capPgm").textContent = p.name;
+  $("#numPvw").textContent = v.n; $("#capPvw").textContent = v.name;
+  $("#pgmFmt").textContent = p.fmt; $("#pvwFmt").textContent = v.fmt;
+}
+function paintBuses(){
+  $$("#pgmKeys .key").forEach((k,i)=> k.classList.toggle("is-on", i===S.pgm));
+  $$("#pvwKeys .key").forEach((k,i)=> k.classList.toggle("is-on", i===S.pvw));
+}
+
+/* ---------- transition ---------- */
+const nextImg = $("#imgPgmNext");
+function setMix(p){
+  nextImg.className = "mon__img " + src(S.pvw).v;
+  if(S.tr==="mix"){ nextImg.style.opacity = p; nextImg.style.clipPath="none"; nextImg.style.transform="none"; }
+  else if(S.tr==="wipe"){ nextImg.style.opacity = p>0?1:0; nextImg.style.clipPath = "inset(0 "+((1-p)*100)+"% 0 0)"; nextImg.style.transform="none"; }
+  else { nextImg.style.opacity = p>0?1:0; nextImg.style.clipPath="none"; nextImg.style.transform = "translateX("+((1-p)*100)+"%)"; }
+}
+function finishTake(){
+  const a = S.pgm; S.pgm = S.pvw; S.pvw = a;
+  nextImg.style.opacity = 0; nextImg.style.clipPath="none"; nextImg.style.transform="none";
+  $("#tbar").value = 0; $("#tbarPct").textContent = "0%";
+  paint();
+}
+let running = false;
+function autoTake(){
+  if(running) return;
+  if(reduce){ finishTake(); return; }
+  running = true;
+  const ms = (S.rate/60)*1000, t0 = performance.now();
+  (function frame(now){
+    const p = Math.min(1,(now-t0)/ms);
+    setMix(p);
+    $("#tbar").value = Math.round(p*100); $("#tbarPct").textContent = Math.round(p*100)+"%";
+    if(p<1) requestAnimationFrame(frame);
+    else { running = false; finishTake(); }
+  })(t0);
+}
+$("#btnCut").addEventListener("click", ()=>{ if(!running) finishTake(); });
+$("#btnAuto").addEventListener("click", autoTake);
+$("#tbar").addEventListener("input", e=>{
+  const p = e.target.value/100;
+  $("#tbarPct").textContent = e.target.value+"%";
+  setMix(p);
+  if(p>=1) finishTake();
+});
+$("#trType").addEventListener("change", e=>{ S.tr = e.target.value; setMix(0); });
+$("#rate").addEventListener("change", e=>{
+  const f = Math.max(1, Math.min(300, parseInt(e.target.value,10)||30));
+  S.rate = f; e.target.value = f; $("#trDur").textContent = f+" フレーム / "+(f/60).toFixed(2)+" 秒";
+});
+$$(".tsel button").forEach(b=> b.addEventListener("click", ()=>{
+  $$(".tsel button").forEach(x=> x.classList.remove("is-on"));
+  b.classList.add("is-on");
+  $("#trNext").textContent = b.textContent.trim();
+}));
+$("#ftb").addEventListener("click", ()=>{ S.pvw = 12; paint(); toast("FTB — ブラックへ"); });
+$("#macroRun").addEventListener("click", ()=>{ runMacro(); });
+$("#k1On").addEventListener("click", e=> e.currentTarget.classList.toggle("is-on"));
+
+/* ---------- scenes & layers ---------- */
+function paintScenes(){
+  const el = $("#sceneChips"); el.innerHTML = "";
+  SCENES.forEach((sc,i)=>{
+    const b = document.createElement("button");
+    b.className = "chip" + (i===S.scene ? " is-on" : "");
+    b.innerHTML = sc.name + ' <span class="chip__k">'+sc.key+'</span>';
+    b.addEventListener("click", ()=>{ S.scene = i; paintScenes(); paintLayers(); });
+    el.appendChild(b);
+  });
+}
+function paintLayers(){
+  const sc = SCENES[S.scene], el = $("#layerList"); el.innerHTML = "";
+  $("#swSub").textContent = "シーン「"+sc.name+"」／ レイヤー "+sc.layers.length+" 枚";
+  sc.layers.forEach((L,i)=>{
+    const s = src(L.src);
+    const row = document.createElement("div");
+    row.className = "layer";
+    row.innerHTML =
+      '<span class="layer__grip" title="ドラッグで並べ替え">⣿</span>'+
+      '<span class="layer__name">'+L.nm+'</span>'+
+      '<span class="layer__src"><i class="layer__sw" style="background:'+s.c+'"></i>'+
+        '<span class="layer__srcname">'+s.n+' '+s.name+'</span></span>'+
+      '<span><span class="tagx tagx--'+L.kind+'">'+(L.kind==="key"?"KEY":L.kind==="dve"?"DVE / PinP":"BG")+'</span></span>'+
+      '<input class="fadr" type="range" min="0" max="100" value="'+L.op+'" aria-label="'+L.nm+' 不透明度">'+
+      '<button class="onoff'+(L.on?" is-on":"")+'">'+(L.on?"ON AIR":"OFF")+'</button>';
+    row.querySelector(".onoff").addEventListener("click", e=>{
+      L.on = !L.on;
+      e.currentTarget.classList.toggle("is-on", L.on);
+      e.currentTarget.textContent = L.on ? "ON AIR" : "OFF";
+    });
+    row.querySelector(".fadr").addEventListener("input", e=>{ L.op = +e.target.value; });
+    el.appendChild(row);
+  });
+}
+function paintSnaps(){
+  const el = $("#snapGrid"); el.innerHTML = "";
+  SNAPS.forEach((nm,i)=>{
+    const b = document.createElement("button");
+    b.className = "btn"; b.style.height = "30px"; b.style.justifyContent="center";
+    b.style.fontSize = "11px"; b.style.overflow = "hidden"; b.style.whiteSpace = "nowrap";
+    b.style.textOverflow = "ellipsis"; b.style.display = "block"; b.style.lineHeight = "28px";
+    b.textContent = nm; b.title = nm;
+    b.addEventListener("click", ()=>{ toast("スナップショット「"+nm+"」を呼び出しました"); });
+    el.appendChild(b);
+  });
+}
+
+/* ---------- sources ---------- */
+const ST_TXT = {ok:"受信中", warn:"要確認", off:"未接続"};
+function paintSources(){
+  const el = $("#srcRows"); el.innerHTML = "";
+  SOURCES.forEach((s,i)=>{
+    const tr = document.createElement("tr");
+    if(i===S.src) tr.className = "is-sel";
+    const kindCls = s.ip ? " iotype--ip" : (s.type==="内部" ? " iotype--int" : "");
+    tr.innerHTML =
+      '<td class="num">'+s.n+'</td>'+
+      '<td><b style="font-weight:500">'+s.name+'</b><div style="color:var(--txt-3);font-size:12px">'+s.note+'</div></td>'+
+      '<td><span class="iotype'+kindCls+'">'+s.type+'</span></td>'+
+      '<td class="fmt">'+s.fmt+'</td>'+
+      '<td><span class="dot dot--'+(s.st==="ok"?"ok":s.st==="warn"?"warn":"off")+'">'+ST_TXT[s.st]+'</span></td>'+
+      '<td class="fmt">'+s.id+'</td>'+
+      '<td><i class="layer__sw" style="background:'+s.c+';display:inline-block"></i></td>';
+    tr.addEventListener("click", ()=>{ S.src = i; paintSources(); paintSrcDetail(); });
+    el.appendChild(tr);
+  });
+}
+function paintSrcDetail(){
+  const s = src(S.src);
+  $("#srcPrev").className = "mon__img " + s.v;
+  $("#srcPrevNum").textContent = s.n;
+  $("#srcPrevName").textContent = s.name;
+  $("#srcMeta").innerHTML =
+    "<dt>KAIROS 名</dt><dd>"+s.id+"</dd>"+
+    "<dt>種別</dt><dd>"+s.type+"</dd>"+
+    "<dt>フォーマット</dt><dd>"+s.fmt+"</dd>"+
+    "<dt>状態</dt><dd>"+ST_TXT[s.st]+"</dd>"+
+    "<dt>備考</dt><dd style=\"font-family:var(--ff-ui);font-size:13px\">"+s.note+"</dd>";
+}
+
+/* ---------- multiview ---------- */
+const LAYOUTS = [
+  {id:"4",  label:"2×2 / 4 ペイン",     cols:2, rows:2, n:4},
+  {id:"10", label:"大2 ＋ 小8 / 10 ペイン", cols:4, rows:4, n:10, big:2},
+  {id:"16", label:"4×4 / 16 ペイン",    cols:4, rows:4, n:16}
+];
+let paneSrc = SOURCES.map((s,i)=> i).concat([-1,-2]);  // -1 = PGM, -2 = PVW
+function paintLayouts(){
+  const el = $("#layoutList"); el.innerHTML = "";
+  LAYOUTS.forEach(L=>{
+    const b = document.createElement("button");
+    b.className = "lay" + (L.id===S.mvLayout ? " is-on" : "");
+    let ico = '<span class="lay__ico" style="grid-template-columns:repeat('+L.cols+',1fr)">';
+    for(let i=0;i<L.cols*L.rows;i++) ico += "<i></i>";
+    ico += "</span>";
+    b.innerHTML = ico + "<span>" + L.label + "</span>";
+    b.addEventListener("click", ()=>{ S.mvLayout = L.id; S.pane = 0; paintLayouts(); paintMV(); });
+    el.appendChild(b);
+  });
+}
+function paintMV(){
+  const L = LAYOUTS.find(x=> x.id===S.mvLayout);
+  const c = $("#mvCanvas");
+  c.style.gridTemplateColumns = "repeat("+L.cols+",1fr)";
+  c.style.gridTemplateRows = "repeat("+L.rows+",1fr)";
+  c.innerHTML = "";
+  $("#mvName").textContent = L.label;
+  for(let i=0;i<L.n;i++){
+    const ref = paneSrc[i % paneSrc.length];
+    const isPgm = ref===-1, isPvw = ref===-2;
+    const s = src(isPgm ? S.pgm : isPvw ? S.pvw : ref);
+    const b = document.createElement("button");
+    let tally = "";
+    if(isPgm || ref===S.pgm) tally = " t-pgm"; else if(isPvw || ref===S.pvw) tally = " t-pvw";
+    b.className = "pane"+tally+(i===S.pane?" is-sel":"");
+    if(L.big && i<L.big){ b.style.gridColumn = "span 2"; b.style.gridRow = "span 2"; }
+    b.innerHTML = '<span class="mon__img '+s.v+'"></span>'+
+      '<span class="pane__meter"><i style="height:'+(18+((i*17)%56))+'%"></i></span>'+
+      '<span class="pane__lbl">'+(isPgm?"PGM ／ "+s.short:isPvw?"PVW ／ "+s.short:s.short)+'</span>';
+    b.addEventListener("click", ()=>{ S.pane = i; paintMV(); paintPane(); });
+    c.appendChild(b);
+  }
+}
+function paintPane(){
+  const i = S.pane, ref = paneSrc[i];
+  $("#paneNo").textContent = "ペイン " + String(i+1).padStart(2,"0");
+  $("#paneLbl").value = ref===-1 ? "PGM" : ref===-2 ? "PVW" : src(ref).short;
+  const sel = $("#paneSrc");
+  const special = '<option value="-1"'+(ref===-1?" selected":"")+'>PGM 出力</option>'+
+                  '<option value="-2"'+(ref===-2?" selected":"")+'>PVW 出力</option>';
+  sel.innerHTML = special + SOURCES.map((x,j)=> '<option value="'+j+'"'+(j===ref?" selected":"")+'>'+x.n+" "+x.name+"</option>").join("");
+}
+$("#paneSrc").addEventListener("change", e=>{ paneSrc[S.pane] = +e.target.value; paintMV(); paintPane(); });
+
+/* ---------- macro builder ---------- */
+const SCENE_ID = ["MainPGM","TwoBox","Replay","Sponsor","WideHall"];
+const sid = ()=> SCENE_ID[S.scene];
+const KEYS = ["Key1 — L3","Key2 — 帯テロップ","DVE ボックス A","DVE ボックス B"];
+const KEY_ID = ["Key1","Key2","DveA","DveB"];
+const SECS = [0.2,0.3,0.5,1,1.5,2,3];
+const nextSec = v => SECS[(SECS.indexOf(v)+1+SECS.length)%SECS.length] || 0.5;
+
+const STEPS = {
+  src:{ verb:"ソースを切り替える", ic:"SRC", cls:"blk--src", def:()=>({bus:"PVW", s:1}),
+    chips:[
+      {txt:p=>p.bus+" バス", cyc:p=>{ p.bus = p.bus==="PVW"?"PGM":"PVW"; }},
+      {txt:p=>SOURCES[p.s].name, cyc:p=>{ p.s = (p.s+1)%SOURCES.length; }}
+    ],
+    cmd:p=>["SCENES."+sid()+".Layers.Background  "+(p.bus==="PGM"?"sourceA":"sourceB")+" = INPUTS."+SOURCES[p.s].id]},
+
+  trans:{ verb:"トランジション実行", ic:"TRN", cls:"blk--trn", def:()=>({fx:"MIX", sec:0.5}),
+    chips:[
+      {txt:p=>p.fx, cyc:p=>{ p.fx = p.fx==="MIX"?"WIPE":p.fx==="WIPE"?"DVE PUSH":"MIX"; }},
+      {txt:p=>p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}
+    ],
+    cmd:p=>["SCENES."+sid()+".Layers.Background  effect = "+p.fx.replace(" ","_")+"  duration = "+Math.round(p.sec*60),
+            "SCENES."+sid()+".Layers.Background  TransitionAuto()"]},
+
+  key:{ verb:"キーを切り替える", ic:"KEY", cls:"blk--src", def:()=>({k:0, on:true, sec:0.3}),
+    chips:[
+      {txt:p=>KEYS[p.k], cyc:p=>{ p.k = (p.k+1)%KEYS.length; }},
+      {txt:p=>p.on?"ON":"OFF", cyc:p=>{ p.on = !p.on; }},
+      {txt:p=>"フェード "+p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}
+    ],
+    cmd:p=>["SCENES."+sid()+".Layers."+KEY_ID[p.k]+"  opacity = "+(p.on?"1.0":"0.0")+"  duration = "+Math.round(p.sec*60)]},
+
+  scene:{ verb:"シーンを切り替える", ic:"SCN", cls:"blk--trn", def:()=>({i:1}),
+    chips:[{txt:p=>SCENES[p.i].name, cyc:p=>{ p.i = (p.i+1)%SCENES.length; }}],
+    cmd:p=>["# "+SCENES[p.i].name, "SCENES."+SCENE_ID[p.i]+"  Activate()"]},
+
+  snap:{ verb:"スナップショット呼出", ic:"SNP", cls:"blk--trn", def:()=>({i:0}),
+    chips:[{txt:p=>SNAPS[p.i], cyc:p=>{ p.i = (p.i+1)%SNAPS.length; }}],
+    cmd:p=>["# "+SNAPS[p.i], "SCENES."+sid()+".Snapshots.SNAP"+(p.i+1)+"  Recall()"]},
+
+  aux:{ verb:"AUX 出力を切り替える", ic:"AUX", cls:"blk--io", def:()=>({a:3, s:-1}),
+    chips:[
+      {txt:p=>"AUX "+p.a, cyc:p=>{ p.a = p.a%8 + 1; }},
+      {txt:p=>p.s<0?"PGM":SOURCES[p.s].name, cyc:p=>{ p.s = p.s+1 >= SOURCES.length ? -1 : p.s+1; }}
+    ],
+    cmd:p=>["AUX."+p.a+"  source = "+(p.s<0 ? "SCENES."+sid()+".Program" : "INPUTS."+SOURCES[p.s].id)]},
+
+  mv:{ verb:"マルチビューを切り替える", ic:"MV", cls:"blk--io", def:()=>({n:2}),
+    chips:[{txt:p=>"プリセット "+p.n, cyc:p=>{ p.n = p.n%4 + 1; }}],
+    cmd:p=>["MV1.Presets.P"+p.n+"  Recall()"]},
+
+  wait:{ verb:"待機", ic:"WAI", cls:"blk--tim", def:()=>({sec:1}),
+    chips:[{txt:p=>p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}],
+    cmd:p=>["WAIT  frames = "+Math.round(p.sec*60)]},
+
+  hold:{ verb:"次の操作を待つ", ic:"HLD", cls:"blk--tim", def:()=>({}),
+    chips:[],
+    cmd:()=>["PAUSE  # オペレーターがキーを押すまで停止"]},
+
+  gpi:{ verb:"GPI 出力", ic:"GPI", cls:"blk--io", def:()=>({n:2}),
+    chips:[{txt:p=>"OUT "+p.n, cyc:p=>{ p.n = p.n%8 + 1; }}],
+    cmd:p=>["GPIO.OUT"+p.n+"  Pulse(200)"]},
+
+  afade:{ verb:"音声フェード", ic:"AUD", cls:"blk--io", def:()=>({ch:9, db:-60, sec:1}),
+    chips:[
+      {txt:p=>"CH "+p.ch, cyc:p=>{ p.ch = p.ch%14 + 1; }},
+      {txt:p=>p.db+" dB", cyc:p=>{ p.db = p.db===-60 ? 0 : p.db===0 ? -10 : -60; }},
+      {txt:p=>p.sec+" 秒", cyc:p=>{ p.sec = nextSec(p.sec); }}
+    ],
+    cmd:p=>["AUDIO.CH"+p.ch+"  gain = "+p.db.toFixed(1)+"  duration = "+Math.round(p.sec*60)]}
+};
+
+let macro = [
+  {t:"snap",  p:{i:0}},
+  {t:"src",   p:{bus:"PVW", s:1}},
+  {t:"trans", p:{fx:"MIX", sec:0.5}},
+  {t:"wait",  p:{sec:1}},
+  {t:"key",   p:{k:0, on:true, sec:0.3}},
+  {t:"aux",   p:{a:3, s:-1}}
+];
+let macroUndo = null;
+
+function paintPalette(){
+  const el = $("#blockPalette"); el.innerHTML = "";
+  Object.keys(STEPS).forEach(t=>{
+    const d = STEPS[t];
+    const b = document.createElement("button");
+    b.className = "blk " + d.cls;
+    b.innerHTML = '<span class="blk__ic">'+d.ic+'</span><span>'+d.verb+'</span>';
+    b.addEventListener("click", ()=>{
+      macroUndo = JSON.parse(JSON.stringify(macro));
+      macro.push({t:t, p:d.def()});
+      S.step = macro.length-1;
+      paintMacro();
+      toast("「"+d.verb+"」を追加しました");
+    });
+    el.appendChild(b);
+  });
+}
+function paintMacro(){
+  const el = $("#stepList"); el.innerHTML = "";
+  $("#stepCount").textContent = macro.length + " ステップ";
+  if(!macro.length){
+    el.innerHTML = '<div class="steps__empty">左のブロックを押して、やりたい順に並べてください。</div>';
+  }
+  macro.forEach((st,i)=>{
+    const d = STEPS[st.t];
+    const row = document.createElement("div");
+    row.className = "step " + d.cls + (i===S.step ? " is-sel" : "");
+    let chips = d.chips.map((c,ci)=> '<button class="param" data-ci="'+ci+'"><b>'+c.txt(st.p)+"</b></button>").join("");
+    row.innerHTML =
+      '<span class="step__n">'+(i+1)+'</span>'+
+      '<span class="blk__ic">'+d.ic+'</span>'+
+      '<span class="step__body"><span class="step__verb">'+d.verb+'</span>'+chips+'</span>'+
+      '<button class="step__x" title="削除">✕</button>';
+    row.addEventListener("click", ()=>{ S.step = i; paintMacro(); });
+    row.querySelectorAll(".param").forEach(btn=>{
+      btn.addEventListener("click", e=>{
+        e.stopPropagation();
+        d.chips[+btn.dataset.ci].cyc(st.p);
+        S.step = i; paintMacro();
+      });
+    });
+    row.querySelector(".step__x").addEventListener("click", e=>{
+      e.stopPropagation();
+      macroUndo = JSON.parse(JSON.stringify(macro));
+      macro.splice(i,1);
+      S.step = Math.max(0, Math.min(S.step, macro.length-1));
+      paintMacro();
+    });
+    el.appendChild(row);
+  });
+  paintStepProps();
+  paintCmd();
+}
+function paintStepProps(){
+  const box = $("#stepProps");
+  if(!macro.length){ $("#selStepNo").textContent = "—"; box.innerHTML = '<p class="note">ステップを選ぶと、ここで細かく調整できます。</p>'; return; }
+  const st = macro[Math.min(S.step, macro.length-1)], d = STEPS[st.t];
+  $("#selStepNo").textContent = "STEP " + (S.step+1);
+  let rows = d.chips.map((c,ci)=> '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'+
+      '<span class="lbl">項目 '+(ci+1)+'</span><button class="param" data-ci="'+ci+'"><b>'+c.txt(st.p)+'</b></button></div>').join("");
+  if(!rows) rows = '<p class="note">このブロックに設定項目はありません。</p>';
+  box.innerHTML = '<div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">'+
+      '<span class="blk__ic">'+d.ic+'</span><b>'+d.verb+'</b></div>'+ rows +
+      '<div style="display:flex;gap:6px;margin-top:4px"><button class="btn" id="mvUp">↑ 上へ</button><button class="btn" id="mvDn">↓ 下へ</button></div>';
+  box.querySelectorAll(".param").forEach(btn=> btn.addEventListener("click", ()=>{
+    d.chips[+btn.dataset.ci].cyc(st.p); paintMacro();
+  }));
+  const swap = (a,b)=>{ if(b<0||b>=macro.length) return; const t=macro[a]; macro[a]=macro[b]; macro[b]=t; S.step=b; paintMacro(); };
+  $("#mvUp").addEventListener("click", ()=> swap(S.step, S.step-1));
+  $("#mvDn").addEventListener("click", ()=> swap(S.step, S.step+1));
+}
+function colorLine(l){
+  if(l.trim().charAt(0)==="#") return '<span class="c-cmt">'+l+"</span>";
+  return l.replace(/^([A-Za-z0-9_.()]+)/, '<span class="c-path">$1</span>')
+          .replace(/=\s([^=]+)$/, '= <span class="c-val">$1</span>');
+}
+function paintCmd(){
+  const out = ["# Macro 07 — パネルキー MACRO 7 で起動", "# シーン: " + SCENES[S.scene].name, ""];
+  macro.forEach((st,i)=>{
+    STEPS[st.t].cmd(st.p).forEach(l=> out.push(l));
+  });
+  $("#cmdOut").innerHTML = out.map(colorLine).join("\n");
+}
+$("#undoStep").addEventListener("click", ()=>{
+  if(!macroUndo){ toast("戻せる操作がありません"); return; }
+  macro = macroUndo; macroUndo = null; S.step = 0; paintMacro(); toast("元に戻しました");
+});
+$("#copyCmd").addEventListener("click", ()=>{
+  const txt = $("#cmdOut").textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=> toast("コマンドをコピーしました"), ()=> toast("コピーできませんでした"));
+  else toast("コピーできませんでした");
+});
+$$("[data-trig]").forEach(b=> b.addEventListener("click", ()=>{
+  $$("[data-trig]").forEach(x=> x.classList.remove("is-on")); b.classList.add("is-on");
+}));
+function runMacro(){
+  toast("Macro 07 を実行しました（" + macro.length + " ステップ）");
+  autoTake();
+}
+
+/* ---------- panel mapping ---------- */
+const PANEL = new Array(32).fill(null);
+PANEL[0]={t:"CAM1",s:"IP1"};      PANEL[1]={t:"CAM2",s:"IP2"};
+PANEL[2]={t:"CAM3",s:"IP3"};      PANEL[3]={t:"CAM4",s:"IP4"};
+PANEL[4]={t:"2ボックス",s:"SCENE"}; PANEL[5]={t:"OP_ワイド",s:"SNAP"};
+PANEL[6]={t:"Macro 07",s:"MACRO"}; PANEL[7]={t:"FTB",s:"SYS"};
+PANEL[8]={t:"PTZ-A",s:"IP5"};      PANEL[9]={t:"VTR",s:"MP1"};
+PANEL[16]={t:"Key1 L3",s:"KEY"};   PANEL[17]={t:"AUX3→PGM",s:"AUX"};
+
+const ASSIGNABLE = [
+  {ic:"SRC", cls:"blk--src", t:"ソース: PTZ-B 舞台袖", s:"IP6"},
+  {ic:"SRC", cls:"blk--src", t:"ソース: リモート中継", s:"SRT1"},
+  {ic:"SCN", cls:"blk--trn", t:"シーン: リプレイ", s:"SCENE"},
+  {ic:"SNP", cls:"blk--trn", t:"スナップ: 質疑応答", s:"SNAP"},
+  {ic:"MAC", cls:"blk--trn", t:"マクロ 07 を実行", s:"MACRO"},
+  {ic:"KEY", cls:"blk--src", t:"Key2 帯テロップ ON/OFF", s:"KEY"},
+  {ic:"AUX", cls:"blk--io",  t:"AUX 5 → CAM3", s:"AUX"},
+  {ic:"MV",  cls:"blk--io",  t:"マルチビュー プリセット 2", s:"MV"}
+];
+
+function paintPanel(){
+  const el = $("#panelKeys"); el.innerHTML = "";
+  PANEL.forEach((m,i)=>{
+    const b = document.createElement("button");
+    b.className = "pkey" + (m ? " is-mapped" : "") + (i===S.pkey ? " is-sel" : "");
+    b.innerHTML = m ? "<b>"+m.t+"</b><small>"+m.s+"</small>"
+                    : "<b style='color:var(--txt-3)'>空き</b><small>"+String(i+1).padStart(2,"0")+"</small>";
+    b.addEventListener("click", ()=>{ S.pkey = i; paintPanel(); });
+    el.appendChild(b);
+  });
+}
+function paintAssign(){
+  const el = $("#assignList"); el.innerHTML = "";
+  ASSIGNABLE.forEach(a=>{
+    const b = document.createElement("button");
+    b.className = "blk " + a.cls;
+    b.innerHTML = '<span class="blk__ic">'+a.ic+'</span><span>'+a.t+'</span>';
+    b.addEventListener("click", ()=>{
+      PANEL[S.pkey] = {t:a.t.replace(/^.*: /,""), s:a.s};
+      paintPanel();
+      toast("キー " + String(S.pkey+1).padStart(2,"0") + " に割り当てました");
+    });
+    el.appendChild(b);
+  });
+}
+
+/* ---------- audio ---------- */
+const CH = [
+  {nm:"CAM1", db:-6, afv:true}, {nm:"CAM2", db:-6, afv:true}, {nm:"CAM3", db:-12, afv:true},
+  {nm:"CAM4", db:-90, afv:true, mute:true}, {nm:"PTZ-A", db:-90, afv:true, mute:true},
+  {nm:"ワイヤレス1", db:-3, afv:false}, {nm:"ワイヤレス2", db:-4, afv:false},
+  {nm:"PC1", db:-10, afv:true}, {nm:"VTR", db:-6, afv:true}, {nm:"中継", db:-8, afv:false},
+  {nm:"MASTER", db:-3, afv:false, master:true}
+];
+function paintAudio(){
+  const el = $("#audioStrips"); el.innerHTML = "";
+  CH.forEach((c,i)=>{
+    const d = document.createElement("div");
+    d.className = "strip";
+    if(c.master) d.style.borderColor = "var(--amber-md)";
+    const pos = Math.round(((c.db+90)/90)*100);
+    d.innerHTML =
+      '<span class="strip__nm">'+c.nm+'</span>'+
+      '<div class="mrow"><span class="meter"><i style="height:0%"></i></span>'+
+      '<input class="vfad" type="range" min="0" max="100" value="'+pos+'" aria-label="'+c.nm+' フェーダー">'+
+      '<span class="meter"><i style="height:0%"></i></span></div>'+
+      '<span class="strip__db">'+(c.db<=-90?"−∞":c.db.toFixed(1))+"</span>"+
+      '<div class="strip__btns">'+
+        '<button class="mini'+(c.mute?" is-on":"")+'">MUTE</button>'+
+        '<button class="mini'+(c.afv?" is-afv":"")+'">AFV</button>'+
+      "</div>";
+    d.querySelector(".vfad").addEventListener("input", e=>{
+      const db = (e.target.value/100)*90 - 90;
+      c.db = db; c.mute = db<=-89;
+      d.querySelector(".strip__db").textContent = db<=-89 ? "−∞" : db.toFixed(1);
+    });
+    d.querySelectorAll(".mini").forEach((b,bi)=> b.addEventListener("click", ()=>{
+      b.classList.toggle(bi===0 ? "is-on" : "is-afv");
+    }));
+    el.appendChild(d);
+  });
+}
+if(!reduce){
+  setInterval(()=>{
+    $$("#audioStrips .meter i").forEach((m,i)=>{
+      const strip = CH[Math.floor(i/2)];
+      if(!strip || strip.db<=-89){ m.style.height = "0%"; return; }
+      const base = Math.max(0, 100 + strip.db*0.9);
+      m.style.height = Math.max(0, Math.min(100, base - 18 + Math.random()*22)) + "%";
+    });
+  }, 140);
+}
+
+/* ---------- timecode ---------- */
+let tcSec = 10*3600 + 24*60 + 51;
+setInterval(()=>{
+  tcSec++;
+  const h = Math.floor(tcSec/3600)%24, m = Math.floor(tcSec/60)%60, s = tcSec%60;
+  const f = Math.floor(Math.random()*30);
+  $("#tc").textContent = [h,m,s,f].map(x=> String(x).padStart(2,"0")).join(":");
+}, 1000);
+
+/* ---------- boot ---------- */
+function paint(){
+  paintBuses(); paintMonitors(); paintMV();
+}
+paintScenes(); paintLayers(); paintSnaps();
+paintSources(); paintSrcDetail();
+paintLayouts(); paintPane();
+paintPalette(); paintMacro();
+paintPanel(); paintAssign();
+paintAudio();
+paint();
+$("#trDur").textContent = S.rate + " フレーム / " + (S.rate/60).toFixed(2) + " 秒";
+})();
+</script>
+</body>
+</html>

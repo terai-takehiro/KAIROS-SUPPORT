@@ -7,6 +7,7 @@
 - `Panasonic_KAIROS_AT-KC10C1G_取扱説明書.pdf`
 - `Panasonic_KAIROS AT-KC200_KC2000_取扱説明書.pdf`
 - `Panasonic_Kairos Core Manager_操作説明書.pdf`
+- `KAIROS_RestAPI_17_J.pdf`（REST API v1.7）
 
 ここに書いたことは推測ではなく資料の記載です。**推測で入れていた仕様は下の「訂正」に集約**しました。
 
@@ -102,6 +103,112 @@ Layers パネルは「レイヤー名およびレイヤーの順序と、各バ�
 - Ctrl+Tab でタブ循環、Undo（Ctrl+Z）/ Redo（Ctrl+Y）
 - REST API の分類：AUX-All / AUX-Delegation / Inputs / Macros / Multiviewer / Scenes
 
+## 5.5 REST API（v1.7）
+
+`KAIROS_RestAPI_17_J.pdf` より。**このアプリの出力はここに合わせている。**
+
+### 接続
+
+```
+http(s)://<ip>(:<port>)/<json-pointer>
+IP アドレス（工場出荷時）: 192.168.10.10
+ポート番号（工場出荷時）: 1234
+```
+
+- 末尾の `/` は不可（`404 Invalid url`）
+- 認証は **Basic / ダイジェスト**。ユーザー名は **`Kairos`**。
+  パスワードは v1.3.2 以降の初回起動時に設定したもの
+- **GET と PATCH のみ**。PUT / DELETE / POST は `400 Bad Request`
+- PATCH は **`application/merge-patch+json`**（RFC7396）
+- 応答コードは `200` / `400` / `404`
+
+```
+$ curl http://Kairos:password@192.168.10.10:1234/inputs/IP1
+$ curl --request PATCH http://Kairos:password@192.168.10.10:1234/scenes/Main/Background -d "{\"sourceA\":\"IP1\"}"
+```
+
+### エンドポイント
+
+| 対象 | パス | メソッド |
+| --- | --- | --- |
+| Input | `/inputs` `/inputs/<input>` | GET |
+| Macro | `/macros` `/macros/<macro>` | GET / PATCH |
+| Scene Macro | `/scenes/<scene>/macros/<macro>` | PATCH |
+| Aux | `/aux` `/aux/<aux>` | GET / PATCH |
+| Multiviewer | `/multiviewers` `/multiviewers/<0-1>` `/multiviewers/<n>/sdp` | GET / PATCH |
+| Scene | `/scenes` `/scenes/<scene>` | GET |
+| Layer | `/scenes/<scene>/<layer>` | PATCH |
+| Action | `/scenes/<scene>/actions/<uuid>` | PATCH |
+| Snapshot | `/scenes/<scene>/snapshots/<snapshot>` | PATCH |
+
+`<uuid>` でも指定できる。
+
+### リクエストボディ
+
+| 対象 | ボディ |
+| --- | --- |
+| Layer | `{"sourceA": "Black"}` / `{"sourceB": ...}` |
+| Action | `{"state": "play"}` |
+| Macro | `{"state": "play"}` |
+| Snapshot | `{"state": "recall"}` |
+| Aux | `{"source": "Black"}` |
+| Multiviewer | `{"preset": 11}` |
+
+ソースは各要素の **`sources` リストに載っている値だけ**が受け付けられる。
+載っていない値や余分なキーを含めると `400 Bad Request`。
+
+### オブジェクトのパラメーター
+
+| 型 | パラメーター |
+| --- | --- |
+| Base | `uuid`（R） |
+| Input | `index` `name` `tally`（すべて R） |
+| Layer | `name`（R）`sourceA`（R/W）`sourceB`（R/W）`sources`（R） |
+| Aux | `index` `name` `source`（R/W）`sources` |
+| Macro | `color` `name` `path` `state`（W） |
+| Snapshot | `name` `state`（W） |
+| Multiviewer | `index` `name` `preset`（W）`presets` `sdp` |
+| Scene | `actions` `layers` `macros` `name` `path` `snapshots` `tally` `uuid` |
+
+**Layer に opacity や ON/OFF のパラメーターはない。** レイヤーの表示・非表示は
+`actions` 経由で行う（下記）。
+
+### actions（v1.7 で GET Scenes の応答に追加）
+
+`GET /scenes` の応答にある `actions` の実例（原文）:
+
+```
+{"name": "Main:auto",                "uuid": "a9564d77-..."}
+{"name": "Main:cut",                 "uuid": "9ee04835-..."}
+{"name": "Background:show_layer",    "uuid": "3702f380-..."}
+{"name": "Background:hide_layer",    "uuid": "cd708c2b-..."}
+{"name": "Background:toggle_layer",  "uuid": "68f42656-..."}
+{"name": "Layer-1:show_layer",       "uuid": "b963f817-..."}
+{"name": "BgdMix:transition_cut",    "uuid": "4943ecfe-..."}
+{"name": "BgdMix:transition_auto",   "uuid": "4817304a-..."}
+{"name": "L1:transition_auto",       "uuid": "0502ed80-..."}
+{"name": "M1- Main:play",            "uuid": "1df3f352-..."}
+{"name": "SNP1Main:recall",          "uuid": "2ed9cca6-..."}
+```
+
+→ **レイヤー ON/OFF、AUTO / CUT、マクロ実行、スナップショット呼出はすべて action**。
+名前は `<対象>:<動作>` 形式で、実行は uuid を指定して `{"state":"play"}` を PATCH する。
+アプリ側は起動時に `GET /scenes` で名前 → uuid を解決する。
+
+### ソースの実名（応答例より）
+
+`IP1` `IP2` … / `CP1` `CP2`（クリッププレーヤー）/ `RAM2` `RAM3`（RAM プレーヤー）/
+`IS1`（イメージストア）/ `ColC`（カラーマット）/ `ColorBar` / `Black`
+
+シーンのレイヤー名は `Background` `Layer-1` `Layer-2` `Layer-3` …、
+トランジション名は `BgdMix` `L1` `L2` …。
+
+### REST では実行できないもの
+
+`WAIT` / `WAIT USER` / `GPO` / TMC（Clip・RAM・Audio Player の再生制御）は
+エンドポイントがない。**これらはマクロ側で実行する**。
+アプリのブロック一覧では `MACRO` バッジを付けて区別している。
+
 ## 6. 訂正（前回まで推測で入れていたもの）
 
 | 前回 | 実際 |
@@ -110,15 +217,21 @@ Layers パネルは「レイヤー名およびレイヤーの順序と、各バ�
 | パネル表示名は 8 文字、UMD は 16 文字（TSL 3.1 由来） | KAIROS は **TSL 5.0**。文字数の記載は資料になし。実際の仕組みは **`#` による強制改行** |
 | パネルの行は PGM / PST / KEY / AUX SEL の固定 | 行は**バスへのデリゲート**（BGD-A / BGD-B / Layer-1 / Layer-2）で、押すたびに変えられる |
 | マクロは独自のコマンド列 | **LUA スクリプト**。パスは `Scenes/Main/Layers/Background/SourceA` 形式 |
+| 入力の KAIROS 名を `IP01` などとしていた | 実名は **`IP1` `IP2`** … / `CP1` / `RAM2` / `IS1` / `ColorBar` / `Black` |
+| レイヤーの ON/OFF をレイヤーのパラメーターと想定 | Layer は `sourceA` `sourceB` `sources` のみ。ON/OFF は **action** |
 | レイヤーは KEY / DVE の固定種別 | 1 レイヤーに**複数の属性を組み合わせる**（輝度キー＋クロマキー＋マスク＋DVE …） |
 | キーは「リニアキー」 | KAIROS の列挙は**ルミナンスキー / クロマキー**。リニアの表記はない |
 | マクロは 1 種類 | **Global / Scene / Panel** の 3 スコープ |
 
 ## 7. まだ確認が必要なこと
 
-1. **LUA の関数名**。パス表記は確定したが、`crosspoint()` `transition_auto()` などの関数名は
-   Creator の「Insert Function Template」「Help Macro Description」で確定させる必要がある
-2. REST API のコマンド表（PASS の KAIROS サイトから入手）
-3. パネル表示名の実際の最大文字数（`#` 改行の挙動含む）
-4. 当該スタジオの Core 200 の SDI ボード枚数と実入出力数
-5. Deck A / Deck B に何を割り当てて運用するか（デュアル Core を使うかどうか）
+1. ~~REST API のコマンド表~~ → **入手済み。5.5 章のとおり実装した**
+2. **LUA の関数名**。パス表記は確定したが、`crosspoint()` `transition_auto()` などの関数名は
+   Creator の「Insert Function Template」「Help Macro Description」で確定させる必要がある。
+   ただし **REST で必要な操作はすべて賄えるため、優先度は下がった**
+3. `state` に指定できる値の全一覧（マニュアルには `play` `recall` の例のみ。`stop` は
+   action 名からの推定）
+4. `tally` の値の意味（`GET /inputs` は 0 / 1、`GET /scenes` は 3 という例。定義の記載なし）
+5. パネル表示名の最大文字数（`#` 改行の挙動含む）
+6. 当該スタジオの Core 200 の SDI ボード枚数と実入出力数
+7. Deck A / Deck B に何を割り当てて運用するか（デュアル Core を使うかどうか）

@@ -27,7 +27,7 @@ docs/ui-research.md  他社スイッチャー UI の調査と、そこから決�
 | --- | --- | --- |
 | MIXER | CONTROL | PGM / PST、シーン、レイヤー、AUX 12 系統、SNAPSHOT、収録・配信・GPU・警告 |
 | MIXER | AUDIO MIXER | フェーダー、AFV 対応、出力ルーティング |
-| MACROS | CONTROL | ブロックを並べて組み、**LUA を自動生成**。Global / Scene / Panel |
+| MACROS | CONTROL | ブロックを並べて組み、**REST リクエスト / LUA を自動生成**。Global / Scene / Panel |
 | MULTIVIEWER | LAYOUT | レイアウトとペイン割り当て。タリー枠は PGM / PST と連動 |
 | CONFIG | INPUTS | 24 入力の一覧。パネル表示名（`#` で改行）を編集 |
 | CONFIG | **PANEL** | **AT-KC10C1G を実機どおり再現。シフト 1st〜4th を並べて表示** |
@@ -66,11 +66,36 @@ AT-KC10C1G は 24 XPT × 4 行 × 2 デッキ、さらにシフト 1st〜4th で
 - ステップのパラメーター（`PVW` `0.5s` など）を押すと値が変わる
 - パネル画面：キーを選ぶ → 右で割り当て → 重複があれば警告
 
+## 生成されるもの
+
+MACROS 画面の OUTPUT は **REST** と **LUA** を切り替えられます。
+REST は `KAIROS_RestAPI_17_J.pdf` に照らして書式を合わせてあります。
+
+```
+# KAIROS REST API v1.7   M07   OP → 2ボックス
+# http://Kairos:password@192.168.10.20:1234
+# Content-Type: application/merge-patch+json
+# <uuid> は GET /scenes/Main の actions から解決
+
+PATCH /scenes/Main/snapshots/SNAP1
+{"state":"recall"}
+
+PATCH /scenes/Main/Background
+{"sourceB":"IP2"}
+
+PATCH /scenes/Main/actions/<uuid>   # BgdMix:transition_auto
+{"state":"play"}
+
+# 4 WAIT : REST 未対応。マクロ側で実行
+```
+
+REST にエンドポイントがない操作（WAIT / GPO / TMC）はブロック一覧で `MACRO` と表示し、
+出力ではコメントとして落とします。
+
 ## この先
 
-- [ ] **LUA の関数名の確定**（Creator の Insert Function Template / Help Macro Description）
-- [ ] REST API コマンド表の入手（PASS の KAIROS サイト）
-- [ ] Core 200 との実接続
+- [ ] Core 200 との実接続（REST の書式は確定済み）
+- [ ] LUA の関数名の確定（REST で賄えるため優先度は低い）
 - [ ] 当スタジオの SDI ボード枚数・実入出力数の反映
 - [ ] Deck A / Deck B の運用方針（デュアル Core を使うか）
 - [ ] 設定の差分表示と書き込み

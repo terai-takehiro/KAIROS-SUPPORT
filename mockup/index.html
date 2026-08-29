@@ -411,7 +411,7 @@ select.f{padding:0 4px}
   margin:0;padding:8px 9px;background:#0A0D11;font-family:var(--ff-m);font-size:11px;line-height:1.65;
   color:#93A6B8;white-space:pre-wrap;overflow-wrap:anywhere;text-indent:-1.5em;padding-left:24px;overflow:auto;flex:1;min-height:0;
 }
-.c-p{color:#7FA9D4} .c-v{color:#D9AE72} .c-c{color:#4A535E}
+.c-p{color:#7FA9D4} .c-v{color:#D9AE72} .c-c{color:#4A535E} .c-m{color:#2FBF6B}
 
 /* ---------------- panel ---------------- */
 .v-pl{grid-template-columns:minmax(0,1fr) 292px}
@@ -591,8 +591,8 @@ select.f{padding:0 4px}
             <button class="b" data-at>COLOR CORR</button>
           </div>
           <dl class="pl">
-            <dt>SOURCE</dt><dd>IP08 PC1</dd>
-            <dt>KEY</dt><dd>IP09 PC1 KEY</dd>
+            <dt>SOURCE</dt><dd>IP8 PC1</dd>
+            <dt>KEY</dt><dd>IP9 PC1 KEY</dd>
             <dt>CLIP</dt><dd>12.0</dd>
             <dt>GAIN</dt><dd>48.0</dd>
             <dt>CLEANFEED</dt><dd class="u">OFF</dd>
@@ -700,7 +700,7 @@ select.f{padding:0 4px}
       <div class="pn">
         <div class="hd"><h2>STEP</h2><span class="sp"></span><span class="m" id="stepSel">—</span></div>
         <div class="bd bd--fix bd--pad col" id="stepProp"></div>
-        <div class="hd sect"><h2>LUA</h2><span class="sp"></span><button class="b" id="cpCmd">コピー</button></div>
+        <div class="hd sect"><h2>OUTPUT</h2><div class="shsw" style="margin-left:8px"><button class="on" data-code="REST">REST</button><button data-code="LUA">LUA</button></div><span class="sp"></span><button class="b" id="cpCmd">コピー</button></div>
         <pre class="code" id="cmd"></pre>
       </div>
     </section>
@@ -779,18 +779,30 @@ select.f{padding:0 4px}
           <dl class="pl">
             <dt>CORE</dt><dd>KAIROS Core 200</dd>
             <dt>ADDRESS</dt><dd>192.168.10.20</dd>
-            <dt>PANEL</dt><dd>192.168.10.31</dd>
+            <dt>PORT</dt><dd>1234</dd>
+            <dt>PANEL</dt><dd>AT-KC10C1G / .31</dd>
             <dt>RTT</dt><dd>3.2 ms</dd>
-            <dt>VERSION</dt><dd>要確認</dd>
           </dl>
           <button class="b b--w">接続テスト</button>
+        </div>
+        <div class="hd sect"><h2>REST API</h2><span class="sp"></span><span class="m">v1.7</span></div>
+        <div class="bd bd--pad col">
+          <dl class="pl">
+            <dt>USER</dt><dd>Kairos</dd>
+            <dt>AUTH</dt><dd class="u">Basic / Digest</dd>
+            <dt>METHOD</dt><dd class="u">GET / PATCH のみ</dd>
+            <dt>PATCH</dt><dd>application/merge-patch+json</dd>
+            <dt>ENDPOINT</dt><dd>/scenes /aux /macros /multiviewers /inputs</dd>
+          </dl>
         </div>
         <div class="hd sect"><h2>PROTOCOL</h2></div>
         <div class="bd bd--pad col">
           <dl class="pl">
-            <dt>REST API</dt><dd class="u">使用（ver 1.7 以降）</dd>
-            <dt>ROSSTALK</dt><dd class="u">未使用 / AT-SFE01</dd>
-            <dt>RAW PANEL</dt><dd class="u">未使用</dd>
+            <dt>ROSSTALK</dt><dd class="u">未使用 / AT-SFE01G</dd>
+            <dt>NMOS</dt><dd class="u">未使用 / AT-SFE03G</dd>
+            <dt>TSL</dt><dd class="u">5.0</dd>
+            <dt>AMP</dt><dd class="u">未使用</dd>
+            <dt>SNMP</dt><dd class="u">未使用</dd>
           </dl>
         </div>
       </div>
@@ -892,34 +904,34 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------------- data ---------------- */
 const SRC=[
- {n:"01",id:"IP01",nm:"CAM1 センター",mn:"CAM1",umd:"CAM1 CENTER",cn:"SDI IN 1",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v1",c:"#24404F"},
- {n:"02",id:"IP02",nm:"CAM2 上手",mn:"CAM2",umd:"CAM2 KAMITE",cn:"SDI IN 2",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v2",c:"#3B3550"},
- {n:"03",id:"IP03",nm:"CAM3 下手",mn:"CAM3",umd:"CAM3 SHIMOTE",cn:"SDI IN 3",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v3",c:"#4E3A22"},
- {n:"04",id:"IP04",nm:"CAM4 ハンディ",mn:"CAM4",umd:"CAM4 HANDY",cn:"SDI IN 4",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v4",c:"#1D4740"},
- {n:"05",id:"IP05",nm:"CAM5 客席後方",mn:"CAM5",umd:"CAM5 REAR",cn:"SDI IN 5",tp:"3G-SDI",ip:0,fmt:"1080/59.94i",st:"w",v:"v5",c:"#22414F"},
- {n:"06",id:"IP06",nm:"PTZ1 舞台袖",mn:"PTZ1",umd:"PTZ1 SODE",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"ok",v:"v6",c:"#35304A"},
- {n:"07",id:"IP07",nm:"PTZ2 天吊り",mn:"PTZ2",umd:"PTZ2 CEILING",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"w",v:"v6",c:"#35304A"},
- {n:"08",id:"IP08",nm:"PC1 講演資料",mn:"PC1",umd:"PC1 SLIDE",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",v:"v7",c:"#0D1826"},
- {n:"09",id:"IP09",nm:"PC1 KEY",mn:"PC1KEY",umd:"PC1 SLIDE KEY",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"01",id:"IP1", nm:"CAM1 センター",mn:"CAM1",umd:"CAM1 CENTER",cn:"SDI IN 1",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v1",c:"#24404F"},
+ {n:"02",id:"IP2", nm:"CAM2 上手",mn:"CAM2",umd:"CAM2 KAMITE",cn:"SDI IN 2",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v2",c:"#3B3550"},
+ {n:"03",id:"IP3", nm:"CAM3 下手",mn:"CAM3",umd:"CAM3 SHIMOTE",cn:"SDI IN 3",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v3",c:"#4E3A22"},
+ {n:"04",id:"IP4", nm:"CAM4 ハンディ",mn:"CAM4",umd:"CAM4 HANDY",cn:"SDI IN 4",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v4",c:"#1D4740"},
+ {n:"05",id:"IP5", nm:"CAM5 客席後方",mn:"CAM5",umd:"CAM5 REAR",cn:"SDI IN 5",tp:"3G-SDI",ip:0,fmt:"1080/59.94i",st:"w",v:"v5",c:"#22414F"},
+ {n:"06",id:"IP6", nm:"PTZ1 舞台袖",mn:"PTZ1",umd:"PTZ1 SODE",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"ok",v:"v6",c:"#35304A"},
+ {n:"07",id:"IP7", nm:"PTZ2 天吊り",mn:"PTZ2",umd:"PTZ2 CEILING",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"w",v:"v6",c:"#35304A"},
+ {n:"08",id:"IP8", nm:"PC1 講演資料",mn:"PC1",umd:"PC1 SLIDE",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",v:"v7",c:"#0D1826"},
+ {n:"09",id:"IP9", nm:"PC1 KEY",mn:"PC1KEY",umd:"PC1 SLIDE KEY",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",v:"vstl",c:"#262B33"},
  {n:"10",id:"IP10",nm:"PC2 予備",mn:"PC2",umd:"PC2 SPARE",cn:"SDI IN 6",tp:"3G-SDI",ip:0,fmt:"—",st:"x",v:"voff",c:"#101419"},
  {n:"11",id:"IP11",nm:"中継A 大阪",mn:"REMOTE-A",umd:"REMOTE A OSAKA HD",cn:"SRT",tp:"SRT",ip:1,fmt:"1080/59.94p",st:"ok",v:"v10",c:"#373A1D"},
  {n:"12",id:"IP12",nm:"中継B",mn:"REMOTE-B",umd:"REMOTE B",cn:"SRT",tp:"SRT",ip:1,fmt:"—",st:"x",v:"voff",c:"#101419"},
- {n:"13",id:"CP1",nm:"クリップ 本編",mn:"CLIP1",umd:"CLIP 1 MAIN",cn:"内部",tp:"CLIP PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v8",c:"#5E2130"},
- {n:"14",id:"CP2",nm:"クリップ CM",mn:"CLIP2",umd:"CLIP 2 CM",cn:"内部",tp:"CLIP PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v8",c:"#5E2130"},
- {n:"15",id:"RR1",nm:"RAM リプレイ 1",mn:"RAM1",umd:"RAM REC 1",cn:"内部",tp:"RAM REC",ip:0,fmt:"1080/59.94p",st:"ok",v:"v9",c:"#1B3A5B"},
- {n:"16",id:"RR2",nm:"RAM リプレイ 2",mn:"RAM2",umd:"RAM REC 2",cn:"内部",tp:"RAM REC",ip:0,fmt:"1080/59.94p",st:"ok",v:"v9",c:"#1B3A5B"},
- {n:"17",id:"STL1",nm:"スチル タイトル",mn:"STILL1",umd:"STILL 1 TITLE",cn:"内部",tp:"STILL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
- {n:"18",id:"STL2",nm:"スチル スポンサー",mn:"STILL2",umd:"STILL 2 SPONSOR",cn:"内部",tp:"STILL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"13",id:"CP1", nm:"クリップ 本編",mn:"CLIP1",umd:"CLIP 1 MAIN",cn:"内部",tp:"CLIP PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v8",c:"#5E2130"},
+ {n:"14",id:"CP2", nm:"クリップ CM",mn:"CLIP2",umd:"CLIP 2 CM",cn:"内部",tp:"CLIP PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v8",c:"#5E2130"},
+ {n:"15",id:"RAM1",nm:"RAM リプレイ 1",mn:"RAM1",umd:"RAM PLAYER 1",cn:"内部",tp:"RAM PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v9",c:"#1B3A5B"},
+ {n:"16",id:"RAM2",nm:"RAM リプレイ 2",mn:"RAM2",umd:"RAM PLAYER 2",cn:"内部",tp:"RAM PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v9",c:"#1B3A5B"},
+ {n:"17",id:"IS1", nm:"スチル タイトル",mn:"STILL1",umd:"STILL 1 TITLE",cn:"内部",tp:"IMAGE STORE",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"18",id:"IS2", nm:"スチル スポンサー",mn:"STILL2",umd:"STILL 2 SPONSOR",cn:"内部",tp:"IMAGE STORE",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
  {n:"19",id:"IP13",nm:"CG1 テロップ",mn:"CG1",umd:"CG1 SUPER",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",v:"v11",c:"#24304A"},
- {n:"20",id:"IP14",nm:"CG1 KEY",mn:"CG1-KEYFL",umd:"CG1 SUPER KEY",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
- {n:"21",id:"CLK",nm:"時計",mn:"CLOCK",umd:"CLOCK",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
- {n:"22",id:"BAR",nm:"カラーバー",mn:"BARS",umd:"COLOR BARS",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vbars",c:"#B4B400"},
- {n:"23",id:"BLK",nm:"ブラック",mn:"BLACK",umd:"BLACK",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vblk",c:"#05070A"},
- {n:"24",id:"AX1R",nm:"AUX1 戻り",mn:"AUX1RTN",umd:"AUX1 RETURN",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"v1",c:"#24404F"}
+ {n:"20",id:"IP14",nm:"CG1 KEY",mn:"CG1KEY",umd:"CG1 SUPER KEY",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"21",id:"IS3", nm:"スチル 予備",mn:"STILL3",umd:"STILL 3 SPARE",cn:"内部",tp:"IMAGE STORE",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"22",id:"ColorBar",nm:"カラーバー",mn:"BARS",umd:"COLOR BARS",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vbars",c:"#B4B400"},
+ {n:"23",id:"Black",nm:"ブラック",mn:"BLACK",umd:"BLACK",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vblk",c:"#05070A"},
+ {n:"24",id:"ColC",nm:"カラーマット",mn:"COLOR-C",umd:"COLOR MATTE C",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"v1",c:"#24404F"}
 ];
 SRC.forEach(x=>{ x.sh=x.mn; x.pn=x.mn; });
 SRC[8].pn="PC1#KEY"; SRC[10].pn="REMOTE#A"; SRC[11].pn="REMOTE#B";
-SRC[19].pn="CG1#KEY"; SRC[23].pn="AUX1#RTN";
+SRC[19].pn="CG1#KEY"; SRC[23].pn="COLOR#C";
 const S_ = i=>SRC[i];
 
 const SCENES=[
@@ -1254,60 +1266,74 @@ const nfr=v=>FR[(FR.indexOf(v)+1)%FR.length]||30;
 const F=v=>v+" F";
 const sid=()=>SCENES[S.scene].id;
 const P=(...a)=>'"'+a.join("/")+'"';
+const J=o=>JSON.stringify(o);
+const ACT=(sc,name)=>["PATCH /scenes/"+sc+"/actions/<uuid>   # "+name, J({state:"play"})];
 
 /* Insert Function Template 相当。生成コードは LUA。 */
 const B={
  xpt:{v:"CROSSPOINT",c:C_SRC,d:()=>({b:"SourceB",s:1}),
   p:[{t:p=>p.b,f:p=>{p.b=p.b==="SourceB"?"SourceA":"SourceB";}},{t:p=>SRC[p.s].mn,f:p=>{p.s=(p.s+1)%SRC.length;}}],
-  c2:p=>["crosspoint("+P("Scenes",sid(),"Layers","Background",p.b)+", "+P("Inputs",SRC[p.s].id)+")"]},
+  c2:p=>["crosspoint("+P("Scenes",sid(),"Layers","Background",p.b)+", "+P("Inputs",SRC[p.s].id)+")"],
+  rs:p=>["PATCH /scenes/"+sid()+"/Background", J(p.b==="SourceA"?{sourceA:SRC[p.s].id}:{sourceB:SRC[p.s].id})]},
 
  aux:{v:"AUX",c:C_AUX,d:()=>({a:3,s:-1}),
   p:[{t:p=>"AUX"+p.a,f:p=>{p.a=p.a%12+1;}},{t:p=>p.s<0?"PGM":SRC[p.s].mn,f:p=>{p.s=p.s+1>=SRC.length?-1:p.s+1;}}],
-  c2:p=>["crosspoint("+P("Aux","AUX"+p.a)+", "+(p.s<0?P("Scenes",sid(),"Program"):P("Inputs",SRC[p.s].id))+")"]},
+  c2:p=>["crosspoint("+P("Aux","AUX"+p.a)+", "+(p.s<0?P("Scenes",sid(),"Program"):P("Inputs",SRC[p.s].id))+")"],
+  rs:p=>["PATCH /aux/AUX"+p.a, J({source:p.s<0?sid():SRC[p.s].id})]},
 
  auto:{v:"AUTO",c:"#E8A33D",d:()=>({t:"BgdMix",r:30}),
   p:[{t:p=>p.t,f:p=>{p.t=p.t==="BgdMix"?"BgdWipe":p.t==="BgdWipe"?"BgdDVE":"BgdMix";}},{t:p=>F(p.r),f:p=>{p.r=nfr(p.r);}}],
-  c2:p=>["transition_auto("+P("Scenes",sid(),"Transitions",p.t)+", "+p.r+")"]},
+  c2:p=>["transition_auto("+P("Scenes",sid(),"Transitions",p.t)+", "+p.r+")"],
+  rs:p=>ACT(sid(),p.t+":transition_auto")},
 
  cut:{v:"CUT",c:"#E8A33D",d:()=>({t:"BgdMix"}),
   p:[{t:p=>p.t,f:p=>{p.t=p.t==="BgdMix"?"BgdWipe":"BgdMix";}}],
-  c2:p=>["transition_cut("+P("Scenes",sid(),"Transitions",p.t)+")"]},
+  c2:p=>["transition_cut("+P("Scenes",sid(),"Transitions",p.t)+")"],
+  rs:p=>ACT(sid(),p.t+":transition_cut")},
 
  layer:{v:"LAYER ON / OFF",c:C_KEY,d:()=>({k:0,on:1}),
   p:[{t:p=>LAYN[p.k],f:p=>{p.k=(p.k+1)%LAYN.length;}},{t:p=>p.on?"ON":"OFF",f:p=>{p.on=p.on?0:1;}}],
-  c2:p=>["layer_enable("+P("Scenes",sid(),"Layers",LAYN[p.k])+", "+(p.on?"true":"false")+")"]},
+  c2:p=>["layer_enable("+P("Scenes",sid(),"Layers",LAYN[p.k])+", "+(p.on?"true":"false")+")"],
+  rs:p=>ACT(sid(),LAYN[p.k]+(p.on?":show_layer":":hide_layer"))},
 
  snap:{v:"SNAPSHOT",c:C_MAC,d:()=>({i:0}),
   p:[{t:p=>"SNAP"+(p.i+1),f:p=>{p.i=(p.i+1)%SNAPS.length;}}],
-  c2:p=>["snapshot_recall("+P("Scenes",sid(),"Snapshots","SNAP"+(p.i+1))+")"]},
+  c2:p=>["snapshot_recall("+P("Scenes",sid(),"Snapshots","SNAP"+(p.i+1))+")"],
+  rs:p=>["PATCH /scenes/"+sid()+"/snapshots/SNAP"+(p.i+1), J({state:"recall"})]},
 
  mac:{v:"MACRO",c:C_MAC,d:()=>({sc:"Global",n:1}),
   p:[{t:p=>p.sc,f:p=>{p.sc=p.sc==="Global"?"Scene":"Global";}},{t:p=>"M"+String(p.n).padStart(2,"0"),f:p=>{p.n=p.n%12+1;}}],
-  c2:p=>["macro_play("+P(p.sc==="Global"?"Macros/Global":"Scenes/"+sid()+"/Macros","M"+String(p.n).padStart(2,"0"))+")"]},
+  c2:p=>["macro_play("+P(p.sc==="Global"?"Macros/Global":"Scenes/"+sid()+"/Macros","M"+String(p.n).padStart(2,"0"))+")"],
+  rs:p=>["PATCH "+(p.sc==="Global"?"/macros/M":"/scenes/"+sid()+"/macros/M")+String(p.n).padStart(2,"0"), J({state:"play"})]},
 
  tmc:{v:"TMC",c:C_AUX,d:()=>({d:"ClipPlayer1",a:"Play"}),
   p:[{t:p=>p.d,f:p=>{p.d=p.d==="ClipPlayer1"?"ClipPlayer2":p.d==="ClipPlayer2"?"RamPlayer1":p.d==="RamPlayer1"?"RamPlayer2":"ClipPlayer1";}},
      {t:p=>p.a.toUpperCase(),f:p=>{p.a=p.a==="Play"?"Stop":p.a==="Stop"?"Cue":p.a==="Cue"?"Next":"Play";}}],
-  c2:p=>["tmc("+P("Players",p.d)+", "+P(p.a)+")"]},
+  c2:p=>["tmc("+P("Players",p.d)+", "+P(p.a)+")"],
+  rs:null},
 
  mv:{v:"MULTIVIEWER",c:C_AUX,d:()=>({m:1,n:2}),
   p:[{t:p=>"MV"+p.m,f:p=>{p.m=p.m%4+1;}},{t:p=>"P"+p.n,f:p=>{p.n=p.n%4+1;}}],
-  c2:p=>["multiviewer_preset("+P("Multiviewer","MV"+p.m,"Presets","P"+p.n)+")"]},
+  c2:p=>["multiviewer_preset("+P("Multiviewer","MV"+p.m,"Presets","P"+p.n)+")"],
+  rs:p=>["PATCH /multiviewers/"+(p.m-1), J({preset:p.n})]},
 
  gpo:{v:"GPO",c:C_AUX,d:()=>({n:2}),
   p:[{t:p=>"GPO "+p.n,f:p=>{p.n=p.n%128+1;}}],
-  c2:p=>["gpo_send("+p.n+")"]},
+  c2:p=>["gpo_send("+p.n+")"],
+  rs:null},
 
  wait:{v:"WAIT",c:"#D9822B",d:()=>({r:60}),
   p:[{t:p=>F(p.r),f:p=>{p.r=nfr(p.r);}}],
-  c2:p=>["wait_frame("+p.r+")"]},
+  c2:p=>["wait_frame("+p.r+")"],
+  rs:null},
 
  waits:{v:"WAIT (TIME)",c:"#D9822B",d:()=>({ms:500}),
   p:[{t:p=>p.ms+" ms",f:p=>{p.ms=p.ms===500?1000:p.ms===1000?2000:p.ms===2000?5000:500;}}],
-  c2:p=>["wait_msec("+p.ms+")"]},
+  c2:p=>["wait_msec("+p.ms+")"],
+  rs:null},
 
  hold:{v:"WAIT USER",c:"#D9822B",d:()=>({}),p:[],
-  c2:()=>["wait_user()"]}
+  c2:()=>["wait_user()"], rs:null}
 };
 
 /* Global / Scene / Panel の 3 スコープ。Panel Macro は Profile 1-8 に属する。 */
@@ -1355,7 +1381,7 @@ function paintPal(){
   const el=$("#palette"); el.innerHTML="";
   Object.keys(B).forEach(k=>{
     const d=B[k], b=document.createElement("button");
-    b.innerHTML='<i style="--c:'+d.c+'"></i><span>'+d.v+"</span>";
+    b.innerHTML='<i style="--c:'+d.c+'"></i><span>'+d.v+"</span>"+(d.rs?"":'<small class="faint">MACRO</small>');
     b.addEventListener("click",()=>{
       MUNDO=JSON.parse(JSON.stringify(MAC));
       MAC.push({t:k,p:d.d()}); S.step=MAC.length-1; paintMac(); touch(); say("+ "+d.v);
@@ -1400,28 +1426,50 @@ function paintStepProp(){
   $("#up").addEventListener("click",()=>sw(S.step,S.step-1));
   $("#dn").addEventListener("click",()=>sw(S.step,S.step+1));
 }
+let CODE="REST";
 function col(l){
-  if(l.trim().slice(0,2)==="--") return '<span class="c-c">'+l+"</span>";
-  return l.replace(/"[^"]*"/g,m=>'<span class="c-v">'+m+"</span>")
-          .replace(/^([a-z_]+)\(/,'<span class="c-p">$1</span>(');
+  const e=l.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const t=l.trim();
+  if(t.slice(0,2)==="--"||t[0]==="#") return '<span class="c-c">'+e+"</span>";
+  let h=e.replace(/"[^"]*"/g,m=>'<span class="c-v">'+m+"</span>");
+  h=h.replace(/^(PATCH|GET)\b/,'<span class="c-m">$1</span>');
+  h=h.replace(/^([a-z_]+)\(/,'<span class="c-p">$1</span>(');
+  h=h.replace(/#[^<]*$/,m=>'<span class="c-c">'+m+"</span>");
+  return h;
 }
 function paintCmd(){
-  const m=MACROS[MI];
-  const out=[
-    "-- KAIROS "+m.sc+" MACRO   "+m.id+(m.nm?"   "+m.nm:""),
-    "-- SCENE : "+SCENES[S.scene].id,
-    m.sc==="PANEL" ? "-- PANEL : Profile 1 / Bank 1" : "-- TRIGGER : Panel Macro / Profile 1",
-    "-- 関数名は Creator の Insert Function Template で確定させること",
-    ""];
-  MAC.forEach(st=>B[st.t].c2(st.p).forEach(l=>out.push(l)));
-  if(m.id==="AUTOSTART") out.push("", "-- シーンが OnAir タリーを受けたとき自動実行");
-  if(m.id==="AUTOSTOP")  out.push("", "-- シーンが OffAir になったとき自動実行");
+  const m=MACROS[MI], out=[];
+  if(CODE==="REST"){
+    out.push("# KAIROS REST API v1.7   "+m.id+(m.nm?"   "+m.nm:""));
+    out.push("# http://Kairos:password@192.168.10.20:1234");
+    out.push("# Content-Type: application/merge-patch+json");
+    out.push("# <uuid> は GET /scenes/"+SCENES[S.scene].id+" の actions から解決");
+    out.push("");
+    MAC.forEach((st,i)=>{
+      const d=B[st.t], r=d.rs?d.rs(st.p):null;
+      if(r) r.forEach(l=>out.push(l));
+      else out.push("# "+(i+1)+" "+d.v+" : REST 未対応。マクロ側で実行");
+      out.push("");
+    });
+  }else{
+    out.push("-- KAIROS "+m.sc+" MACRO   "+m.id+(m.nm?"   "+m.nm:""));
+    out.push("-- SCENE : "+SCENES[S.scene].id);
+    out.push("-- 関数名は Creator の Insert Function Template で確定させること");
+    out.push("");
+    MAC.forEach(st=>B[st.t].c2(st.p).forEach(l=>out.push(l)));
+    if(m.id==="AUTOSTART") out.push("", "-- シーンが OnAir タリーを受けたとき自動実行");
+    if(m.id==="AUTOSTOP")  out.push("", "-- シーンが OffAir になったとき自動実行");
+  }
   $("#cmd").innerHTML=out.map(col).join("\n");
 }
 $("#mUndo").addEventListener("click",()=>{
   if(!MUNDO){ say("UNDO 不可"); return; }
   MAC=MUNDO; MACROS[MI].s=MAC; MUNDO=null; S.step=0; paintMac(); say("UNDO");
 });
+$$("[data-code]").forEach(b=>b.addEventListener("click",()=>{
+  $$("[data-code]").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  CODE=b.dataset.code; paintCmd();
+}));
 $("#cpCmd").addEventListener("click",()=>{
   const t=$("#cmd").textContent;
   if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>say("COPY"),()=>say("COPY 不可"));
@@ -1458,14 +1506,14 @@ for(let i=0;i<24;i++) XPT[0][i]={t:SRC[i].pn,c:C_IN,fn:"IN:"+SRC[i].id,src:i};
 });
 XPT[1][6]={t:"FxIn#1",c:C_SC,fn:"FX:1"}; XPT[1][7]={t:"FxIn#2",c:C_SC,fn:"FX:2"};
 XPT[1][10]={t:"M07",c:C_MC,fn:"MACRO:M07"}; XPT[1][11]={t:"M09",c:C_MC,fn:"MACRO:M09"};
-XPT[1][20]={t:"AUX1#RTN",c:C_AX,fn:"IN:AX1R",src:23};
-XPT[2][0]={t:"STILL1",c:C_IN,fn:"IN:STL1",src:16};
-XPT[2][1]={t:"STILL2",c:C_IN,fn:"IN:STL2",src:17};
+XPT[1][20]={t:"COLOR#C",c:C_AX,fn:"IN:ColC",src:23};
+XPT[2][0]={t:"STILL1",c:C_IN,fn:"IN:IS1",src:16};
+XPT[2][1]={t:"STILL2",c:C_IN,fn:"IN:IS2",src:17};
 XPT[2][4]={t:"SNAP1",c:C_MC,fn:"SNAP:1"};
 XPT[3][0]={t:"CG1#KEY",c:C_IN,fn:"IN:IP14",src:19};
 
 const ASSIGN=[
- {t:"INPUT : CAM5 客席後方",c:C_IN,fn:"IN:IP05",o:{t:"CAM5"}},
+ {t:"INPUT : CAM5 客席後方",c:C_IN,fn:"IN:IP5",o:{t:"CAM5"}},
  {t:"INPUT : 中継A 大阪",c:C_IN,fn:"IN:IP11",o:{t:"REMOTE#A"}},
  {t:"INPUT : CG1 テロップ",c:C_IN,fn:"IN:IP13",o:{t:"CG1"}},
  {t:"SCENE : Replay",c:C_SC,fn:"SCENE:Replay",o:{t:"Replay"}},

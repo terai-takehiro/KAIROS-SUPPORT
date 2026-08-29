@@ -168,6 +168,7 @@ select.f{padding:0 4px}
 .tb tbody tr.sel{background:#232B34;box-shadow:inset 2px 0 0 var(--amber)}
 .tb .n{font-family:var(--ff-m);font-size:11.5px;color:var(--txt-3);width:30px}
 .tb .m{font-size:11.5px;color:var(--txt-2)}
+.tb td.warn{color:var(--warn)}
 .st{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--txt-2)}
 .st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--txt-3);flex:none}
 .st--ok::before{background:var(--pvw)}
@@ -241,12 +242,12 @@ select.f{padding:0 4px}
 .bus--v .bus__l{border-color:#1E5233;color:var(--pvw)}
 .bus__k{display:flex;gap:3px;overflow-x:auto;min-width:0;padding-bottom:1px}
 .k{
-  flex:none;width:64px;height:38px;border:1px solid var(--key-line);background:var(--key);
+  flex:none;width:74px;height:38px;border:1px solid var(--key-line);background:var(--key);
   padding:0 5px;display:flex;flex-direction:column;justify-content:center;color:var(--txt-2);
 }
 .k:hover{background:var(--key-hi);color:var(--txt)}
 .k__n{font-family:var(--ff-m);font-size:9.5px;color:var(--txt-3);line-height:1.1}
-.k__t{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k__t{font-size:10.5px;letter-spacing:.01em;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bus--p .k.on{background:var(--pgm);border-color:#F26B7A;color:#fff}
 .bus--p .k.on .k__n{color:rgba(255,255,255,.7)}
 .bus--v .k.on{background:var(--pvw);border-color:#63DC97;color:#052611}
@@ -294,6 +295,8 @@ select.f{padding:0 4px}
 .sb .sp{margin-left:auto}
 .sb .m{font-size:11px}
 .dirty{color:var(--amber)}
+.gbar{display:inline-block;width:46px;height:6px;background:#12171C;border:1px solid var(--line-2)}
+.gbar i{display:block;height:100%;background:var(--pvw)}
 </style>
 <style>
 /* ---------------- switcher ---------------- */
@@ -470,16 +473,16 @@ select.f{padding:0 4px}
   <div class="top">
     <div class="top__id"><i></i><b>KAIROS SUPPORT</b></div>
     <nav class="tabs">
-      <button class="tab" data-v="sw" aria-current="page">スイッチャー</button>
-      <button class="tab" data-v="sr">入力</button>
-      <button class="tab" data-v="mv">マルチビュー</button>
-      <button class="tab" data-v="mc">マクロ</button>
-      <button class="tab" data-v="pl">パネル</button>
-      <button class="tab" data-v="au">音声</button>
-      <button class="tab" data-v="st">設定</button>
+      <button class="tab" data-v="sw" aria-current="page">MIXER</button>
+      <button class="tab" data-v="sr">INPUTS</button>
+      <button class="tab" data-v="mv">MULTIVIEW</button>
+      <button class="tab" data-v="mc">MACRO</button>
+      <button class="tab" data-v="pl">PANEL</button>
+      <button class="tab" data-v="au">AUDIO</button>
+      <button class="tab" data-v="st">SYSTEM</button>
     </nav>
     <div class="top__r">
-      <span class="top__cell"><i class="led"></i>Core 200 <b class="m">192.168.10.20</b></span>
+      <span class="top__cell"><i class="led"></i>CORE 200 <b class="m">192.168.10.20</b></span>
       <span class="top__cell">1080/59.94p</span>
       <span class="top__cell m" id="tc">10:24:51:12</span>
       <span class="onair"><i></i>ON AIR</span>
@@ -492,7 +495,7 @@ select.f{padding:0 4px}
     <!-- ---------- switcher ---------- -->
     <section class="view v-sw on" id="w-sw">
       <div class="pn">
-        <div class="hd"><h2>モニター</h2><span class="sp"></span><span class="m" id="monFmt">1080/59.94p</span></div>
+        <div class="hd"><h2>PROGRAM / PREVIEW</h2><span class="sp"></span><span class="m" id="monFmt">1080/59.94p</span></div>
         <div class="bd bd--fix">
           <div class="mons">
             <div>
@@ -512,60 +515,60 @@ select.f{padding:0 4px}
             </div>
             <div class="mons__st">
               <dl class="pl">
-                <dt>収録</dt><dd>REC 00:42:18</dd>
-                <dt>配信</dt><dd>LIVE 6.0 Mbps</dd>
-                <dt>RAM 残り</dt><dd>1 / 2 系統</dd>
-                <dt>ストレージ</dt><dd>412 GB</dd>
+                <dt>REC</dt><dd>00:42:18</dd>
+                <dt>STREAM</dt><dd>6.0 Mbps</dd>
+                <dt>RAM REC</dt><dd>1 / 2</dd>
+                <dt>STORAGE</dt><dd>412 GB</dd>
+                <dt>GPU</dt><dd id="gpu2">62 %</dd>
               </dl>
-              <div class="alert"><i></i><span><b>CAM5</b> フォーマット不一致 1080/59.94i</span></div>
-              <div class="alert"><i></i><span><b>PTZ2</b> NDI 帯域 91%</span></div>
+              <div class="alert"><i></i><span><b>CAM5</b> 1080/59.94i 不一致</span></div>
+              <div class="alert"><i></i><span><b>PTZ2</b> NDI 帯域 91 %</span></div>
               <div class="alert x"><i></i><span><b>PC2</b> 未結線</span></div>
-              <div class="alert x"><i></i><span><b>中継B</b> 待機のみ</span></div>
             </div>
           </div>
         </div>
 
-        <div class="hd sect"><h2>シーン</h2><span class="sp"></span><button class="b">複製</button><button class="b">追加</button></div>
+        <div class="hd sect"><h2>SCENES</h2><span class="sp"></span><button class="b">複製</button><button class="b">追加</button></div>
         <div class="bd bd--fix"><div class="scn" id="scn"></div></div>
 
         <div class="hz" style="flex:1;min-height:0">
           <div class="pn" style="flex:1">
-            <div class="hd"><h2>レイヤー</h2><span class="sp"></span><span class="m">上＝前面</span><button class="b">追加</button></div>
+            <div class="hd"><h2>LAYERS</h2><span class="sp"></span><button class="b">追加</button></div>
             <div class="bd" id="layers"></div>
           </div>
           <div class="pn" style="flex:none;width:322px">
-            <div class="hd"><h2>AUX 出力</h2><span class="sp"></span><span class="m">12 系統</span></div>
+            <div class="hd"><h2>AUX</h2></div>
             <div class="bd"><table class="tb"><tbody id="auxRows"></tbody></table></div>
           </div>
         </div>
       </div>
 
       <div class="pn">
-        <div class="hd"><h2>トランジション</h2></div>
+        <div class="hd"><h2>TRANSITION</h2></div>
         <div class="bd bd--fix bd--pad col">
           <div class="row"><select class="f" id="trType">
             <option value="mix">MIX</option><option value="wipe">WIPE 左→右</option><option value="dve">DVE プッシュ</option>
           </select></div>
           <dl class="pl">
-            <dt>デュレーション</dt><dd id="trDur">30F / 0.50s</dd>
-            <dt>対象</dt><dd>Background</dd>
+            <dt>RATE</dt><dd id="trDur">30 F</dd>
+            <dt>LAYER</dt><dd>Background</dd>
             <dt>NEXT</dt><dd id="trNext">BKGD</dd>
           </dl>
         </div>
 
-        <div class="hd sect"><h2>キー 1</h2><span class="sp"></span><button class="b on" id="k1">ON AIR</button></div>
+        <div class="hd sect"><h2>KEY 1</h2><span class="sp"></span><button class="b on" id="k1">ON AIR</button></div>
         <div class="bd bd--fix bd--pad col">
           <select class="f"><option>リニア（フィル＋キー）</option><option>クロマ</option><option>ルミナンス</option></select>
           <dl class="pl">
-            <dt>フィル</dt><dd>IP08 PC1 講演資料</dd>
-            <dt>キー</dt><dd>IP09 PC1 KEY</dd>
-            <dt>クリップ</dt><dd>12.0</dd>
-            <dt>ゲイン</dt><dd>48.0</dd>
-            <dt>マスク</dt><dd class="u">なし</dd>
+            <dt>FILL</dt><dd>IP08 PC1</dd>
+            <dt>KEY</dt><dd>IP09 PC1 KEY</dd>
+            <dt>CLIP</dt><dd>12.0</dd>
+            <dt>GAIN</dt><dd>48.0</dd>
+            <dt>MASK</dt><dd class="u">OFF</dd>
           </dl>
         </div>
 
-        <div class="hd sect"><h2>スナップショット</h2><span class="sp"></span><span class="m" id="snapN">8 / 64</span></div>
+        <div class="hd sect"><h2>SNAPSHOT</h2></div>
         <div class="bd" id="snaps"></div>
       </div>
     </section>
@@ -573,27 +576,28 @@ select.f{padding:0 4px}
     <!-- ---------- sources ---------- -->
     <section class="view v-sw" id="w-sr">
       <div class="pn">
-        <div class="hd"><h2>入力一覧</h2><span class="sp"></span>
+        <div class="hd"><h2>INPUTS</h2><span class="sp"></span>
           <span class="m" id="srcCount"></span>
           <button class="b">NDI 検出</button><button class="b">取り込み</button></div>
         <div class="bd"><table class="tb">
-          <thead><tr><th>#</th><th>名前</th><th>接続</th><th>種別</th><th>フォーマット</th><th>状態</th><th>KAIROS 名</th></tr></thead>
+          <thead><tr><th>#</th><th>名前</th><th>KAIROS</th><th>接続</th><th>種別</th><th>フォーマット</th><th>状態</th>
+            <th>PANEL 8</th><th>UMD 16</th></tr></thead>
           <tbody id="srcRows"></tbody>
         </table></div>
       </div>
       <div class="pn">
-        <div class="hd"><h2>入力</h2><span class="sp"></span><span class="m" id="srcSelNo">01</span></div>
+        <div class="hd"><h2>INPUT</h2><span class="sp"></span><span class="m" id="srcSelNo">01</span></div>
         <div class="bd bd--fix bd--pad col">
           <div class="vid mon"><div class="vid__i" id="srcPrev"></div>
             <div class="mon__bar"><span class="m" id="srcPrevN">01</span><span id="srcPrevT">CAM1 センター</span></div></div>
           <dl class="pl" id="srcMeta"></dl>
-          <div class="row"><button class="b b--w">PVW</button><button class="b b--w">名前変更</button></div>
+          <div class="row"><button class="b b--w">PST</button><button class="b b--w">名前変更</button></div>
         </div>
-        <div class="hd sect"><h2>並べ替え</h2></div>
+        <div class="hd sect"><h2>SORT</h2></div>
         <div class="bd bd--pad col">
           <button class="b b--w">カメラを先頭へ</button>
           <button class="b b--w">未接続を末尾へ</button>
-          <button class="b b--w">パネル番号を振り直す</button>
+          <button class="b b--w">XPT 番号 再割当</button>
         </div>
       </div>
     </section>
@@ -601,29 +605,29 @@ select.f{padding:0 4px}
     <!-- ---------- multiview ---------- -->
     <section class="view v-mv" id="w-mv">
       <div class="pn">
-        <div class="hd"><h2>レイアウト</h2></div>
+        <div class="hd"><h2>LAYOUT</h2></div>
         <div class="bd"><div class="lay" id="layouts"></div></div>
       </div>
       <div class="pn">
-        <div class="hd"><h2>MV1 — SDI OUT 7</h2><span class="sp"></span><span class="m" id="mvInfo"></span></div>
+        <div class="hd"><h2>MV1</h2><span class="sp"></span><span class="m">SDI OUT 7</span><span class="m" id="mvInfo"></span></div>
         <div class="mvw"><div class="mvc" id="mvc"></div></div>
       </div>
       <div class="pn">
-        <div class="hd"><h2>ペイン</h2><span class="sp"></span><span class="m" id="paneNo">01</span></div>
+        <div class="hd"><h2>PANE</h2><span class="sp"></span><span class="m" id="paneNo">01</span></div>
         <div class="bd bd--fix bd--pad col">
           <select class="f" id="paneSrc"></select>
           <input class="f" id="paneLbl" value="CAM1">
           <dl class="pl">
-            <dt>タリー枠</dt><dd class="u">表示</dd>
-            <dt>音声メーター</dt><dd class="u">重ねる</dd>
-            <dt>セーフエリア</dt><dd class="u">非表示</dd>
+            <dt>TALLY</dt><dd class="u">ON</dd>
+            <dt>METER</dt><dd class="u">ON</dd>
+            <dt>SAFE AREA</dt><dd class="u">OFF</dd>
+            <dt>UMD</dt><dd id="paneUmd">CAM1</dd>
           </dl>
-        </div>
-        <div class="hd sect"><h2>操作</h2></div>
-        <div class="bd bd--pad col">
-          <button class="b b--w">ペインを結合（2×2）</button>
-          <button class="b b--w">ラベルを入力名に合わせる</button>
-          <button class="b b--w">MV2 に複製</button>
+          <div class="col">
+            <button class="b b--w">結合 2×2</button>
+            <button class="b b--w">UMD を入力名に同期</button>
+            <button class="b b--w">MV2 に複製</button>
+          </div>
         </div>
       </div>
     </section>
@@ -631,30 +635,30 @@ select.f{padding:0 4px}
     <!-- ---------- macro ---------- -->
     <section class="view v-mc" id="w-mc">
       <div class="pn">
-        <div class="hd"><h2>マクロ</h2><span class="sp"></span><button class="b">新規</button></div>
+        <div class="hd"><h2>MACRO</h2><span class="sp"></span><button class="b">新規</button></div>
         <div class="bd bd--fix" style="max-height:236px;overflow:auto"><div class="bl" id="macList"></div></div>
-        <div class="hd sect"><h2>ブロック</h2></div>
+        <div class="hd sect"><h2>ACTION</h2></div>
         <div class="bd"><div class="bl" id="palette"></div></div>
       </div>
 
       <div class="pn">
         <div class="hd"><h2 id="macTitle">M07 OP → 2ボックス</h2><span class="sp"></span><span class="m" id="stepN"></span></div>
         <div class="trg">
-          <span class="lb">起動</span>
-          <button class="b on" data-trig>パネル USER 07</button>
+          <span class="lb">TRIGGER</span>
+          <button class="b on" data-trig>PANEL USER 07</button>
           <button class="b" data-trig>GPI IN 2</button>
-          <button class="b" data-trig>タイムコード</button>
-          <button class="b" data-trig>手動</button>
+          <button class="b" data-trig>TIMECODE</button>
+          <button class="b" data-trig>MANUAL</button>
         </div>
         <div class="bd" id="steps"></div>
-        <div class="hd sect"><button class="b b--go" id="mTest">テスト実行</button><button class="b">1 ステップ実行</button>
-          <span class="sp"></span><button class="b" id="mUndo">元に戻す</button><button class="b">Core へ書込</button></div>
+        <div class="hd sect"><button class="b b--go" id="mTest">RUN</button><button class="b">STEP</button>
+          <span class="sp"></span><button class="b" id="mUndo">UNDO</button><button class="b">CORE へ書込</button></div>
       </div>
 
       <div class="pn">
-        <div class="hd"><h2>ステップ</h2><span class="sp"></span><span class="m" id="stepSel">—</span></div>
+        <div class="hd"><h2>STEP</h2><span class="sp"></span><span class="m" id="stepSel">—</span></div>
         <div class="bd bd--fix bd--pad col" id="stepProp"></div>
-        <div class="hd sect"><h2>生成コマンド</h2><span class="sp"></span><button class="b" id="cpCmd">コピー</button></div>
+        <div class="hd sect"><h2>COMMAND</h2><span class="sp"></span><button class="b" id="cpCmd">コピー</button></div>
         <pre class="code" id="cmd"></pre>
       </div>
     </section>
@@ -662,24 +666,24 @@ select.f{padding:0 4px}
     <!-- ---------- panel ---------- -->
     <section class="view v-pl" id="w-pl">
       <div class="pn">
-        <div class="hd"><h2>コントロールパネル — 大型</h2><span class="sp"></span>
-          <div class="shsw" id="shsw"><button class="on" data-sh="0">通常</button><button data-sh="1">SHIFT</button></div>
+        <div class="hd"><h2>CONTROL PANEL</h2><span class="sp"></span>
+          <div class="shsw" id="shsw"><button class="on" data-sh="0">NORMAL</button><button data-sh="1">SHIFT</button></div>
           <span class="m" id="plStat"></span></div>
         <div class="cp"><div class="cpx" id="cpx"></div></div>
-        <div class="hd sect"><h2>割当一覧</h2><span class="sp"></span>
-          <button class="b" id="fltFree">未割り当てのみ</button>
-          <button class="b">印刷用に書き出す</button></div>
+        <div class="hd sect"><h2>ASSIGNMENT</h2><span class="sp"></span>
+          <button class="b" id="fltFree">空きのみ</button>
+          <button class="b">書き出し</button></div>
         <div class="bd" style="flex:1;min-height:0">
           <table class="tb">
-            <thead><tr><th>行</th><th>キー</th><th>通常</th><th>SHIFT</th></tr></thead>
+            <thead><tr><th>ROW</th><th>KEY</th><th>NORMAL</th><th>SHIFT</th></tr></thead>
             <tbody id="cpList"></tbody>
           </table>
         </div>
       </div>
       <div class="pn">
-        <div class="hd"><h2>キー</h2><span class="sp"></span><span class="m" id="ckNo">—</span></div>
+        <div class="hd"><h2>KEY</h2><span class="sp"></span><span class="m" id="ckNo">—</span></div>
         <div class="bd bd--fix bd--pad col" id="ckProp"></div>
-        <div class="hd sect"><h2>割り当てる</h2></div>
+        <div class="hd sect"><h2>ASSIGN</h2></div>
         <div class="bd"><div class="bl" id="assign"></div></div>
       </div>
     </section>
@@ -687,30 +691,30 @@ select.f{padding:0 4px}
     <!-- ---------- audio ---------- -->
     <section class="view v-au" id="w-au">
       <div class="pn">
-        <div class="hd"><h2>ミキサー</h2><span class="sp"></span><span class="m">MASTER −3.0 dB</span><button class="b on">AFV</button></div>
+        <div class="hd"><h2>MIXER</h2><span class="sp"></span><span class="m">MASTER −3.0 dB</span><button class="b on">AFV</button></div>
         <div class="bd bd--fix"><div class="str" id="strips"></div></div>
         <div class="hz" style="flex:1;min-height:0">
           <div class="pn" style="border-left:0">
-            <div class="hd"><h2>AFV 対応</h2></div>
+            <div class="hd"><h2>AFV</h2></div>
             <div class="bd"><table class="tb">
-              <thead><tr><th>映像</th><th>CH</th><th>動作</th></tr></thead>
+              <thead><tr><th>SOURCE</th><th>CH</th><th>MODE</th></tr></thead>
               <tbody>
-                <tr><td>CAM1 センター</td><td class="m">1</td><td><span class="st st--ok">PGM 追従</span></td></tr>
-                <tr><td>CAM2 上手</td><td class="m">2</td><td><span class="st st--ok">PGM 追従</span></td></tr>
-                <tr><td>CAM4 ハンディ</td><td class="m">4</td><td><span class="st st--ok">PGM 追従</span></td></tr>
-                <tr><td>PC1 講演資料</td><td class="m">8</td><td><span class="st st--ok">PGM 追従</span></td></tr>
-                <tr><td>VTR / MP1</td><td class="m">13</td><td><span class="st st--ok">PGM 追従</span></td></tr>
-                <tr><td>ワイヤレス 1・2</td><td class="m">17 / 18</td><td><span class="st st--w">常時開放</span></td></tr>
-                <tr><td>中継A</td><td class="m">11</td><td><span class="st st--w">常時開放</span></td></tr>
+                <tr><td>CAM1 センター</td><td class="m">1</td><td><span class="st st--ok">AFV</span></td></tr>
+                <tr><td>CAM2 上手</td><td class="m">2</td><td><span class="st st--ok">AFV</span></td></tr>
+                <tr><td>CAM4 ハンディ</td><td class="m">4</td><td><span class="st st--ok">AFV</span></td></tr>
+                <tr><td>PC1 講演資料</td><td class="m">8</td><td><span class="st st--ok">AFV</span></td></tr>
+                <tr><td>CP1 本編</td><td class="m">13</td><td><span class="st st--ok">AFV</span></td></tr>
+                <tr><td>ワイヤレス 1 / 2</td><td class="m">17 / 18</td><td><span class="st st--w">FIXED</span></td></tr>
+                <tr><td>中継A 大阪</td><td class="m">11</td><td><span class="st st--w">FIXED</span></td></tr>
               </tbody>
             </table></div>
           </div>
           <div class="pn">
-            <div class="hd"><h2>出力</h2></div>
+            <div class="hd"><h2>OUTPUT</h2></div>
             <div class="bd"><table class="tb">
-              <thead><tr><th>バス</th><th>行き先</th><th>備考</th></tr></thead>
+              <thead><tr><th>BUS</th><th>行き先</th><th>備考</th></tr></thead>
               <tbody>
-                <tr><td class="m">MIX 1</td><td>SDI OUT 1 収録</td><td class="faint">SE・テロップ込み</td></tr>
+                <tr><td class="m">MIX 1</td><td>SDI OUT 1 収録</td><td class="faint">SE・テロップ込</td></tr>
                 <tr><td class="m">MIX 2</td><td>配信エンコーダー</td><td class="faint">クリーン</td></tr>
                 <tr><td class="m">AUX 1</td><td>楽屋モニター</td><td class="faint">PGM 追従</td></tr>
                 <tr><td class="m">AUX 2</td><td>場内 SR</td><td class="faint">中継音カット</td></tr>
@@ -725,33 +729,41 @@ select.f{padding:0 4px}
     <!-- ---------- setup ---------- -->
     <section class="view v-st" id="w-st">
       <div class="pn">
-        <div class="hd"><h2>接続</h2></div>
+        <div class="hd"><h2>CONNECTION</h2></div>
         <div class="bd bd--pad col">
           <dl class="pl">
-            <dt>Core</dt><dd>KAIROS Core 200</dd>
-            <dt>アドレス</dt><dd>192.168.10.20</dd>
-            <dt>パネル</dt><dd>大型 / 192.168.10.31</dd>
-            <dt>応答</dt><dd>3.2 ms</dd>
-            <dt>ファームウェア</dt><dd>要確認</dd>
+            <dt>CORE</dt><dd>KAIROS Core 200</dd>
+            <dt>ADDRESS</dt><dd>192.168.10.20</dd>
+            <dt>PANEL</dt><dd>192.168.10.31</dd>
+            <dt>RTT</dt><dd>3.2 ms</dd>
+            <dt>VERSION</dt><dd>要確認</dd>
           </dl>
           <button class="b b--w">接続テスト</button>
         </div>
-      </div>
-      <div class="pn">
-        <div class="hd"><h2>プロジェクト</h2></div>
+        <div class="hd sect"><h2>PROTOCOL</h2></div>
         <div class="bd bd--pad col">
           <dl class="pl">
-            <dt>名前</dt><dd class="u">ホールA 定期公演</dd>
-            <dt>更新</dt><dd>08-29 10:02</dd>
-            <dt>未書込</dt><dd id="stDirty">0 件</dd>
+            <dt>REST API</dt><dd class="u">使用（ver 1.7 以降）</dd>
+            <dt>ROSSTALK</dt><dd class="u">未使用 / AT-SFE01</dd>
+            <dt>RAW PANEL</dt><dd class="u">未使用</dd>
+          </dl>
+        </div>
+      </div>
+      <div class="pn">
+        <div class="hd"><h2>PROJECT</h2></div>
+        <div class="bd bd--pad col">
+          <dl class="pl">
+            <dt>NAME</dt><dd class="u">ホールA 定期公演</dd>
+            <dt>SAVED</dt><dd>08-29 10:02</dd>
+            <dt>DIRTY</dt><dd id="stDirty">0</dd>
           </dl>
           <button class="b b--w b--go">差分を確認して書込</button>
-          <button class="b b--w">Core から取り込み</button>
+          <button class="b b--w">CORE から取り込み</button>
           <button class="b b--w">テンプレート保存</button>
         </div>
       </div>
       <div class="pn">
-        <div class="hd"><h2>テンプレート</h2></div>
+        <div class="hd"><h2>TEMPLATE</h2></div>
         <div class="bd">
           <table class="tb"><tbody>
             <tr><td>ホールA 定期公演</td><td class="m faint">08-22</td></tr>
@@ -769,7 +781,7 @@ select.f{padding:0 4px}
   <div class="surf">
     <div class="surf__l">
       <div class="bus bus--p"><div class="bus__l">PGM</div><div class="bus__k" id="kPgm"></div></div>
-      <div class="bus bus--v"><div class="bus__l">PVW</div><div class="bus__k" id="kPvw"></div></div>
+      <div class="bus bus--v"><div class="bus__l">PST</div><div class="bus__k" id="kPvw"></div></div>
     </div>
     <div class="surf__r">
       <div class="tg">
@@ -803,13 +815,11 @@ select.f{padding:0 4px}
 
   <!-- ============ status ============ -->
   <div class="sb">
-    <span class="sb__c sb__msg" id="msg">準備完了</span>
-    <span class="sb__c">未書込 <b id="dirty" class="m">0</b></span>
-    <span class="sb__c">選択 <b id="selInfo">CAM1 センター</b></span>
+    <span class="sb__c sb__msg" id="msg"></span>
     <span class="sp"></span>
-    <span class="sb__c">入力 <b class="m">24</b></span>
-    <span class="sb__c">シーン <b class="m" id="sbScene">5</b></span>
-    <span class="sb__c">マクロ <b class="m">12</b></span>
+    <span class="sb__c">DIRTY <b id="dirty" class="m">0</b></span>
+    <span class="sb__c">ALARM <b id="sbAlarm" class="m">2</b></span>
+    <span class="sb__c">GPU <span class="gbar"><i id="gpuBar" style="width:62%"></i></span><b id="gpu" class="m">62 %</b></span>
     <span class="sb__c m" id="sbTc">10:24:51:12</span>
   </div>
 </div>
@@ -837,31 +847,34 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ---------------- data ---------------- */
 const SRC=[
- {n:"01",id:"IP01",nm:"CAM1 センター",sh:"CAM1",cn:"SDI IN 1",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"AK-UC3300",v:"v1",c:"#24404F"},
- {n:"02",id:"IP02",nm:"CAM2 上手",sh:"CAM2",cn:"SDI IN 2",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"AK-UC3300",v:"v2",c:"#3B3550"},
- {n:"03",id:"IP03",nm:"CAM3 下手",sh:"CAM3",cn:"SDI IN 3",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"AK-UC3300",v:"v3",c:"#4E3A22"},
- {n:"04",id:"IP04",nm:"CAM4 ハンディ",sh:"CAM4",cn:"SDI IN 4",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",no:"無線伝送 / 遅延 2F",v:"v4",c:"#1D4740"},
- {n:"05",id:"IP05",nm:"CAM5 客席後方",sh:"CAM5",cn:"SDI IN 5",tp:"3G-SDI",ip:0,fmt:"1080/59.94i",st:"w",no:"フォーマット不一致",v:"v5",c:"#22414F"},
- {n:"06",id:"IP06",nm:"PTZ1 舞台袖",sh:"PTZ1",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"ok",no:"AW-UE100",v:"v6",c:"#35304A"},
- {n:"07",id:"IP07",nm:"PTZ2 天吊り",sh:"PTZ2",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"w",no:"帯域 91%",v:"v6",c:"#35304A"},
- {n:"08",id:"IP08",nm:"PC1 講演資料",sh:"PC1",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",no:"HDMI→IP 変換",v:"v7",c:"#0D1826"},
- {n:"09",id:"IP09",nm:"PC1 KEY",sh:"PC1K",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",no:"アルファ",v:"vstl",c:"#262B33"},
- {n:"10",id:"IP10",nm:"PC2 予備",sh:"PC2",cn:"SDI IN 6",tp:"3G-SDI",ip:0,fmt:"—",st:"x",no:"未結線",v:"voff",c:"#101419"},
- {n:"11",id:"IP11",nm:"中継A 大阪",sh:"中継A",cn:"SRT",tp:"SRT",ip:1,fmt:"1080/59.94p",st:"ok",no:"遅延 800 ms",v:"v10",c:"#373A1D"},
- {n:"12",id:"IP12",nm:"中継B（未使用）",sh:"中継B",cn:"SRT",tp:"SRT",ip:1,fmt:"—",st:"x",no:"待機のみ",v:"voff",c:"#101419"},
- {n:"13",id:"MP1",nm:"VTR / 本編",sh:"VTR",cn:"内部",tp:"メディア",ip:0,fmt:"1080/59.94p",st:"ok",no:"MP1",v:"v8",c:"#5E2130"},
- {n:"14",id:"MP2",nm:"CM / 番宣",sh:"CM",cn:"内部",tp:"メディア",ip:0,fmt:"1080/59.94p",st:"ok",no:"MP2",v:"v8",c:"#5E2130"},
- {n:"15",id:"RAM1",nm:"リプレイ 1",sh:"RAM1",cn:"内部",tp:"RAM",ip:0,fmt:"1080/59.94p",st:"ok",no:"8 秒",v:"v9",c:"#1B3A5B"},
- {n:"16",id:"RAM2",nm:"リプレイ 2",sh:"RAM2",cn:"内部",tp:"RAM",ip:0,fmt:"1080/59.94p",st:"ok",no:"8 秒",v:"v9",c:"#1B3A5B"},
- {n:"17",id:"STL1",nm:"タイトル",sh:"STL1",cn:"内部",tp:"スチル",ip:0,fmt:"1080/59.94p",st:"ok",no:"スチルストア",v:"vstl",c:"#262B33"},
- {n:"18",id:"STL2",nm:"スポンサー",sh:"STL2",cn:"内部",tp:"スチル",ip:0,fmt:"1080/59.94p",st:"ok",no:"スチルストア",v:"vstl",c:"#262B33"},
- {n:"19",id:"IP13",nm:"CG1 テロップ",sh:"CG1",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",no:"外部 CG",v:"v11",c:"#24304A"},
- {n:"20",id:"IP14",nm:"CG1 KEY",sh:"CG1K",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",no:"アルファ",v:"vstl",c:"#262B33"},
- {n:"21",id:"CLK",nm:"時計",sh:"時計",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"内部生成",v:"vstl",c:"#262B33"},
- {n:"22",id:"BAR",nm:"カラーバー",sh:"BARS",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"内部生成",v:"vbars",c:"#B4B400"},
- {n:"23",id:"BLK",nm:"ブラック",sh:"BLACK",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"内部生成",v:"vblk",c:"#05070A"},
- {n:"24",id:"AX1R",nm:"AUX1 戻り",sh:"AUX1R",cn:"内部",tp:"内部",ip:0,fmt:"1080/59.94p",st:"ok",no:"ループ注意",v:"v1",c:"#24404F"}
+ {n:"01",id:"IP01",nm:"CAM1 センター",mn:"CAM1",umd:"CAM1 CENTER",cn:"SDI IN 1",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v1",c:"#24404F"},
+ {n:"02",id:"IP02",nm:"CAM2 上手",mn:"CAM2",umd:"CAM2 KAMITE",cn:"SDI IN 2",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v2",c:"#3B3550"},
+ {n:"03",id:"IP03",nm:"CAM3 下手",mn:"CAM3",umd:"CAM3 SHIMOTE",cn:"SDI IN 3",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v3",c:"#4E3A22"},
+ {n:"04",id:"IP04",nm:"CAM4 ハンディ",mn:"CAM4",umd:"CAM4 HANDY",cn:"SDI IN 4",tp:"12G-SDI",ip:0,fmt:"1080/59.94p",st:"ok",v:"v4",c:"#1D4740"},
+ {n:"05",id:"IP05",nm:"CAM5 客席後方",mn:"CAM5",umd:"CAM5 REAR",cn:"SDI IN 5",tp:"3G-SDI",ip:0,fmt:"1080/59.94i",st:"w",v:"v5",c:"#22414F"},
+ {n:"06",id:"IP06",nm:"PTZ1 舞台袖",mn:"PTZ1",umd:"PTZ1 SODE",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"ok",v:"v6",c:"#35304A"},
+ {n:"07",id:"IP07",nm:"PTZ2 天吊り",mn:"PTZ2",umd:"PTZ2 CEILING",cn:"NDI",tp:"NDI HX3",ip:1,fmt:"1080/59.94p",st:"w",v:"v6",c:"#35304A"},
+ {n:"08",id:"IP08",nm:"PC1 講演資料",mn:"PC1",umd:"PC1 SLIDE",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",v:"v7",c:"#0D1826"},
+ {n:"09",id:"IP09",nm:"PC1 KEY",mn:"PC1KEY",umd:"PC1 SLIDE KEY",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/60p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"10",id:"IP10",nm:"PC2 予備",mn:"PC2",umd:"PC2 SPARE",cn:"SDI IN 6",tp:"3G-SDI",ip:0,fmt:"—",st:"x",v:"voff",c:"#101419"},
+ {n:"11",id:"IP11",nm:"中継A 大阪",mn:"REMOTE-A",umd:"REMOTE A OSAKA HD",cn:"SRT",tp:"SRT",ip:1,fmt:"1080/59.94p",st:"ok",v:"v10",c:"#373A1D"},
+ {n:"12",id:"IP12",nm:"中継B",mn:"REMOTE-B",umd:"REMOTE B",cn:"SRT",tp:"SRT",ip:1,fmt:"—",st:"x",v:"voff",c:"#101419"},
+ {n:"13",id:"CP1",nm:"クリップ 本編",mn:"CLIP1",umd:"CLIP 1 MAIN",cn:"内部",tp:"CLIP PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v8",c:"#5E2130"},
+ {n:"14",id:"CP2",nm:"クリップ CM",mn:"CLIP2",umd:"CLIP 2 CM",cn:"内部",tp:"CLIP PLAYER",ip:0,fmt:"1080/59.94p",st:"ok",v:"v8",c:"#5E2130"},
+ {n:"15",id:"RR1",nm:"RAM リプレイ 1",mn:"RAM1",umd:"RAM REC 1",cn:"内部",tp:"RAM REC",ip:0,fmt:"1080/59.94p",st:"ok",v:"v9",c:"#1B3A5B"},
+ {n:"16",id:"RR2",nm:"RAM リプレイ 2",mn:"RAM2",umd:"RAM REC 2",cn:"内部",tp:"RAM REC",ip:0,fmt:"1080/59.94p",st:"ok",v:"v9",c:"#1B3A5B"},
+ {n:"17",id:"STL1",nm:"スチル タイトル",mn:"STILL1",umd:"STILL 1 TITLE",cn:"内部",tp:"STILL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"18",id:"STL2",nm:"スチル スポンサー",mn:"STILL2",umd:"STILL 2 SPONSOR",cn:"内部",tp:"STILL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"19",id:"IP13",nm:"CG1 テロップ",mn:"CG1",umd:"CG1 SUPER",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",v:"v11",c:"#24304A"},
+ {n:"20",id:"IP14",nm:"CG1 KEY",mn:"CG1-KEYFL",umd:"CG1 SUPER KEY",cn:"ST2110",tp:"ST 2110-20",ip:1,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"21",id:"CLK",nm:"時計",mn:"CLOCK",umd:"CLOCK",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vstl",c:"#262B33"},
+ {n:"22",id:"BAR",nm:"カラーバー",mn:"BARS",umd:"COLOR BARS",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vbars",c:"#B4B400"},
+ {n:"23",id:"BLK",nm:"ブラック",mn:"BLACK",umd:"BLACK",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"vblk",c:"#05070A"},
+ {n:"24",id:"AX1R",nm:"AUX1 戻り",mn:"AUX1RTN",umd:"AUX1 RETURN",cn:"内部",tp:"INTERNAL",ip:0,fmt:"1080/59.94p",st:"ok",v:"v1",c:"#24404F"}
 ];
+SRC.forEach(x=>{ x.sh=x.mn; });
+const MN_MAX=8, UMD_MAX=16;
+const overName = x => x.mn.length>MN_MAX || x.umd.length>UMD_MAX;
 const S_ = i=>SRC[i];
 
 const SCENES=[
@@ -871,23 +884,23 @@ const SCENES=[
    {nm:"KEY1 スーパー",s:7,k:"k",on:1,o:100},
    {nm:"BOX 右",s:3,k:"d",on:0,o:100},
    {nm:"BOX 左",s:0,k:"d",on:0,o:100},
-   {nm:"BKGD",s:0,k:"b",on:1,o:100}]},
+   {nm:"Background",s:0,k:"b",on:1,o:100}]},
  {nm:"2ボックス",id:"TwoBox",layers:[
    {nm:"KEY1 名前",s:18,k:"k",on:1,o:100},
    {nm:"BOX 右",s:1,k:"d",on:1,o:100},
    {nm:"BOX 左",s:0,k:"d",on:1,o:100},
    {nm:"背景 CG",s:16,k:"b",on:1,o:100},
-   {nm:"BKGD",s:22,k:"b",on:1,o:100}]},
+   {nm:"Background",s:22,k:"b",on:1,o:100}]},
  {nm:"リプレイ",id:"Replay",layers:[
    {nm:"リプレイ枠",s:16,k:"d",on:1,o:90},
    {nm:"スロー",s:14,k:"b",on:1,o:100},
-   {nm:"BKGD",s:22,k:"b",on:1,o:100}]},
+   {nm:"Background",s:22,k:"b",on:1,o:100}]},
  {nm:"スポンサー",id:"Spon",layers:[
    {nm:"ロゴ",s:17,k:"d",on:1,o:100},
-   {nm:"BKGD",s:17,k:"b",on:1,o:100}]},
+   {nm:"Background",s:17,k:"b",on:1,o:100}]},
  {nm:"客席",id:"Wide",layers:[
    {nm:"KEY1 スーパー",s:7,k:"k",on:0,o:100},
-   {nm:"BKGD",s:4,k:"b",on:1,o:100}]}
+   {nm:"Background",s:4,k:"b",on:1,o:100}]}
 ];
 const SNAPS=["OP ワイド","2ボックス","講演 PC1","客席引き","リプレイ待機","スポンサー","質疑","エンド"];
 
@@ -897,13 +910,13 @@ const S={pgm:0,pvw:1,scene:0,tr:"mix",rate:30,src:0,bank:0,mv:"16",pane:0,step:0
 let msgT=null;
 function say(t){
   $("#msg").textContent=t;
-  clearTimeout(msgT); msgT=setTimeout(()=>{ $("#msg").textContent="準備完了"; },2600);
+  clearTimeout(msgT); msgT=setTimeout(()=>{ $("#msg").textContent=""; },2600);
 }
 function touch(n){
   S.dirty+=(n===undefined?1:n);
   $("#dirty").textContent=S.dirty;
   $("#dirty").classList.toggle("dirty",S.dirty>0);
-  $("#stDirty").textContent=S.dirty+" 件";
+  $("#stDirty").textContent=S.dirty;
 }
 
 /* ---------------- tabs ---------------- */
@@ -927,7 +940,7 @@ function buildBus(el,which){
     b.title=s.nm+" — "+s.tp;
     b.addEventListener("click",()=>{
       if(which==="pgm") S.pgm=i; else S.pvw=i;
-      say((which==="pgm"?"PGM":"PVW")+" → "+s.nm);
+      say((which==="pgm"?"PGM":"PST")+" "+s.mn);
       paint();
     });
     el.appendChild(b);
@@ -976,15 +989,15 @@ function auto(){
   })(t0);
 }
 $("#bCut").addEventListener("click",()=>{ if(!busy){ take(); say("CUT"); }});
-$("#bAuto").addEventListener("click",()=>{ auto(); say("AUTO "+(S.rate/60).toFixed(2)+"s"); });
+$("#bAuto").addEventListener("click",()=>{ auto(); say("AUTO "+S.rate+" F"); });
 $("#tbar").addEventListener("input",e=>{
   const p=e.target.value/100; $("#tbarP").textContent=e.target.value+"%"; mix(p);
   if(p>=1) take();
 });
-$("#trType").addEventListener("change",e=>{ S.tr=e.target.value; mix(0); touch(); say("トランジション "+e.target.selectedOptions[0].textContent); });
+$("#trType").addEventListener("change",e=>{ S.tr=e.target.value; mix(0); touch(); say(e.target.selectedOptions[0].textContent); });
 $("#rate").addEventListener("change",e=>{
   const f=Math.max(1,Math.min(300,parseInt(e.target.value,10)||30));
-  S.rate=f; e.target.value=f; $("#trDur").textContent=f+"F / "+(f/60).toFixed(2)+"s"; touch();
+  S.rate=f; e.target.value=f; $("#trDur").textContent=f+" F"; touch();
 });
 $$("[data-nx]").forEach(b=>b.addEventListener("click",()=>{
   $$("[data-nx]").forEach(x=>x.classList.remove("on")); b.classList.add("on");
@@ -1000,13 +1013,12 @@ function paintScn(){
   SCENES.forEach((s,i)=>{
     const b=document.createElement("button");
     b.className=i===S.scene?"on":"";
-    b.innerHTML=s.nm+' <span class="m">'+s.layers.length+"L</span>";
-    b.addEventListener("click",()=>{ S.scene=i; paintScn(); paintLayers(); paintCmd(); say("シーン "+s.nm); });
+    b.innerHTML=s.nm+' <span class="m">'+s.layers.length+"</span>";
+    b.addEventListener("click",()=>{ S.scene=i; paintScn(); paintLayers(); paintCmd(); });
     el.appendChild(b);
   });
-  $("#sbScene").textContent=SCENES.length;
 }
-const KT={k:"KEY",d:"DVE",b:"BGD"};
+const KT={k:"KEY",d:"DVE",b:"BKGD"};
 function paintLayers(){
   const el=$("#layers"); el.innerHTML="";
   SCENES[S.scene].layers.forEach((L,i)=>{
@@ -1032,8 +1044,8 @@ function paintSnaps(){
     const r=document.createElement("div");
     r.className="ly"; r.style.gridTemplateColumns="24px minmax(0,1fr) 46px";
     r.innerHTML='<span class="m faint">'+String(i+1).padStart(2,"0")+"</span>"+
-      '<span class="ly__n">'+nm+"</span>"+'<button class="oa">呼出</button>';
-    r.querySelector(".oa").addEventListener("click",()=>say("スナップショット "+nm+" 呼出"));
+      '<span class="ly__n">'+nm+"</span>"+'<button class="oa">RECALL</button>';
+    r.querySelector(".oa").addEventListener("click",()=>say("SNAP"+String(i+1).padStart(2,"0")+" RECALL"));
     el.appendChild(r);
   });
 }
@@ -1042,8 +1054,8 @@ function paintSnaps(){
 const AUX=[
  {n:1,d:"楽屋モニター",s:-1},{n:2,d:"副調モニター",s:-2},{n:3,d:"カメラ返し 1",s:0},
  {n:4,d:"カメラ返し 2",s:1},{n:5,d:"場内ビジョン",s:-1},{n:6,d:"CG 確認",s:18},
- {n:7,d:"中継返し",s:-1},{n:8,d:"予備",s:22},{n:9,d:"未使用",s:22},{n:10,d:"未使用",s:22},
- {n:11,d:"未使用",s:22},{n:12,d:"未使用",s:22}
+ {n:7,d:"中継返し",s:-1},{n:8,d:"予備",s:22},{n:9,d:"—",s:22},{n:10,d:"—",s:22},
+ {n:11,d:"—",s:22},{n:12,d:"—",s:22}
 ];
 const auxName=v=> v===-1?"PGM":v===-2?"PVW":SRC[v].sh;
 function paintAux(){
@@ -1051,46 +1063,55 @@ function paintAux(){
   AUX.forEach(a=>{
     const tr=document.createElement("tr");
     tr.innerHTML='<td class="n">'+String(a.n).padStart(2,"0")+"</td>"+
-      "<td"+(a.d==="未使用"?' class="faint"':"")+">"+a.d+"</td>"+
+      "<td"+(a.d==="—"?' class="faint"':"")+">"+a.d+"</td>"+
       '<td style="text-align:right"><button class="pv">'+auxName(a.s)+"</button></td>";
     tr.querySelector(".pv").addEventListener("click",()=>{
       a.s = a.s===-1?-2 : a.s===-2?0 : (a.s+1>=SRC.length? -1 : a.s+1);
-      paintAux(); touch(); say("AUX"+a.n+" → "+auxName(a.s));
+      paintAux(); touch(); say("AUX"+a.n+" "+auxName(a.s));
     });
     el.appendChild(tr);
   });
 }
 
 /* ---------------- sources ---------------- */
-const STT={ok:"受信",w:"要確認",x:"未接続"};
+const STT={ok:"OK",w:"要確認",x:"未接続"};
 function paintSrc(){
   const el=$("#srcRows"); el.innerHTML="";
   SRC.forEach((s,i)=>{
     const tr=document.createElement("tr");
     if(i===S.src) tr.className="sel";
+    const kind = s.ip?" tag--ip":(s.cn==="内部"?" tag--in":"");
+    const mnC = s.mn.length>MN_MAX ? "m warn" : "m";
+    const umC = s.umd.length>UMD_MAX ? "m warn" : "m";
     tr.innerHTML='<td class="n">'+s.n+"</td>"+
-      "<td>"+s.nm+' <span class="faint" style="font-size:11.5px">'+s.no+"</span></td>"+
+      "<td>"+s.nm+"</td>"+
+      '<td class="m">'+s.id+"</td>"+
       '<td class="m">'+s.cn+"</td>"+
-      '<td><span class="tag'+(s.ip?" tag--ip":s.tp==="内部"?" tag--in":"")+'">'+s.tp+"</span></td>"+
+      '<td><span class="tag'+kind+'">'+s.tp+"</span></td>"+
       '<td class="m">'+s.fmt+"</td>"+
       '<td><span class="st st--'+(s.st==="ok"?"ok":s.st==="w"?"w":"x")+'">'+STT[s.st]+"</span></td>"+
-      '<td class="m">'+s.id+"</td>";
-    tr.addEventListener("click",()=>{ S.src=i; paintSrc(); paintSrcDet(); $("#selInfo").textContent=s.nm; });
+      '<td class="'+mnC+'">'+s.mn+"</td>"+
+      '<td class="'+umC+'">'+s.umd+"</td>";
+    tr.addEventListener("click",()=>{ S.src=i; paintSrc(); paintSrcDet(); });
     el.appendChild(tr);
   });
-  $("#srcCount").textContent=SRC.filter(s=>s.st!=="x").length+" / "+SRC.length+" 受信";
+  const over=SRC.filter(overName).length;
+  $("#srcCount").textContent=SRC.filter(s=>s.st!=="x").length+"/"+SRC.length+(over?"　名称超過 "+over:"");
 }
 function paintSrcDet(){
   const s=S_(S.src);
   $("#srcPrev").className="vid__i "+s.v;
-  $("#srcPrevN").textContent=s.n; $("#srcPrevT").textContent=s.nm; $("#srcSelNo").textContent=s.n;
+  $("#srcPrevN").textContent=s.n; $("#srcPrevT").textContent=s.mn; $("#srcSelNo").textContent=s.n;
+  const mw=s.mn.length>MN_MAX, uw=s.umd.length>UMD_MAX;
   $("#srcMeta").innerHTML=
-    "<dt>KAIROS 名</dt><dd>"+s.id+"</dd>"+
-    "<dt>接続</dt><dd>"+s.cn+"</dd>"+
-    "<dt>種別</dt><dd>"+s.tp+"</dd>"+
-    "<dt>フォーマット</dt><dd>"+s.fmt+"</dd>"+
-    "<dt>状態</dt><dd>"+STT[s.st]+"</dd>"+
-    '<dt>備考</dt><dd class="u">'+s.no+"</dd>";
+    "<dt>KAIROS</dt><dd>"+s.id+"</dd>"+
+    "<dt>NAME</dt><dd class='u'>"+s.nm+"</dd>"+
+    "<dt>PANEL 8</dt><dd"+(mw?" class='st--w'":"")+">"+s.mn+"　"+s.mn.length+" / 8</dd>"+
+    "<dt>UMD 16</dt><dd"+(uw?" class='st--w'":"")+">"+s.umd+"　"+s.umd.length+" / 16</dd>"+
+    "<dt>CONNECT</dt><dd>"+s.cn+"</dd>"+
+    "<dt>TYPE</dt><dd>"+s.tp+"</dd>"+
+    "<dt>FORMAT</dt><dd>"+s.fmt+"</dd>"+
+    "<dt>STATUS</dt><dd>"+STT[s.st]+"</dd>";
 }
 
 /* ---------------- multiview ---------------- */
@@ -1116,7 +1137,7 @@ function paintMV(){
   const L=LAY.find(x=>x.id===S.mv), c=$("#mvc");
   c.style.gridTemplateColumns="repeat("+L.c+",1fr)";
   c.style.gridTemplateRows="repeat("+L.r+",1fr)";
-  c.innerHTML=""; $("#mvInfo").textContent=L.t+" ペイン";
+  c.innerHTML=""; $("#mvInfo").textContent=L.t;
   for(let i=0;i<L.n;i++){
     const ref=pane[i%pane.length], isP=ref===-1, isV=ref===-2;
     const s=S_(isP?S.pgm:isV?S.pvw:ref);
@@ -1126,7 +1147,7 @@ function paintMV(){
     if(L.big&&i<L.big){ b.style.gridColumn="span 2"; b.style.gridRow="span 2"; }
     b.innerHTML='<span class="vid__i '+s.v+'"></span>'+
       '<span class="pa__m"><i style="height:'+(14+((i*23)%58))+'%"></i></span>'+
-      '<span class="pa__l">'+(isP?"PGM":isV?"PVW":s.sh)+"</span>";
+      '<span class="pa__l">'+(isP?"PGM":isV?"PVW":s.umd)+"</span>";
     b.addEventListener("click",()=>{ S.pane=i; paintMV(); paintPane(); });
     c.appendChild(b);
   }
@@ -1134,7 +1155,8 @@ function paintMV(){
 function paintPane(){
   const ref=pane[S.pane];
   $("#paneNo").textContent=String(S.pane+1).padStart(2,"0");
-  $("#paneLbl").value=ref===-1?"PGM":ref===-2?"PVW":S_(ref).sh;
+  const lb=ref===-1?"PGM":ref===-2?"PVW":S_(ref).umd;
+  $("#paneLbl").value=lb; $("#paneUmd").textContent=lb.length+" / 16";
   $("#paneSrc").innerHTML='<option value="-1"'+(ref===-1?" selected":"")+">PGM 出力</option>"+
     '<option value="-2"'+(ref===-2?" selected":"")+">PVW 出力</option>"+
     SRC.map((x,j)=>'<option value="'+j+'"'+(j===ref?" selected":"")+">"+x.n+" "+x.nm+"</option>").join("");
@@ -1142,54 +1164,75 @@ function paintPane(){
 $("#paneSrc").addEventListener("change",e=>{ pane[S.pane]=+e.target.value; paintMV(); paintPane(); touch(); });
 
 /* ---------------- macro ---------------- */
-const KEYN=["KEY1 スーパー","KEY2 テロップ帯","BOX 左","BOX 右"];
+const C_SRC="#5A8FC7", C_KEY="#8E7BC4", C_MAC="#E8A33D", C_AUX="#2FBF6B";
+const KEYN=["KEY1","KEY2","BOX L","BOX R"];
 const KEYI=["Key1","Key2","BoxL","BoxR"];
-const SEC=[0.2,0.3,0.5,1,1.5,2,3];
-const nsec=v=>SEC[(SEC.indexOf(v)+1)%SEC.length]||0.5;
+const FR=[6,12,18,30,45,60,90,120];
+const nfr=v=>FR[(FR.indexOf(v)+1)%FR.length]||30;
+const F=v=>v+" F";
 const sid=()=>SCENES[S.scene].id;
 
 const B={
- src:{v:"ソース",c:"#5A8FC7",d:()=>({b:"PVW",s:1}),
-  p:[{t:p=>p.b,f:p=>{p.b=p.b==="PVW"?"PGM":"PVW";}},{t:p=>SRC[p.s].nm,f:p=>{p.s=(p.s+1)%SRC.length;}}],
-  c2:p=>["SCENES."+sid()+".Layers.BKGD  "+(p.b==="PGM"?"sourceA":"sourceB")+" = INPUTS."+SRC[p.s].id]},
- trans:{v:"トランジション",c:"#E8A33D",d:()=>({f:"MIX",s:0.5}),
-  p:[{t:p=>p.f,f:p=>{p.f=p.f==="MIX"?"WIPE":p.f==="WIPE"?"DVE_PUSH":"MIX";}},{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
-  c2:p=>["SCENES."+sid()+".Layers.BKGD  effect = "+p.f+"  duration = "+Math.round(p.s*60),
-        "SCENES."+sid()+".Layers.BKGD  TransitionAuto()"]},
- key:{v:"キー",c:"#5A8FC7",d:()=>({k:0,on:1,s:0.3}),
-  p:[{t:p=>KEYN[p.k],f:p=>{p.k=(p.k+1)%KEYN.length;}},{t:p=>p.on?"ON":"OFF",f:p=>{p.on=p.on?0:1;}},{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
-  c2:p=>["SCENES."+sid()+".Layers."+KEYI[p.k]+"  opacity = "+(p.on?"1.0":"0.0")+"  duration = "+Math.round(p.s*60)]},
- scene:{v:"シーン",c:"#E8A33D",d:()=>({i:1}),
-  p:[{t:p=>SCENES[p.i].nm,f:p=>{p.i=(p.i+1)%SCENES.length;}}],
+ xpt:{v:"XPT",c:C_SRC,d:()=>({b:"PST",s:1}),
+  p:[{t:p=>p.b,f:p=>{p.b=p.b==="PST"?"PGM":"PST";}},{t:p=>SRC[p.s].mn,f:p=>{p.s=(p.s+1)%SRC.length;}}],
+  c2:p=>["SCENES."+sid()+".Layers.Background  "+(p.b==="PGM"?"sourceA":"sourceB")+" = INPUTS."+SRC[p.s].id]},
+
+ trans:{v:"AUTO TRANS",c:"#E8A33D",d:()=>({f:"MIX",r:30}),
+  p:[{t:p=>p.f,f:p=>{p.f=p.f==="MIX"?"WIPE":p.f==="WIPE"?"DVE PUSH":"MIX";}},{t:p=>F(p.r),f:p=>{p.r=nfr(p.r);}}],
+  c2:p=>["SCENES."+sid()+".Layers.Background  effect = "+p.f.replace(" ","_")+"  rate = "+p.r,
+         "SCENES."+sid()+".Layers.Background  TransitionAuto()"]},
+
+ key:{v:"KEY",c:C_KEY,d:()=>({k:0,on:1,r:18}),
+  p:[{t:p=>KEYN[p.k],f:p=>{p.k=(p.k+1)%KEYN.length;}},{t:p=>p.on?"ON":"OFF",f:p=>{p.on=p.on?0:1;}},{t:p=>F(p.r),f:p=>{p.r=nfr(p.r);}}],
+  c2:p=>["SCENES."+sid()+".Layers."+KEYI[p.k]+"  opacity = "+(p.on?"1.0":"0.0")+"  rate = "+p.r]},
+
+ scene:{v:"SCENE",c:"#E8A33D",d:()=>({i:1}),
+  p:[{t:p=>SCENES[p.i].id.toUpperCase(),f:p=>{p.i=(p.i+1)%SCENES.length;}}],
   c2:p=>["SCENES."+SCENES[p.i].id+"  Activate()"]},
- snap:{v:"スナップショット",c:"#E8A33D",d:()=>({i:0}),
-  p:[{t:p=>SNAPS[p.i],f:p=>{p.i=(p.i+1)%SNAPS.length;}}],
-  c2:p=>["# "+SNAPS[p.i],"SCENES."+sid()+".Snapshots.SNAP"+(p.i+1)+"  Recall()"]},
- aux:{v:"AUX",c:"#2FBF6B",d:()=>({a:3,s:-1}),
-  p:[{t:p=>"AUX"+p.a,f:p=>{p.a=p.a%12+1;}},{t:p=>p.s<0?"PGM":SRC[p.s].nm,f:p=>{p.s=p.s+1>=SRC.length?-1:p.s+1;}}],
+
+ snap:{v:"SNAPSHOT",c:"#E8A33D",d:()=>({i:0}),
+  p:[{t:p=>"SNAP"+(p.i+1),f:p=>{p.i=(p.i+1)%SNAPS.length;}}],
+  c2:p=>["SCENES."+sid()+".Snapshots.SNAP"+(p.i+1)+"  Recall()"]},
+
+ aux:{v:"AUX",c:C_AUX,d:()=>({a:3,s:-1}),
+  p:[{t:p=>"AUX"+p.a,f:p=>{p.a=p.a%12+1;}},{t:p=>p.s<0?"PGM":SRC[p.s].mn,f:p=>{p.s=p.s+1>=SRC.length?-1:p.s+1;}}],
   c2:p=>["AUX."+p.a+"  source = "+(p.s<0?"SCENES."+sid()+".Program":"INPUTS."+SRC[p.s].id)]},
- mv:{v:"マルチビュー",c:"#2FBF6B",d:()=>({n:2}),
-  p:[{t:p=>"P"+p.n,f:p=>{p.n=p.n%4+1;}}],
+
+ mv:{v:"MULTIVIEW",c:C_AUX,d:()=>({n:2}),
+  p:[{t:p=>"MV1 P"+p.n,f:p=>{p.n=p.n%4+1;}}],
   c2:p=>["MV1.Presets.P"+p.n+"  Recall()"]},
- wait:{v:"待機",c:"#D9822B",d:()=>({s:1}),
-  p:[{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
-  c2:p=>["WAIT  frames = "+Math.round(p.s*60)]},
- hold:{v:"操作待ち",c:"#D9822B",d:()=>({}),p:[],
-  c2:()=>["PAUSE  # オペレーター操作まで停止"]},
- gpi:{v:"GPI 出力",c:"#2FBF6B",d:()=>({n:2}),
+
+ clip:{v:"CLIP PLAYER",c:C_AUX,d:()=>({n:1,a:"PLAY"}),
+  p:[{t:p=>"CP"+p.n,f:p=>{p.n=p.n%2+1;}},{t:p=>p.a,f:p=>{p.a=p.a==="PLAY"?"PAUSE":p.a==="PAUSE"?"CUE":"PLAY";}}],
+  c2:p=>["CLIPPLAYERS.CP"+p.n+"  "+p.a+"()"]},
+
+ ram:{v:"RAM REC",c:C_AUX,d:()=>({n:1,a:"PLAY"}),
+  p:[{t:p=>"RR"+p.n,f:p=>{p.n=p.n%2+1;}},{t:p=>p.a,f:p=>{p.a=p.a==="PLAY"?"REC":p.a==="REC"?"CUE":"PLAY";}}],
+  c2:p=>["RAMRECORDERS.RR"+p.n+"  "+p.a+"()"]},
+
+ wait:{v:"WAIT",c:"#D9822B",d:()=>({r:60}),
+  p:[{t:p=>F(p.r),f:p=>{p.r=nfr(p.r);}}],
+  c2:p=>["WAIT  "+p.r]},
+
+ hold:{v:"PAUSE",c:"#D9822B",d:()=>({}),p:[],
+  c2:()=>["PAUSE"]},
+
+ gpi:{v:"GPI OUT",c:C_AUX,d:()=>({n:2}),
   p:[{t:p=>"OUT"+p.n,f:p=>{p.n=p.n%8+1;}}],
   c2:p=>["GPIO.OUT"+p.n+"  Pulse(200)"]},
- aud:{v:"音声フェード",c:"#2FBF6B",d:()=>({c:13,db:-60,s:1}),
-  p:[{t:p=>"CH"+p.c,f:p=>{p.c=p.c%18+1;}},{t:p=>p.db+"dB",f:p=>{p.db=p.db===-60?0:p.db===0?-10:-60;}},{t:p=>p.s+"s",f:p=>{p.s=nsec(p.s);}}],
-  c2:p=>["AUDIO.CH"+p.c+"  gain = "+p.db.toFixed(1)+"  duration = "+Math.round(p.s*60)]}
+
+ aud:{v:"AUDIO",c:C_AUX,d:()=>({c:13,db:-60,r:60}),
+  p:[{t:p=>"CH"+p.c,f:p=>{p.c=p.c%18+1;}},{t:p=>p.db+" dB",f:p=>{p.db=p.db===-60?0:p.db===0?-10:-60;}},{t:p=>F(p.r),f:p=>{p.r=nfr(p.r);}}],
+  c2:p=>["AUDIO.CH"+p.c+"  gain = "+p.db.toFixed(1)+"  rate = "+p.r]}
 };
+
 const MACROS=[
- {id:"M01",nm:"OP 立ち上げ",s:[{t:"snap",p:{i:0}},{t:"src",p:{b:"PVW",s:0}},{t:"trans",p:{f:"MIX",s:1}},{t:"key",p:{k:0,on:1,s:0.5}}]},
- {id:"M07",nm:"OP → 2ボックス",s:[{t:"snap",p:{i:0}},{t:"src",p:{b:"PVW",s:1}},{t:"trans",p:{f:"MIX",s:0.5}},
-   {t:"wait",p:{s:1}},{t:"key",p:{k:0,on:1,s:0.3}},{t:"aux",p:{a:3,s:-1}}]},
- {id:"M09",nm:"リプレイ送出",s:[{t:"scene",p:{i:2}},{t:"src",p:{b:"PVW",s:14}},{t:"trans",p:{f:"DVE_PUSH",s:0.5}},
-   {t:"wait",p:{s:3}},{t:"scene",p:{i:0}}]},
- {id:"M12",nm:"エンド処理",s:[{t:"key",p:{k:0,on:0,s:0.5}},{t:"aud",p:{c:13,db:-60,s:2}},{t:"trans",p:{f:"MIX",s:2}}]},
+ {id:"M01",nm:"OP 立ち上げ",s:[{t:"snap",p:{i:0}},{t:"xpt",p:{b:"PST",s:0}},{t:"trans",p:{f:"MIX",r:60}},{t:"key",p:{k:0,on:1,r:30}}]},
+ {id:"M07",nm:"OP → 2ボックス",s:[{t:"snap",p:{i:0}},{t:"xpt",p:{b:"PST",s:1}},{t:"trans",p:{f:"MIX",r:30}},
+   {t:"wait",p:{r:60}},{t:"key",p:{k:0,on:1,r:18}},{t:"aux",p:{a:3,s:-1}}]},
+ {id:"M09",nm:"リプレイ送出",s:[{t:"scene",p:{i:2}},{t:"ram",p:{n:1,a:"CUE"}},{t:"trans",p:{f:"DVE PUSH",r:30}},
+   {t:"ram",p:{n:1,a:"PLAY"}},{t:"wait",p:{r:120}},{t:"scene",p:{i:0}}]},
+ {id:"M12",nm:"エンド処理",s:[{t:"key",p:{k:0,on:0,r:30}},{t:"aud",p:{c:13,db:-60,r:120}},{t:"trans",p:{f:"MIX",r:120}}]},
  {id:"M02",nm:"",s:[]},{id:"M03",nm:"",s:[]},{id:"M04",nm:"",s:[]},{id:"M05",nm:"",s:[]},
  {id:"M06",nm:"",s:[]},{id:"M08",nm:"",s:[]},{id:"M10",nm:"",s:[]},{id:"M11",nm:"",s:[]}
 ];
@@ -1219,15 +1262,15 @@ function paintPal(){
     b.innerHTML='<i style="--c:'+d.c+'"></i><span>'+d.v+"</span>";
     b.addEventListener("click",()=>{
       MUNDO=JSON.parse(JSON.stringify(MAC));
-      MAC.push({t:k,p:d.d()}); S.step=MAC.length-1; paintMac(); touch(); say(d.v+" を追加");
+      MAC.push({t:k,p:d.d()}); S.step=MAC.length-1; paintMac(); touch(); say("+ "+d.v);
     });
     el.appendChild(b);
   });
 }
 function paintMac(){
   const el=$("#steps"); el.innerHTML="";
-  $("#stepN").textContent=MAC.length+" ステップ";
-  if(!MAC.length) el.innerHTML='<div class="empty">左のブロックから追加</div>';
+  $("#stepN").textContent=MAC.length+" STEP";
+  if(!MAC.length) el.innerHTML='<div class="empty">ACTION から追加</div>';
   MAC.forEach((st,i)=>{
     const d=B[st.t], r=document.createElement("div");
     r.className="stp"+(i===S.step?" sel":""); r.style.setProperty("--c",d.c);
@@ -1249,13 +1292,13 @@ function paintMac(){
 }
 function paintStepProp(){
   const box=$("#stepProp");
-  if(!MAC.length){ $("#stepSel").textContent="—"; box.innerHTML='<span class="faint">ステップ未選択</span>'; return; }
+  if(!MAC.length){ $("#stepSel").textContent="—"; box.innerHTML='<span class="faint">—</span>'; return; }
   const st=MAC[Math.min(S.step,MAC.length-1)], d=B[st.t];
   $("#stepSel").textContent="STEP "+(S.step+1);
   box.innerHTML='<div class="row"><i style="width:3px;height:14px;background:'+d.c+'"></i><b>'+d.v+"</b></div>"+
-    (d.p.length?'<dl class="pl">'+d.p.map((c,ci)=>"<dt>項目 "+(ci+1)+'</dt><dd><button class="pv" data-i="'+ci+'">'+c.t(st.p)+"</button></dd>").join("")+"</dl>"
-               :'<span class="faint">設定項目なし</span>')+
-    '<div class="row"><button class="b b--w" id="up">上へ</button><button class="b b--w" id="dn">下へ</button></div>';
+    (d.p.length?'<dl class="pl">'+d.p.map((c,ci)=>"<dt>P"+(ci+1)+'</dt><dd><button class="pv" data-i="'+ci+'">'+c.t(st.p)+"</button></dd>").join("")+"</dl>"
+               :'')+
+    '<div class="row"><button class="b b--w" id="up">UP</button><button class="b b--w" id="dn">DOWN</button></div>';
   box.querySelectorAll(".pv").forEach(b=>b.addEventListener("click",()=>{ d.p[+b.dataset.i].f(st.p); paintMac(); touch(); }));
   const sw=(a,b)=>{ if(b<0||b>=MAC.length) return; const t=MAC[a]; MAC[a]=MAC[b]; MAC[b]=t; S.step=b; paintMac(); touch(); };
   $("#up").addEventListener("click",()=>sw(S.step,S.step-1));
@@ -1266,27 +1309,26 @@ function col(l){
   return l.replace(/^([A-Za-z0-9_.()]+)/,'<span class="c-p">$1</span>').replace(/=\s([^=]+)$/,'= <span class="c-v">$1</span>');
 }
 function paintCmd(){
-  const out=["# "+MACROS[MI].id+"  起動: パネル USER 07","# 対象シーン: "+SCENES[S.scene].nm,""];
+  const out=["# "+MACROS[MI].id+"  TRIGGER: PANEL USER 07","# SCENE: "+SCENES[S.scene].id,""];
   MAC.forEach(st=>B[st.t].c2(st.p).forEach(l=>out.push(l)));
   $("#cmd").innerHTML=out.map(col).join("\n");
 }
 $("#mUndo").addEventListener("click",()=>{
-  if(!MUNDO){ say("戻せる操作はありません"); return; }
-  MAC=MUNDO; MACROS[MI].s=MAC; MUNDO=null; S.step=0; paintMac(); say("元に戻しました");
+  if(!MUNDO){ say("UNDO 不可"); return; }
+  MAC=MUNDO; MACROS[MI].s=MAC; MUNDO=null; S.step=0; paintMac(); say("UNDO");
 });
 $("#cpCmd").addEventListener("click",()=>{
   const t=$("#cmd").textContent;
-  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>say("コピーしました"),()=>say("コピーできません"));
-  else say("コピーできません");
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>say("COPY"),()=>say("COPY 不可"));
+  else say("COPY 不可");
 });
 $$("[data-trig]").forEach(b=>b.addEventListener("click",()=>{
   $$("[data-trig]").forEach(x=>x.classList.remove("on")); b.classList.add("on"); touch();
 }));
 $("#mTest").addEventListener("click",runMacro);
-function runMacro(){ say(MACROS[MI].id+" 実行 — "+MAC.length+" ステップ"); auto(); }
+function runMacro(){ say(MACROS[MI].id+" RUN  "+MAC.length+" STEP"); auto(); }
 
 /* ---------------- control panel (large) ---------------- */
-const C_SRC="#5A8FC7", C_KEY="#8E7BC4", C_MAC="#E8A33D", C_AUX="#2FBF6B";
 const ROWS=[
  {id:"user",l:"USER",n:12,lcd:1},
  {id:"pgm", l:"PGM", n:20,bus:"pgm"},
@@ -1335,7 +1377,7 @@ const ASSIGN=[
  {t:"スナップ: 質疑",c:C_MAC,fn:"SNP:7",o:{t:"質疑",s:"スナップ"}},
  {t:"AUX: AUX5 → CAM3",c:C_AUX,fn:"AUX:5",o:{t:"AUX5",s:"CAM3"}},
  {t:"マルチビュー: プリセット 3",c:C_AUX,fn:"MV:3",o:{t:"MV P3",s:""}},
- {t:"割り当てを消す",c:"#3A434D",fn:null,o:null}
+ {t:"CLEAR",c:"#3A434D",fn:null,o:null}
 ];
 
 function dupSet(){
@@ -1398,13 +1440,13 @@ function paintCP(){
      '<div class="cpr"><button class="ck" style="width:92px"><b>CUT</b></button></div></div>'+
    '<div class="cpg"><div class="cpg__t">T-Bar</div><div class="cpt"><i></i></div></div>'+
    '<div class="cpg"><div class="cpg__t">Menu</div>'+
-     '<div class="lcdb">MENU / M-E 1<br>SOURCE  : IP01<br>SHIFT   : '+(S.sh?"ON":"OFF")+'<br>MACRO   : M07</div>'+
+     '<div class="lcdb">MENU / M/E 1<br>SOURCE  : IP01<br>SHIFT   : '+(S.sh?"ON":"OFF")+'<br>MACRO   : M07</div>'+
      '<div class="num">'+["7","8","9","4","5","6","1","2","3","CL","0","ENT"].map(k=>"<button>"+k+"</button>").join("")+"</div></div>";
 
   const wrap=document.createElement("div"); wrap.className="cpb";
   wrap.appendChild(left); wrap.appendChild(right);
   x.appendChild(wrap);
-  $("#plStat").textContent="空き "+free+" / 重複 "+dup.size;
+  $("#plStat").textContent="FREE "+free+"　DUP "+dup.size;
   paintCPList(dup);
 }
 let onlyFree=false;
@@ -1432,28 +1474,28 @@ function paintSh(){
 $$("#shsw button").forEach(b=>b.addEventListener("click",()=>{ S.sh=+b.dataset.sh; paintSh(); }));
 $("#fltFree").addEventListener("click",e=>{ onlyFree=!onlyFree; e.currentTarget.classList.toggle("on",onlyFree); paintCP(); });
 
-const FNTXT={SRC:"バスに載せる",KEY:"キーの ON / OFF",USER:"マクロ実行",SCN:"シーン切替",SNP:"スナップショット呼出",AUX:"AUX 出力切替",MV:"マルチビュー切替",AUXSEL:"AUX バスの選択"};
+const FNTXT={SRC:"XPT 選択",KEY:"KEY ON / OFF",USER:"MACRO 実行",SCN:"SCENE 切替",SNP:"SNAPSHOT 呼出",AUX:"AUX 切替",MV:"MULTIVIEW 切替",AUXSEL:"AUX バス選択"};
 function paintCK(){
   const box=$("#ckProp");
-  if(!S.ck){ $("#ckNo").textContent="—"; box.innerHTML='<span class="faint">キーを選択</span>'; return; }
+  if(!S.ck){ $("#ckNo").textContent="—"; box.innerHTML='<span class="faint">—</span>'; return; }
   const r=ROWS.find(x=>x.id===S.ck.r), a=MAP[S.ck.r][S.ck.i][S.sh], other=MAP[S.ck.r][S.ck.i][S.sh?0:1];
   const dup=dupSet();
   $("#ckNo").textContent=r.l+" "+String(S.ck.i+1).padStart(2,"0");
   const fnHead=a&&a.fn?a.fn.split(":")[0]:null;
   box.innerHTML=
     '<dl class="pl">'+
-      "<dt>行</dt><dd class='u'>"+r.l+"</dd>"+
-      "<dt>キー</dt><dd>"+String(S.ck.i+1).padStart(2,"0")+"</dd>"+
-      "<dt>レイヤー</dt><dd class='u'>"+(S.sh?"SHIFT":"通常")+"</dd>"+
-      "<dt>割当</dt><dd class='u'>"+(a?a.t+(a.s?" / "+a.s:""):"—")+"</dd>"+
-      "<dt>動作</dt><dd class='u'>"+(a&&fnHead?(FNTXT[fnHead]||"—"):"—")+"</dd>"+
-      "<dt>"+(S.sh?"通常":"SHIFT")+"側</dt><dd class='u'>"+(other?other.t+(other.s?" / "+other.s:""):"未割り当て")+"</dd>"+
+      "<dt>ROW</dt><dd class='u'>"+r.l+"</dd>"+
+      "<dt>KEY</dt><dd>"+String(S.ck.i+1).padStart(2,"0")+"</dd>"+
+      "<dt>LAYER</dt><dd class='u'>"+(S.sh?"SHIFT":"NORMAL")+"</dd>"+
+      "<dt>ASSIGN</dt><dd class='u'>"+(a?a.t+(a.s?" / "+a.s:""):"—")+"</dd>"+
+      "<dt>ACTION</dt><dd class='u'>"+(a&&fnHead?(FNTXT[fnHead]||"—"):"—")+"</dd>"+
+      "<dt>"+(S.sh?"NORMAL":"SHIFT")+"</dt><dd class='u'>"+(other?other.t+(other.s?" / "+other.s:""):"—")+"</dd>"+
     "</dl>"+
-    (a&&dup.has(a.fn)?'<div class="st st--w">同じ機能が他のキーにもあります</div>':"")+
-    '<div class="row"><button class="b b--w" id="ckSwap">通常 ⇄ SHIFT を入替</button></div>';
+    (a&&dup.has(a.fn)?'<div class="st st--w">重複</div>':"")+
+    '<div class="row"><button class="b b--w" id="ckSwap">NORMAL ⇄ SHIFT</button></div>';
   $("#ckSwap").addEventListener("click",()=>{
     const k=MAP[S.ck.r][S.ck.i]; const t=k[0]; k[0]=k[1]; k[1]=t;
-    paintCP(); paintCK(); touch(); say("入替");
+    paintCP(); paintCK(); touch(); say("SWAP");
   });
 }
 function paintAssign(){
@@ -1462,10 +1504,10 @@ function paintAssign(){
     const b=document.createElement("button");
     b.innerHTML='<i style="--c:'+a.c+'"></i><span>'+a.t+"</span>";
     b.addEventListener("click",()=>{
-      if(!S.ck){ say("先にキーを選択してください"); return; }
+      if(!S.ck){ say("キー未選択"); return; }
       MAP[S.ck.r][S.ck.i][S.sh]=a.fn?{t:a.o.t,s:a.o.s,c:a.c,fn:a.fn}:null;
       paintCP(); paintCK(); touch();
-      say(a.fn?"割り当てました":"割り当てを消しました");
+      say(a.fn?"ASSIGN "+a.o.t:"CLEAR");
     });
     el.appendChild(b);
   });
@@ -1511,6 +1553,15 @@ if(!reduce) setInterval(()=>{
   });
 },150);
 
+/* ---------------- GPU / alarm ---------------- */
+$("#sbAlarm").textContent=SRC.filter(x=>x.st==="w").length;
+let gpuV=62;
+if(!reduce) setInterval(()=>{
+  gpuV=Math.max(48,Math.min(88,gpuV+(Math.random()*6-3)));
+  const v=Math.round(gpuV);
+  $("#gpuBar").style.width=v+"%"; $("#gpu").textContent=v+" %"; $("#gpu2").textContent=v+" %";
+},2000);
+
 /* ---------------- clock ---------------- */
 let sec=10*3600+24*60+51;
 setInterval(()=>{
@@ -1530,8 +1581,7 @@ paintMacList(); paintPal(); paintMac();
 paintAssign(); paintCK();
 paintAudio();
 paint();
-$("#trDur").textContent=S.rate+"F / "+(S.rate/60).toFixed(2)+"s";
-$("#selInfo").textContent=SRC[0].nm;
+$("#trDur").textContent=S.rate+" F";
 })();
 </script>
 </body>

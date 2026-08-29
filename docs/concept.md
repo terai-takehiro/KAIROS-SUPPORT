@@ -2,6 +2,8 @@
 
 対象機材: **KAIROS Core 200** ／ **大型コントロールパネル**
 
+表記ルールの根拠は [ui-research.md](ui-research.md)（他社スイッチャー UI 調査）にある。
+
 ## 1. 解こうとしていること
 
 - レイヤー合成が自由すぎて、どこを触ると本線が変わるのか分かりにくい
@@ -28,20 +30,27 @@ ATEM が広く使われている理由は機能の多さではなく、
 
 ## 3. UI の原則
 
-作る側の判断がぶれないように明文化しておきます。
+作る側の判断がぶれないように明文化しておきます。番号の後ろは根拠。
 
-1. **アプリは自分を説明しない。** ヒント枠・説明文・アイコン付きの注釈を置かない。
-   名詞と短い動詞だけで通じる画面にする。
-2. **カードにしない。** ペイン＋罫線。角丸と影とグロウは使わない
+1. **英字は大文字の略号。** `PGM` `PST` `AUX` `KEY` `DSK` `XPT` `FTB` `BKGD`。
+   例外は単位（dB, ms, F）、製品名、生成コマンド。
+   — Panasonic AV-HS400A のパネル刻印、ATEM のボタン表記に合わせる
+2. **バスは PGM / PST。** PVW は出力の名前としてだけ使う。
+   — Panasonic・Roland・FOR-A の日本語マニュアルの表記
+3. **アプリは自分を説明しない。** ヒント枠・説明文・注釈アイコンを置かない。
+   ラベルは名詞、操作は短い動詞。
+   — データインク比、情報アクセスコストの最小化
+4. **カードにしない。** ペイン＋罫線。角丸と影とグロウは使わない
    （タリーの色だけは例外）。
-3. **密度を上げる。** 行の高さ 26〜28px、本文 12.5px、ラベル 10.5px。
-   余白で誤魔化さない。
-4. **アクセントは一色だけ、意味のある場所だけ。**
-   アンバー ＝ 選択・編集中・未書込。赤 ＝ PGM、緑 ＝ PVW。装飾には使わない。
-5. **状態は必ずどこかに出す。** 未書込の件数、空きキー数、重複数、警告。
-   黙って変わるものを作らない。
-6. **データはきれいすぎないほうがいい。** 未結線、フォーマット不一致、
-   帯域の警告。実際の現場に存在するものを最初から画面に入れておく。
+5. **密度を上げる。** 行の高さ 26〜28px、本文 12.5px、ラベル 10.5px。
+6. **アクセントは一色だけ、意味のある場所だけ。**
+   アンバー ＝ 選択・編集中・未書込。赤 ＝ PGM、緑 ＝ PST。
+7. **状態は必ず同じ場所に出す。** 未書込・アラーム・GPU 使用率・空きキー・重複。
+   — 一目で状況が分かること（situational awareness）
+8. **時間はフレームで持つ。** `30 F`。秒は使わない。
+   — ATEM の RATE、Panasonic のパネル表記
+9. **データはきれいすぎないほうがいい。** 未結線、フォーマット不一致、帯域警告、
+   名前の文字数超過。現場に実在するものを最初から入れておく。
 
 ## 4. 配色・書体
 
@@ -64,9 +73,13 @@ IBM Plex は計測機器・エンジニアリング寄りの表情で、副調�
 
 | KAIROS | 見せ方 |
 | --- | --- |
+| Mixer / Multiviewer / Macro / System | そのままタブ名にする（KAIROS Creator と同じ語彙） |
 | Scene | シーンのタブ列。M/E に相当する単位として扱う |
-| Layer | レイヤースタック。上が前面。BGD / KEY / DVE をバッジで区別 |
-| Layer の source A / B | PGM / PVW バス |
+| Layer | レイヤースタック。上が前面。BKGD / KEY / DVE をバッジで区別 |
+| Background | 各シーンの固定名レイヤー。名前は変えない |
+| Layer の source A / B | PGM / PST バス |
+| Clip Player / RAM Recorder | 入力の種別としてそのまま表示（`CLIP PLAYER` `RAM REC`） |
+| GPU 負荷 | ステータスバーに常時表示 |
 | Layer トランジション | NEXT（BKGD / KEY1 / KEY2）＋ T バー ＋ AUTO / CUT |
 | Snapshot | 一覧から呼出。マクロからも呼べる |
 | AUX | スイッチャー画面に 12 系統を常置。行き先とソースを 1 行で |
@@ -76,17 +89,23 @@ IBM Plex は計測機器・エンジニアリング寄りの表情で、副調�
 
 ブロック 1 つ = KAIROS コマンド 1〜2 行。
 
+ブロックの種類は Panasonic が公表しているマクロ機能（クロスポイント選択・ソース切替・
+AUTO トランジション・AUX 再アサイン・MultiView レイアウト・RAM レコーダー /
+クリッププレーヤー再生）に 1:1 で対応させています。
+
 | ブロック | 生成される行（サンプル） |
 | --- | --- |
-| ソース | `SCENES.Main.Layers.BKGD  sourceB = INPUTS.IP02` |
-| トランジション | `… effect = MIX  duration = 30` ＋ `… TransitionAuto()` |
-| キー | `SCENES.Main.Layers.Key1  opacity = 1.0  duration = 18` |
-| シーン | `SCENES.Replay  Activate()` |
-| スナップショット | `SCENES.Main.Snapshots.SNAP1  Recall()` |
+| XPT | `SCENES.Main.Layers.Background  sourceB = INPUTS.IP02` |
+| AUTO TRANS | `… effect = MIX  rate = 30` ＋ `… TransitionAuto()` |
+| KEY | `SCENES.Main.Layers.Key1  opacity = 1.0  rate = 18` |
+| SCENE | `SCENES.Replay  Activate()` |
+| SNAPSHOT | `SCENES.Main.Snapshots.SNAP1  Recall()` |
 | AUX | `AUX.3  source = SCENES.Main.Program` |
-| 待機 / 操作待ち | `WAIT  frames = 60` / `PAUSE` |
-| GPI 出力 | `GPIO.OUT2  Pulse(200)` |
-| 音声フェード | `AUDIO.CH13  gain = -60.0  duration = 60` |
+| MULTIVIEW | `MV1.Presets.P2  Recall()` |
+| CLIP PLAYER / RAM REC | `CLIPPLAYERS.CP1  PLAY()` / `RAMRECORDERS.RR1  CUE()` |
+| WAIT / PAUSE | `WAIT  60` / `PAUSE` |
+| GPI OUT | `GPIO.OUT2  Pulse(200)` |
+| AUDIO | `AUDIO.CH13  gain = -60.0  rate = 60` |
 
 **生成コマンドは隠さない。** 隠すと「何をされたか分からない道具」になり、
 現場では信用されません。書けない人はブロックだけ見て、
@@ -108,12 +127,14 @@ AUX BUS     ×20 + SHIFT
 右ブロック   NEXT / TRANS、T バー、メニュー LCD、テンキー
 ```
 
-仕込みで効くのは次の 4 つです。
+仕込みで効くのは次の 5 つです。
 
 1. 通常 / SHIFT を切り替えて、実機と同じ配置で確認できる
 2. 割当一覧で**通常と SHIFT を横並び**に見る（純正で見えないのはここ）
 3. **重複割当の警告** — 同じ機能が複数キーに入っているのは事故のもと
 4. 空きキー数を常に表示し、印刷用に書き出す
+5. キーに出るのは **8 文字のニーモニック**。実機と同じ切れ方で見える
+   （長い和名を 8 文字 / 16 文字へ詰める作業は INPUTS 画面で完結させる）
 
 ## 8. 次に決めること
 

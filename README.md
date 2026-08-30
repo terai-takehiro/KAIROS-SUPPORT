@@ -7,6 +7,15 @@ KAIROS はレイヤー合成・IP 入出力・マクロと自由度が高い一�
 設定がスクリプト的で、特に**パネルの仕込み**が分かりづらい。
 このアプリはその間に立って、画面で組み立てた操作を KAIROS のコマンドに翻訳します。
 
+## 対象システム
+
+| 項目 | 内容 |
+| --- | --- |
+| メインフレーム | KAIROS Core 200（AT-KC200T） |
+| SDI | 32 IN / 16 OUT（AT-KC20M1G 4 枚フル実装） |
+| コントロールパネル | AT-KC10C1G（24 XPT） |
+| Core | 1 台（デュアル Core は使わない） |
+
 ## 現在の状態
 
 クリック可能な HTML モックアップ（単一ファイル・ライブラリ依存なし）。
@@ -29,7 +38,8 @@ docs/ui-research.md  他社スイッチャー UI の調査と、そこから決�
 | MIXER | AUDIO MIXER | フェーダー、AFV 対応、出力ルーティング |
 | MACROS | CONTROL | ブロックを並べて組み、**REST リクエスト / LUA を自動生成**。Global / Scene / Panel |
 | MULTIVIEWER | LAYOUT | レイアウトとペイン割り当て。タリー枠は PGM / PST と連動 |
-| CONFIG | INPUTS | 24 入力の一覧。パネル表示名（`#` で改行）を編集 |
+| CONFIG | INPUTS | 入力一覧。パネル表示名（`#` で改行）を編集 |
+| CONFIG | OUTPUT | **SDI 出力 16 本**の割り当て（ボード B1-B4 単位）と I/O の使用状況 |
 | CONFIG | **PANEL** | **AT-KC10C1G を実機どおり再現。シフト 1st〜4th を並べて表示** |
 | SETUP | SYSTEM | 接続、制御プロトコル、差分書き込み、テンプレート |
 
